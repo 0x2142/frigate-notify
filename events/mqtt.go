@@ -11,6 +11,11 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
+var MQTTServer string
+var MQTTPort int
+var MQTTUser string
+var MQTTPass string
+
 // MQTTEvent stores incoming MQTT payloads from Frigate
 type MQTTEvent struct {
 	Before struct {
@@ -23,27 +28,31 @@ type MQTTEvent struct {
 }
 
 // SubscribeMQTT establishes subscription to MQTT server & listens for messages
-func SubscribeMQTT(server string, port int) {
+func SubscribeMQTT() {
 	// MQTT client configuration
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", server, port))
+	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", MQTTServer, MQTTPort))
 	opts.SetClientID("frigate-notify")
 	opts.SetAutoReconnect(true)
 	opts.SetConnectionLostHandler(connectionLostHandler)
 	opts.SetOnConnectHandler(connectHandler)
+	if MQTTUser != "" && MQTTPass != "" {
+		opts.SetUsername(MQTTUser)
+		opts.SetPassword(MQTTPass)
+	}
 
 	var subscribed = false
 	var retry = 0
 	for !subscribed {
 		if retry >= 3 {
-			log.Fatalf("ERROR: Max retries exceeded. Failed to establish MQTT session to %s", server)
+			log.Fatalf("ERROR: Max retries exceeded. Failed to establish MQTT session to %s", MQTTServer)
 		}
 		// Connect to MQTT broker
 		client := mqtt.NewClient(opts)
 
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
 			retry += 1
-			log.Printf("Could not connect to MQTT at %v: %v", server, token.Error())
+			log.Printf("Could not connect to MQTT at %v: %v", MQTTServer, token.Error())
 			log.Printf("Retrying in 10 seconds. Attempt %v of 3.", retry)
 			time.Sleep(10 * time.Second)
 			continue

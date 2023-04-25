@@ -44,7 +44,7 @@ func main() {
 	// Connect MQTT
 	if ConfigData.Frigate.MQTT.Enabled {
 		log.Println("Connecting to MQTT Server...")
-		frigate.SubscribeMQTT(ConfigData.Frigate.MQTT.Server, ConfigData.Frigate.MQTT.Port)
+		frigate.SubscribeMQTT()
 		log.Println("App running. Press Ctrl-C to quit.")
 		sig := make(chan os.Signal, 1)
 		signal.Notify(sig, os.Interrupt)

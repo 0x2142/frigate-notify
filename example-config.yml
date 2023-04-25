@@ -16,10 +16,14 @@ frigate:
   mqtt: 
     # Set to true to enable event collection via MQTT
     enabled: 
-    # MQTT host ip
+    # MQTT host IP
     server: 
     # MQTT host port. Default is 1883 if this is not set
     port:
+    # MQTT Authentication. Leave both blank for anonymous
+    username: 
+    password: 
+
 
 ## Alerting methods
 # Any combination of alert destinations can be configured

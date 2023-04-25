@@ -28,9 +28,11 @@ type WebAPI struct {
 }
 
 type MQTT struct {
-	Enabled bool   `yaml:"enabled"`
-	Server  string `yaml:"server"`
-	Port    int    `yaml:"port"`
+	Enabled  bool   `yaml:"enabled"`
+	Server   string `yaml:"server"`
+	Port     int    `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
 }
 
 type Alerts struct {
@@ -125,8 +127,15 @@ func validateConfig() {
 		}
 	}
 
-	if ConfigData.Frigate.MQTT.Port == 0 {
-		ConfigData.Frigate.MQTT.Port = 1883
+	if ConfigData.Frigate.MQTT.Enabled {
+		if ConfigData.Frigate.MQTT.Port == 0 {
+			ConfigData.Frigate.MQTT.Port = 1883
+		}
+		// Set MQTT config
+		frigate.MQTTServer = ConfigData.Frigate.MQTT.Server
+		frigate.MQTTPort = ConfigData.Frigate.MQTT.Port
+		frigate.MQTTUser = ConfigData.Frigate.MQTT.Username
+		frigate.MQTTPass = ConfigData.Frigate.MQTT.Password
 	}
 
 	// Check / Load alerting configuration
