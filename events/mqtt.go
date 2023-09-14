@@ -9,6 +9,7 @@ import (
 
 	"github.com/0x2142/frigate-notify/notifier"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"golang.org/x/exp/slices"
 )
 
 var MQTTServer string
@@ -68,10 +69,16 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 	json.Unmarshal(msg.Payload(), &event)
 
 	if event.Type == "new" {
+		// Skip excluded cameras
+		if slices.Contains(ExcludeCameras, event.After.Camera) {
+			log.Printf("Skipping event from excluded camera: %v", event.After.Camera)
+			return
+		}
+
 		// Convert to human-readable timestamp
 		eventTime := time.Unix(int64(event.After.StartTime), 0)
 
-		log.Printf("Event ID %v detected %v in zone(s): %v", event.After.ID, event.After.Label, event.After.Zones)
+		log.Printf("Event ID %v on camera %v detected %v in zone(s): %v", event.After.ID, event.After.Camera, event.After.Label, event.After.Zones)
 		log.Println("Event Start time: ", eventTime)
 
 		// If snapshot was collected, pull down image to send with alert
