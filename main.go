@@ -38,7 +38,7 @@ func main() {
 		log.Println("App Started.")
 		for {
 			frigate.CheckForEvents()
-			time.Sleep(30 * time.Second)
+			time.Sleep(time.Duration(ConfigData.Frigate.WebAPI.Interval) * time.Second)
 		}
 	}
 	// Connect MQTT
