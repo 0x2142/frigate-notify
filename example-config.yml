@@ -23,6 +23,12 @@ frigate:
     # MQTT Authentication. Leave both blank for anonymous
     username: 
     password: 
+  
+  cameras:
+    # List of cameras to exclude from being monitored
+    # Camera names must match frigate configuration
+    exclude:
+      - test_cam_01
 
 
 ## Alerting methods

@@ -29,6 +29,7 @@ type Event struct {
 
 var FrigateServerURL string
 var FrigateInsecure = false
+var ExcludeCameras []string
 
 // buildMessage constructs message payload for all alerting methods
 func buildMessage(time time.Time, event Event) string {

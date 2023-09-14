@@ -18,7 +18,7 @@ Currently Frigate only supports notifications through Home Assistant, which I do
 - SMTP
 
 **Other**
-- Aliveness monitor via HTTP GET (for use with tools like [Uptime Kuma](https://github.com/louislam/uptime-kuma))
+- Aliveness monitor via HTTP GET (for use with tools like [HealthChecks](https://github.com/healthchecks/healthchecks) or [Uptime Kuma](https://github.com/louislam/uptime-kuma))
 
 ## Setup 
 
@@ -50,10 +50,10 @@ $ docker run -v /path/to/config.yml:/app/config.yml ghcr.io/0x2142/frigate-notif
 ## Future
 
 Just a quick list of things I may add later:
-- Ability to specify which cameras to alert on
 - Dampening time between notifications
 - Additional alerting methods
 
+> If you use this code & have any specific feature requests - please feel free to open an issue with the details of what you would like to see added
 
 ## Screenshots
 

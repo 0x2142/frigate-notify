@@ -16,10 +16,11 @@ type Config struct {
 }
 
 type Frigate struct {
-	Server   string `yaml:"server"`
-	Insecure bool   `yaml:"ignoressl"`
-	WebAPI   WebAPI `yaml:"webapi"`
-	MQTT     MQTT   `yaml:"mqtt"`
+	Server   string  `yaml:"server"`
+	Insecure bool    `yaml:"ignoressl"`
+	WebAPI   WebAPI  `yaml:"webapi"`
+	MQTT     MQTT    `yaml:"mqtt"`
+	Cameras  Cameras `yaml:"cameras"`
 }
 
 type WebAPI struct {
@@ -33,6 +34,10 @@ type MQTT struct {
 	Port     int    `yaml:"port"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
+}
+
+type Cameras struct {
+	Exclude []string `yaml:"exclude"`
 }
 
 type Alerts struct {
@@ -136,6 +141,15 @@ func validateConfig() {
 		frigate.MQTTPort = ConfigData.Frigate.MQTT.Port
 		frigate.MQTTUser = ConfigData.Frigate.MQTT.Username
 		frigate.MQTTPass = ConfigData.Frigate.MQTT.Password
+	}
+
+	// Check for camera exclusions
+	if len(ConfigData.Frigate.Cameras.Exclude) > 0 {
+		log.Println("Cameras to exclude from alerting:")
+		for _, c := range ConfigData.Frigate.Cameras.Exclude {
+			log.Println(" -", c)
+		}
+		frigate.ExcludeCameras = ConfigData.Frigate.Cameras.Exclude
 	}
 
 	// Check / Load alerting configuration

@@ -10,6 +10,7 @@ import (
 
 	"github.com/0x2142/frigate-notify/notifier"
 	"github.com/0x2142/frigate-notify/util"
+	"golang.org/x/exp/slices"
 )
 
 const eventsURI = "/api/events"
@@ -42,13 +43,19 @@ func CheckForEvents() {
 		// Convert to human-readable timestamp
 		eventTime := time.Unix(int64(event.StartTime), 0)
 
-		log.Printf("Event ID %v detected %v in zone(s): %v", event.ID, event.Label, event.Zones)
-		log.Println("Event Start time: ", eventTime)
-
 		// Update last event check time with most recent timestamp
 		if event.StartTime > LastEventTime {
 			LastEventTime = event.StartTime
 		}
+
+		// Skip excluded cameras
+		if slices.Contains(ExcludeCameras, event.Camera) {
+			log.Printf("Skipping event from excluded camera: %v", event.Camera)
+			continue
+		}
+
+		log.Printf("Event ID %v detected %v in zone(s): %v", event.ID, event.Label, event.Zones)
+		log.Println("Event Start time: ", eventTime)
 
 		// If snapshot was collected, pull down image to send with alert
 		var snapshot io.Reader
