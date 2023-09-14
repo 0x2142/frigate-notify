@@ -25,9 +25,10 @@ frigate:
     password: 
   
   cameras:
-    # Exclude cameras from being monitored
+    # List of cameras to exclude from being monitored
     # Camera names must match frigate configuration
     exclude:
+      - test_cam_01
 
 
 ## Alerting methods
