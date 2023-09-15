@@ -32,6 +32,7 @@ type MQTT struct {
 	Enabled  bool   `yaml:"enabled"`
 	Server   string `yaml:"server"`
 	Port     int    `yaml:"port"`
+	ClientID string `yaml:"clientid"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 }
@@ -137,12 +138,16 @@ func validateConfig() {
 	}
 
 	if ConfigData.Frigate.MQTT.Enabled {
-		if ConfigData.Frigate.MQTT.Port == 0 {
-			ConfigData.Frigate.MQTT.Port = 1883
+		// Update MQTT port if configured
+		if ConfigData.Frigate.MQTT.Port != 0 {
+			frigate.MQTTPort = ConfigData.Frigate.MQTT.Port
+		}
+		// Update client ID if configured
+		if ConfigData.Frigate.MQTT.ClientID != "" {
+			frigate.MQTTClientID = ConfigData.Frigate.MQTT.ClientID
 		}
 		// Set MQTT config
 		frigate.MQTTServer = ConfigData.Frigate.MQTT.Server
-		frigate.MQTTPort = ConfigData.Frigate.MQTT.Port
 		frigate.MQTTUser = ConfigData.Frigate.MQTT.Username
 		frigate.MQTTPass = ConfigData.Frigate.MQTT.Password
 	}
