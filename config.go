@@ -41,9 +41,14 @@ type Cameras struct {
 }
 
 type Alerts struct {
+	General General `yaml:"general"`
 	Discord Discord `yaml:"discord"`
 	Gotify  Gotify  `yaml:"gotify"`
 	SMTP    SMTP    `yaml:"smtp"`
+}
+
+type General struct {
+	Title string `yaml:"title"`
 }
 
 type Discord struct {
@@ -76,7 +81,6 @@ type Monitor struct {
 }
 
 var ConfigData Config
-var configFile string
 
 // loadConfig opens & attempts to parse configuration file
 func loadConfig(configFile string) {
@@ -150,6 +154,11 @@ func validateConfig() {
 			log.Println(" -", c)
 		}
 		frigate.ExcludeCameras = ConfigData.Frigate.Cameras.Exclude
+	}
+
+	// Load Alert general settings
+	if ConfigData.Alerts.General.Title != "" {
+		notifier.AlertTitle = ConfigData.Alerts.General.Title
 	}
 
 	// Check / Load alerting configuration

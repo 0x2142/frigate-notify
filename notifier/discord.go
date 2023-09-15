@@ -1,6 +1,7 @@
 package notifier
 
 import (
+	"fmt"
 	"io"
 	"log"
 
@@ -26,6 +27,9 @@ func SetupDiscord() {
 func SendDiscordMessage(message string, snapshot io.Reader) {
 	var file *discord.File
 	var err error
+
+	title := fmt.Sprintf("**%v**\n\n", AlertTitle)
+	message = title + message
 
 	// Send alert & attach snapshot if one was saved
 	if snapshot != nil {

@@ -34,6 +34,11 @@ frigate:
 ## Alerting methods
 # Any combination of alert destinations can be configured
 alerts:  
+  # General config applies to all alert methods below
+  general:
+    # Title for any alert messages (Default: Frigate Alert)
+    title:
+
   discord:
     # Set to true to enable alerting via Discord messages
     enabled: false

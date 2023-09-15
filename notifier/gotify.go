@@ -40,11 +40,10 @@ var GotifyInsecure = false
 
 // SendGotifyPush forwards alert messages to Gotify push notification server
 func SendGotifyPush(message, snapshotURL string) {
-	title := "New Frigate Alert"
 	message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
 	payload := gotifyPayload{
 		Message:  message,
-		Title:    title,
+		Title:    AlertTitle,
 		Priority: 5,
 	}
 	payload.Extras.ClientDisplay.ContentType = "text/markdown"
