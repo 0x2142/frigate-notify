@@ -27,6 +27,8 @@ func SendSMTP(message string, snapshot io.Reader) {
 	// Attach snapshot if one exists
 	if snapshot != nil {
 		m.AttachReader("snapshot.jpg", snapshot)
+	} else {
+		message += "\n\nNo snapshot saved."
 	}
 	// Convert message body to HTML
 	htmlMessage := markdown.ToHTML([]byte(message), nil, nil)

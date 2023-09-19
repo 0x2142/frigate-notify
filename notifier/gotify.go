@@ -40,7 +40,11 @@ var GotifyInsecure = false
 
 // SendGotifyPush forwards alert messages to Gotify push notification server
 func SendGotifyPush(message, snapshotURL string) {
-	message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
+	if snapshotURL != "" {
+		message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
+	} else {
+		message += "\n\nNo snapshot saved."
+	}
 	payload := gotifyPayload{
 		Message:  message,
 		Title:    AlertTitle,
