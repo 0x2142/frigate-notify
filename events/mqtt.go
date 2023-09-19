@@ -13,9 +13,10 @@ import (
 )
 
 var MQTTServer string
-var MQTTPort int
+var MQTTPort = 1883
 var MQTTUser string
 var MQTTPass string
+var MQTTClientID = "frigate-notify"
 
 // MQTTEvent stores incoming MQTT payloads from Frigate
 type MQTTEvent struct {
@@ -33,7 +34,7 @@ func SubscribeMQTT() {
 	// MQTT client configuration
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", MQTTServer, MQTTPort))
-	opts.SetClientID("frigate-notify")
+	opts.SetClientID(MQTTClientID)
 	opts.SetAutoReconnect(true)
 	opts.SetConnectionLostHandler(connectionLostHandler)
 	opts.SetOnConnectHandler(connectHandler)

@@ -32,6 +32,7 @@ type MQTT struct {
 	Enabled  bool   `yaml:"enabled"`
 	Server   string `yaml:"server"`
 	Port     int    `yaml:"port"`
+	ClientID string `yaml:"clientid"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 }
@@ -41,9 +42,14 @@ type Cameras struct {
 }
 
 type Alerts struct {
+	General General `yaml:"general"`
 	Discord Discord `yaml:"discord"`
 	Gotify  Gotify  `yaml:"gotify"`
 	SMTP    SMTP    `yaml:"smtp"`
+}
+
+type General struct {
+	Title string `yaml:"title"`
 }
 
 type Discord struct {
@@ -76,7 +82,6 @@ type Monitor struct {
 }
 
 var ConfigData Config
-var configFile string
 
 // loadConfig opens & attempts to parse configuration file
 func loadConfig(configFile string) {
@@ -133,12 +138,16 @@ func validateConfig() {
 	}
 
 	if ConfigData.Frigate.MQTT.Enabled {
-		if ConfigData.Frigate.MQTT.Port == 0 {
-			ConfigData.Frigate.MQTT.Port = 1883
+		// Update MQTT port if configured
+		if ConfigData.Frigate.MQTT.Port != 0 {
+			frigate.MQTTPort = ConfigData.Frigate.MQTT.Port
+		}
+		// Update client ID if configured
+		if ConfigData.Frigate.MQTT.ClientID != "" {
+			frigate.MQTTClientID = ConfigData.Frigate.MQTT.ClientID
 		}
 		// Set MQTT config
 		frigate.MQTTServer = ConfigData.Frigate.MQTT.Server
-		frigate.MQTTPort = ConfigData.Frigate.MQTT.Port
 		frigate.MQTTUser = ConfigData.Frigate.MQTT.Username
 		frigate.MQTTPass = ConfigData.Frigate.MQTT.Password
 	}
@@ -150,6 +159,11 @@ func validateConfig() {
 			log.Println(" -", c)
 		}
 		frigate.ExcludeCameras = ConfigData.Frigate.Cameras.Exclude
+	}
+
+	// Load Alert general settings
+	if ConfigData.Alerts.General.Title != "" {
+		notifier.AlertTitle = ConfigData.Alerts.General.Title
 	}
 
 	// Check / Load alerting configuration

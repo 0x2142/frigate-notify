@@ -47,6 +47,9 @@ Or as a container:
 ```bash
 $ docker run -v /path/to/config.yml:/app/config.yml ghcr.io/0x2142/frigate-notify:latest
 ```
+
+A docker-compose file has also been provided. Please modify the config path before using.
+
 ## Future
 
 Just a quick list of things I may add later:

@@ -23,10 +23,12 @@ func SendSMTP(message string, snapshot io.Reader) {
 	m := mail.NewMsg()
 	m.From(SMTPUser)
 	m.To(SMTPRecipients...)
-	m.Subject("Frigate Alert")
+	m.Subject(AlertTitle)
 	// Attach snapshot if one exists
 	if snapshot != nil {
 		m.AttachReader("snapshot.jpg", snapshot)
+	} else {
+		message += "\n\nNo snapshot saved."
 	}
 	// Convert message body to HTML
 	htmlMessage := markdown.ToHTML([]byte(message), nil, nil)

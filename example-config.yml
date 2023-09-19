@@ -10,7 +10,7 @@ frigate:
   webapi:
     # Set to true to enable event collection via the web API
     enabled: 
-    # Interval between checking for new events, in seconds
+    # Interval between checking for new events, in seconds (Default: 30)
     interval: 
     
   mqtt: 
@@ -18,8 +18,10 @@ frigate:
     enabled: 
     # MQTT host IP
     server: 
-    # MQTT host port. Default is 1883 if this is not set
+    # MQTT host port. (Default: 1883)
     port:
+    # MQTT Client ID (Default: frigate-notify)
+    clientid:
     # MQTT Authentication. Leave both blank for anonymous
     username: 
     password: 
@@ -34,6 +36,11 @@ frigate:
 ## Alerting methods
 # Any combination of alert destinations can be configured
 alerts:  
+  # General config applies to all alert methods below
+  general:
+    # Title for any alert messages (Default: Frigate Alert)
+    title:
+
   discord:
     # Set to true to enable alerting via Discord messages
     enabled: false
