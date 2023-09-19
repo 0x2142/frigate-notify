@@ -11,7 +11,11 @@ import (
 	"github.com/0x2142/frigate-notify/util"
 )
 
+var APP_VER = "v2.0.0"
+
 func main() {
+	log.Println("Frigate Notify -", APP_VER)
+	log.Println("Starting...")
 	// Parse config file flag
 	var configFile string
 	flag.StringVar(&configFile, "c", "", "Configuration file location (default \"./config.yml\")")
@@ -35,7 +39,7 @@ func main() {
 
 	// Loop & watch for events
 	if ConfigData.Frigate.WebAPI.Enabled {
-		log.Println("App Started.")
+		log.Println("App running. Press Ctrl-C to quit.")
 		for {
 			frigate.CheckForEvents()
 			time.Sleep(time.Duration(ConfigData.Frigate.WebAPI.Interval) * time.Second)
