@@ -1,0 +1,7 @@
+version: "3.0"
+services:
+  frigate-notify:
+    image: ghcr.io/0x2142/frigate-notify:latest
+    volumes:
+      - /path/to/config:/app/config
+    restart: unless-stopped
