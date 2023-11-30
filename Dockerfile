@@ -1,4 +1,4 @@
-FROM golang:buster
+FROM golang:bookworm
 
 WORKDIR /app
 
