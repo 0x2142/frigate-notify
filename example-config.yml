@@ -64,6 +64,8 @@ alerts:
     server: 
     # SMTP port
     port: 
+    # Whether or not the SMTP server requires TLS (Default: true)
+    tls: 
     # Sending address / username
     user:
     # SMTP password for above user
