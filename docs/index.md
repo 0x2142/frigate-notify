@@ -1,0 +1,38 @@
+# Docs for Frigate-Notify
+
+Hi there, you've found the documentation site for [0x2142/frigate-notify](https://github.com/0x2142/frigate-notify). Thanks for your interest in the project! 
+
+If you get value out of this tool, please let me know by leaving a star:  <a class="github-button" href="https://github.com/0x2142/frigate-notify" data-icon="octicon-star" data-show-count="true" aria-label="Star 0x2142/frigate-notify on GitHub"></a>
+
+## About the Project
+
+This project is designed to generate notifications based on [Frigate](https://github.com/blakeblackshear/frigate) NVR events.
+
+Currently Frigate only supports notifications through Home Assistant, which I'm not using right now. So I set out to build a simple notification app that would work with a standalone Frigate server.
+
+## Features 
+
+**Event Polling**
+
+- MQTT
+- Direct via Frigate API
+
+**Notification Methods**
+
+- Discord
+- Gotify
+- SMTP
+
+**Other**
+
+- Aliveness monitor via HTTP GET (for use with tools like [HealthChecks](https://github.com/healthchecks/healthchecks) or [Uptime Kuma](https://github.com/louislam/uptime-kuma))
+
+
+!!! tip
+    If you use this code & have any specific feature requests - please feel free to open an [issue](https://github.com/0x2142/frigate-notify/issues) with the details of what you would like to see added!
+
+    While this is a hobby project for me, I'll do my best to respond & update the code for anything reasonable.
+
+    Thanks again for being here! 😊
+
+<script async defer src="https://buttons.github.io/buttons.js"></script>

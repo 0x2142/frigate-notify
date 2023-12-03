@@ -1,0 +1,61 @@
+# Site Info
+site_name: Frigate-Notify
+site_url: https://0x2142.github.io/frigate-notify
+site_author: Matt Schmitz
+repo_name: 0x2142/frigate-notify
+repo_url: https://github.com/0x2142/frigate-notify
+
+# Site Theme
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+    - scheme: default
+      toggle:
+        icon: material/weather-night  
+        name: Switch to dark mode    
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.footer
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.expand
+    - navigation.indexes 
+    - navigation.top
+    - toc.integrate 
+    - content.code.copy
+
+# Site Nav
+nav:
+  - Home: index.md
+  - Install: install.md
+  - Config: config.md
+  - Changelog: changelog.md 
+  
+# Extras
+extra:
+  social:
+    - icon: fontawesome/brands/mastodon 
+      link: https://0x2142.com/@matt
+    - icon: fontawesome/brands/twitter 
+      link: https://twitter.com/0x2142
+    - icon: fontawesome/brands/youtube 
+      link: https://youtube.com/@0x2142
+    - icon: material/web 
+      link: https://0x2142.com
+    - icon: fontawesome/brands/github 
+      link: https://github.com/0x2142
+
+# Plugins
+markdown_extensions:
+  - admonition
+  - abbr
+  - attr_list
+  - pymdownx.details
+  - pymdownx.superfences
