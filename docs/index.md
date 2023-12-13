@@ -36,3 +36,5 @@ Currently Frigate only supports notifications through Home Assistant, which I'm 
     Thanks again for being here! 😊
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+<br/>
