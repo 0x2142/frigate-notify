@@ -9,11 +9,17 @@ repo_url: https://github.com/0x2142/frigate-notify
 theme:
   name: material
   palette:
-    - scheme: slate
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
-    - scheme: default
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
       toggle:
         icon: material/weather-night  
         name: Switch to dark mode    
