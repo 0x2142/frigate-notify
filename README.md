@@ -2,7 +2,8 @@
 
 <div align="center">
 
-![Static Badge](https://img.shields.io/badge/Project-Documentation-blue?link=https://frigate-notify.0x2142.com) ![GitHub Repo stars](https://img.shields.io/github/stars/0x2142/frigate-notify) ![GitHub release (with filter)](https://img.shields.io/github/v/release/0x2142/frigate-notify)
+[![Static Badge](https://img.shields.io/badge/Project-Documentation-blue)](https://frigate-notify.0x2142.com) [![GitHub Repo stars](https://img.shields.io/github/stars/0x2142/frigate-notify)]() [![GitHub release (with filter)](https://img.shields.io/github/v/release/0x2142/frigate-notify)](https://github.com/0x2142/frigate-notify/releases) [![Static Badge](https://img.shields.io/badge/Docker-latest-blue)](https://github.com/0x2142/frigate-notify/pkgs/container/frigate-notify)
+
 
 </div>
 
