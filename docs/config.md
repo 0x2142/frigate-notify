@@ -149,8 +149,8 @@ alerts:
 - **port** (Required)
     - Port of the target SMTP server
     - Required if this alerting method is enabled
-- **tls** (Optional - Default: `true`)
-    - Set to `false` if SMTP TLS is not required
+- **tls** (Optional - Default: `false`)
+    - Set to `true` if SMTP TLS is required
 - **user** (Optional)
     - Add SMTP username for authentication
     - If username & password are not set, then authentication is disabled
@@ -182,10 +182,9 @@ If enabled, this application will check in with tools like [HealthChecks](https:
 - **url** (Required)
     - URL path for health check service
     - Required if monitoring is enabled
-- **interval** (Required)
+- **interval** (Required - Default: `60`)
     - Frequency of check-in events
     - Required if monitoring is enabled
-    > TODO: Set a default interval. Currently this is required to be manually specified.
 - **ignoressl** (Optional - Default: `false`)
     - Set to `true` to allow self-signed certificates
 

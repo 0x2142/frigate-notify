@@ -6,24 +6,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/0x2142/frigate-notify/config"
 	"github.com/gomarkdown/markdown"
 	"github.com/wneessen/go-mail"
 )
-
-var SMTPUser string
-var SMTPRecipients []string
-var SMTPServer string
-var SMTPPassword string
-var SMTPTLS bool
-var SMTPPort int
 
 // SendSMTP forwards alert data via email
 func SendSMTP(message string, snapshot io.Reader) {
 	// Set up email alert
 	m := mail.NewMsg()
-	m.From(SMTPUser)
-	m.To(SMTPRecipients...)
-	m.Subject(AlertTitle)
+	m.From(config.ConfigData.Alerts.SMTP.User)
+	m.To(ParseSMTPRecipients()...)
+	m.Subject(config.ConfigData.Alerts.General.Title)
 	// Attach snapshot if one exists
 	if snapshot != nil {
 		m.AttachReader("snapshot.jpg", snapshot)
@@ -37,15 +31,15 @@ func SendSMTP(message string, snapshot io.Reader) {
 	time.Sleep(5 * time.Second)
 
 	// Set up SMTP Connection
-	c, err := mail.NewClient(SMTPServer, mail.WithPort(SMTPPort))
+	c, err := mail.NewClient(config.ConfigData.Alerts.SMTP.Server, mail.WithPort(config.ConfigData.Alerts.SMTP.Port))
 	// Add authentication params if needed
-	if SMTPUser != "" && SMTPPassword != "" {
+	if config.ConfigData.Alerts.SMTP.User != "" && config.ConfigData.Alerts.SMTP.Password != "" {
 		c.SetSMTPAuth(mail.SMTPAuthPlain)
-		c.SetUsername(SMTPUser)
-		c.SetPassword(SMTPPassword)
+		c.SetUsername(config.ConfigData.Alerts.SMTP.User)
+		c.SetPassword(config.ConfigData.Alerts.SMTP.Password)
 	}
 	// Mandatory TLS is enabled by default, so disable TLS if config flag is set
-	if !SMTPTLS {
+	if !config.ConfigData.Alerts.SMTP.TLS {
 		c.SetTLSPolicy(mail.NoTLS)
 	}
 
@@ -63,9 +57,11 @@ func SendSMTP(message string, snapshot io.Reader) {
 }
 
 // ParseSMTPRecipients splits individual email addresses from config file
-func ParseSMTPRecipients(r string) {
-	list := strings.Split(r, ",")
+func ParseSMTPRecipients() []string {
+	var recipients []string
+	list := strings.Split(config.ConfigData.Alerts.SMTP.Recipient, ",")
 	for _, addr := range list {
-		SMTPRecipients = append(SMTPRecipients, strings.TrimSpace(addr))
+		recipients = append(recipients, strings.TrimSpace(addr))
 	}
+	return recipients
 }

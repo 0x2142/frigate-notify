@@ -7,11 +7,12 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/0x2142/frigate-notify/config"
 	frigate "github.com/0x2142/frigate-notify/events"
 	"github.com/0x2142/frigate-notify/util"
 )
 
-var APP_VER = "v0.2.2"
+var APP_VER = "v0.2.3"
 
 func main() {
 	log.Println("Frigate Notify -", APP_VER)
@@ -20,33 +21,33 @@ func main() {
 	var configFile string
 	flag.StringVar(&configFile, "c", "", "Configuration file location (default \"./config.yml\")")
 	flag.Parse()
-	loadConfig(configFile)
+	config.LoadConfig(configFile)
 
 	// Set up monitor
-	if ConfigData.Monitor.Enabled {
+	if config.ConfigData.Monitor.Enabled {
 		log.Println("App monitoring enabled.")
 		go func() {
 			for {
-				_, err := util.HTTPGet(ConfigData.Monitor.URL, ConfigData.Monitor.Insecure)
+				_, err := util.HTTPGet(config.ConfigData.Monitor.URL, config.ConfigData.Monitor.Insecure)
 				if err != nil {
 					log.Printf("Error polling monitoring URL: %v", err)
 				}
 				log.Println("Completed monitoring check-in.")
-				time.Sleep(time.Duration(ConfigData.Monitor.Interval) * time.Second)
+				time.Sleep(time.Duration(config.ConfigData.Monitor.Interval) * time.Second)
 			}
 		}()
 	}
 
 	// Loop & watch for events
-	if ConfigData.Frigate.WebAPI.Enabled {
+	if config.ConfigData.Frigate.WebAPI.Enabled {
 		log.Println("App running. Press Ctrl-C to quit.")
 		for {
 			frigate.CheckForEvents()
-			time.Sleep(time.Duration(ConfigData.Frigate.WebAPI.Interval) * time.Second)
+			time.Sleep(time.Duration(config.ConfigData.Frigate.WebAPI.Interval) * time.Second)
 		}
 	}
 	// Connect MQTT
-	if ConfigData.Frigate.MQTT.Enabled {
+	if config.ConfigData.Frigate.MQTT.Enabled {
 		log.Println("Connecting to MQTT Server...")
 		frigate.SubscribeMQTT()
 		log.Println("App running. Press Ctrl-C to quit.")

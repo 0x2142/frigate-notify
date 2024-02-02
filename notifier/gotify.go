@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/0x2142/frigate-notify/config"
 )
 
 // gotifyError defines structure of Gotify error messages
@@ -34,10 +36,6 @@ type gotifyPayload struct {
 	} `json:"extras,omitempty"`
 }
 
-var GotifyServerURL string
-var GotifyToken string
-var GotifyInsecure = false
-
 // SendGotifyPush forwards alert messages to Gotify push notification server
 func SendGotifyPush(message, snapshotURL string) {
 	if snapshotURL != "" {
@@ -47,7 +45,7 @@ func SendGotifyPush(message, snapshotURL string) {
 	}
 	payload := gotifyPayload{
 		Message:  message,
-		Title:    AlertTitle,
+		Title:    config.ConfigData.Alerts.General.Title,
 		Priority: 5,
 	}
 	payload.Extras.ClientDisplay.ContentType = "text/markdown"
@@ -77,13 +75,13 @@ func SendGotifyPush(message, snapshotURL string) {
 // HTTPPost performs an HTTP POST to the target URL
 // and includes auth parameters, ignoring certificates, etc
 func HTTPPost(payload []byte) ([]byte, error) {
-	gotifyURL := fmt.Sprintf("%s/message?token=%s&", GotifyServerURL, GotifyToken)
+	gotifyURL := fmt.Sprintf("%s/message?token=%s&", config.ConfigData.Alerts.Gotify.Server, config.ConfigData.Alerts.Gotify.Token)
 
 	// New HTTP Client
 	client := http.Client{Timeout: 10 * time.Second}
 
 	// Ignore SSL verification if set
-	if GotifyInsecure {
+	if config.ConfigData.Alerts.Gotify.Insecure {
 		client.Transport = &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
 	}

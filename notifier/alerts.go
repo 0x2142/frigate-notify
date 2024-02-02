@@ -3,24 +3,21 @@ package notifier
 import (
 	"bytes"
 	"io"
-)
 
-var DiscordEnabled = false
-var GotifyEnabled = false
-var SMTPEnabled = false
-var AlertTitle = "Frigate Alert"
+	"github.com/0x2142/frigate-notify/config"
+)
 
 // SendAlert forwards alert information to all enabled alerting methods
 func SendAlert(message, snapshotURL string, snapshot io.Reader) {
 	// Create copy of snapshot for each alerting method
 	snap, _ := io.ReadAll(snapshot)
-	if DiscordEnabled {
+	if config.ConfigData.Alerts.Discord.Enabled {
 		SendDiscordMessage(message, bytes.NewReader(snap))
 	}
-	if GotifyEnabled {
+	if config.ConfigData.Alerts.Gotify.Enabled {
 		SendGotifyPush(message, snapshotURL)
 	}
-	if SMTPEnabled {
+	if config.ConfigData.Alerts.SMTP.Enabled {
 		SendSMTP(message, bytes.NewReader(snap))
 	}
 }
