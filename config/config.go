@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/kkyr/fig"
@@ -103,7 +104,8 @@ func LoadConfig(configFile string) {
 
 	// Load Config file
 	log.Print("Loading config file: ", configFile)
-	err := fig.Load(&ConfigData, fig.File(configFile), fig.UseEnv("FN"))
+
+	err := fig.Load(&ConfigData, fig.File(filepath.Base(configFile)), fig.Dirs(filepath.Dir(configFile)), fig.UseEnv("FN"))
 	if err != nil {
 		log.Fatal("Failed to load config file! Error: ", err)
 	}
