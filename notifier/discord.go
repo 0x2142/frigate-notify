@@ -1,33 +1,28 @@
 package notifier
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
 
+	"github.com/0x2142/frigate-notify/config"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/webhook"
 )
-
-var client webhook.Client
-
-var DiscordWebhookURL string
-
-// SetupDiscord creates a Discord webhook client
-func SetupDiscord() {
-	// Connect to Discord
-	var err error
-	client, err = webhook.NewWithURL(DiscordWebhookURL)
-	if err != nil {
-		log.Printf("Unable to send Discord Alert: %v", err)
-	}
-}
 
 // SendDiscordMessage pushes alert message to Discord via webhook
 func SendDiscordMessage(message string, snapshot io.Reader) {
 	var err error
 
-	title := fmt.Sprintf("**%v**\n\n", AlertTitle)
+	// Connect to Discord
+	client, err := webhook.NewWithURL(config.ConfigData.Alerts.Discord.Webhook)
+	if err != nil {
+		log.Printf("Unable to send Discord Alert: %v", err)
+	}
+	defer client.Close(context.TODO())
+
+	title := fmt.Sprintf("**%v**\n\n", config.ConfigData.Alerts.General.Title)
 	message = title + message
 
 	// Send alert & attach snapshot if one was saved

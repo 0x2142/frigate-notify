@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/notifier"
 	"github.com/0x2142/frigate-notify/util"
 	"golang.org/x/exp/slices"
@@ -24,11 +25,11 @@ func CheckForEvents() {
 	params := "?include_thumbnails=0&after=" + strconv.FormatFloat(LastEventTime, 'f', 6, 64)
 	// For testing, pull 1 event immediately
 	//params := "?include_thumbnails=0&limit=1"
-	url := FrigateServerURL + eventsURI + params
+	url := config.ConfigData.Frigate.Server + eventsURI + params
 	log.Println("Checking for new events...")
 
 	// Query events
-	response, err := util.HTTPGet(url, FrigateInsecure)
+	response, err := util.HTTPGet(url, config.ConfigData.Frigate.Insecure)
 	if err != nil {
 		log.Printf("Cannot get events from %s", url)
 	}
@@ -49,7 +50,7 @@ func CheckForEvents() {
 		}
 
 		// Skip excluded cameras
-		if slices.Contains(ExcludeCameras, event.Camera) {
+		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.Camera) {
 			log.Printf("Skipping event from excluded camera: %v", event.Camera)
 			continue
 		}
@@ -61,7 +62,7 @@ func CheckForEvents() {
 		var snapshot io.Reader
 		var snapshotURL string
 		if event.HasSnapshot {
-			snapshotURL = FrigateServerURL + eventsURI + "/" + event.ID + snapshotURI
+			snapshotURL = config.ConfigData.Frigate.Server + eventsURI + "/" + event.ID + snapshotURI
 			snapshot = GetSnapshot(snapshotURL, event.ID)
 		}
 
@@ -75,7 +76,7 @@ func CheckForEvents() {
 
 // GetSnapshot downloads a snapshot from Frigate
 func GetSnapshot(snapshotURL, eventID string) io.Reader {
-	response, err := util.HTTPGet(snapshotURL, FrigateInsecure)
+	response, err := util.HTTPGet(snapshotURL, config.ConfigData.Frigate.Insecure)
 	if err != nil {
 		log.Println("Could not access snaphot. Error: ", err)
 	}

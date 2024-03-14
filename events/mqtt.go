@@ -7,16 +7,11 @@ import (
 	"log"
 	"time"
 
+	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/notifier"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"golang.org/x/exp/slices"
 )
-
-var MQTTServer string
-var MQTTPort = 1883
-var MQTTUser string
-var MQTTPass string
-var MQTTClientID = "frigate-notify"
 
 // MQTTEvent stores incoming MQTT payloads from Frigate
 type MQTTEvent struct {
@@ -33,28 +28,28 @@ type MQTTEvent struct {
 func SubscribeMQTT() {
 	// MQTT client configuration
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", MQTTServer, MQTTPort))
-	opts.SetClientID(MQTTClientID)
+	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", config.ConfigData.Frigate.MQTT.Server, config.ConfigData.Frigate.MQTT.Port))
+	opts.SetClientID(config.ConfigData.Frigate.MQTT.ClientID)
 	opts.SetAutoReconnect(true)
 	opts.SetConnectionLostHandler(connectionLostHandler)
 	opts.SetOnConnectHandler(connectHandler)
-	if MQTTUser != "" && MQTTPass != "" {
-		opts.SetUsername(MQTTUser)
-		opts.SetPassword(MQTTPass)
+	if config.ConfigData.Frigate.MQTT.Username != "" && config.ConfigData.Frigate.MQTT.Password != "" {
+		opts.SetUsername(config.ConfigData.Frigate.MQTT.Username)
+		opts.SetPassword(config.ConfigData.Frigate.MQTT.Password)
 	}
 
 	var subscribed = false
 	var retry = 0
 	for !subscribed {
 		if retry >= 3 {
-			log.Fatalf("ERROR: Max retries exceeded. Failed to establish MQTT session to %s", MQTTServer)
+			log.Fatalf("ERROR: Max retries exceeded. Failed to establish MQTT session to %s", config.ConfigData.Frigate.MQTT.Server)
 		}
 		// Connect to MQTT broker
 		client := mqtt.NewClient(opts)
 
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
 			retry += 1
-			log.Printf("Could not connect to MQTT at %v: %v", MQTTServer, token.Error())
+			log.Printf("Could not connect to MQTT at %v: %v", config.ConfigData.Frigate.MQTT.Server, token.Error())
 			log.Printf("Retrying in 10 seconds. Attempt %v of 3.", retry)
 			time.Sleep(10 * time.Second)
 			continue
@@ -71,7 +66,7 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 
 	if event.Type == "new" {
 		// Skip excluded cameras
-		if slices.Contains(ExcludeCameras, event.After.Camera) {
+		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.After.Camera) {
 			log.Printf("Skipping event from excluded camera: %v", event.After.Camera)
 			return
 		}
@@ -86,7 +81,7 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 		var snapshot io.Reader
 		var snapshotURL string
 		if event.After.HasSnapshot {
-			snapshotURL = FrigateServerURL + eventsURI + "/" + event.After.ID + snapshotURI
+			snapshotURL = config.ConfigData.Frigate.Server + eventsURI + "/" + event.After.ID + snapshotURI
 			snapshot = GetSnapshot(snapshotURL, event.After.ID)
 		}
 

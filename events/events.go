@@ -3,6 +3,8 @@ package frigate
 import (
 	"fmt"
 	"time"
+
+	"github.com/0x2142/frigate-notify/config"
 )
 
 // Event stores Frigate alert attributes
@@ -27,10 +29,6 @@ type Event struct {
 	Zones              []interface{} `json:"zones"`
 }
 
-var FrigateServerURL string
-var FrigateInsecure = false
-var ExcludeCameras []string
-
 // buildMessage constructs message payload for all alerting methods
 func buildMessage(time time.Time, event Event) string {
 	// Build alert message payload
@@ -42,7 +40,7 @@ func buildMessage(time time.Time, event Event) string {
 	if len(event.Zones) >= 1 {
 		message += fmt.Sprintf("\nZone(s): %v", event.Zones)
 	}
-	message += fmt.Sprintf("\n\n[Link to Frigate](%s)", FrigateServerURL)
+	message += fmt.Sprintf("\n\n[Link to Frigate](%s)", config.ConfigData.Frigate.Server)
 
 	return message
 }
