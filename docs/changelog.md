@@ -2,15 +2,16 @@
 
 ## [v0.2.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.3) - Upcoming Release
 
-- Update config management
-- Improve config file validation
-- Fix issue where HTTP requests would fail if only IP & port were specified in config
+ - Updated config management
+ - Improved config file validation
+ - Fixed issue where HTTP requests would fail if only IP & port were specified in config
+ - Fixed crash if Frigate has no event info & app couldn't pull snapshots
 
 ## [v0.2.2](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.2) - Nov 29 2023
 
  - Fix SMTP issue where code was ignoring `tls: false` config flag
- - Fix issue where snapshots would only be sent to the first alerting method, if multiple were enabled 
- - Update Debian image used for Docker image 
+ - Fix issue where snapshots would only be sent to the first alerting method, if multiple were enabled
+ - Update Debian image used for Docker image
 
 ## [v0.2.1](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.1) - Sep 20 2023
 
