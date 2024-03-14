@@ -55,8 +55,13 @@ func CheckForEvents() {
 			continue
 		}
 
-		log.Printf("Event ID %v detected %v in zone(s): %v", event.ID, event.Label, event.Zones)
-		log.Println("Event Start time: ", eventTime)
+		log.Printf("Event ID %v - Camera %v detected %v in zone(s): %v", event.ID, event.Camera, event.Label, event.Zones)
+		log.Printf("Event ID %v - Start time: %s", event.ID, eventTime)
+
+		// Check that event passes the zone filter
+		if !isAllowedZone(event.ID, event.Zones) {
+			return
+		}
 
 		// If snapshot was collected, pull down image to send with alert
 		var snapshot io.Reader

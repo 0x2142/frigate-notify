@@ -74,8 +74,13 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 		// Convert to human-readable timestamp
 		eventTime := time.Unix(int64(event.After.StartTime), 0)
 
-		log.Printf("Event ID %v on camera %v detected %v in zone(s): %v", event.After.ID, event.After.Camera, event.After.Label, event.After.Zones)
-		log.Println("Event Start time: ", eventTime)
+		log.Printf("Event ID %v - Camera %v detected %v in zone(s): %v", event.After.ID, event.After.Camera, event.After.Label, event.After.CurrentZones)
+		log.Printf("Event ID %v - Start time: %s", event.After.ID, eventTime)
+
+		// Check that event passes the zone filter
+		if !isAllowedZone(event.After.ID, event.After.CurrentZones) {
+			return
+		}
 
 		// If snapshot was collected, pull down image to send with alert
 		var snapshot io.Reader

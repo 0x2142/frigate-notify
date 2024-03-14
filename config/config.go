@@ -43,6 +43,7 @@ type Cameras struct {
 
 type Alerts struct {
 	General General `fig:"general"`
+	Zones   Zones   `fig:"zones"`
 	Discord Discord `fig:"discord"`
 	Gotify  Gotify  `fig:"gotify"`
 	SMTP    SMTP    `fig:"smtp"`
@@ -50,6 +51,12 @@ type Alerts struct {
 
 type General struct {
 	Title string `fig:"title" default:"Frigate Alert"`
+}
+
+type Zones struct {
+	Unzoned string   `fig:"unzoned" default:"allow"`
+	Allow   []string `fig:"allow" default:[]`
+	Block   []string `fig:"block" default:[]`
 }
 
 type Discord struct {
@@ -117,7 +124,7 @@ func validateConfig() {
 	}
 
 	// Check if Frigate server URL contains protocol, assume HTTP if not specified
-	if !strings.Contains(ConfigData.Frigate.Server, "http://") || !strings.Contains(ConfigData.Frigate.Server, "https://") {
+	if !strings.Contains(ConfigData.Frigate.Server, "http://") && !strings.Contains(ConfigData.Frigate.Server, "https://") {
 		log.Println("No protocol specified on Frigate Server. Assuming http://. If this is incorrect, please adjust the config file.")
 		ConfigData.Frigate.Server = fmt.Sprintf("http://%s", ConfigData.Frigate.Server)
 	}
@@ -144,6 +151,30 @@ func validateConfig() {
 		}
 	}
 
+	// Check Zone config
+	if strings.ToLower(ConfigData.Alerts.Zones.Unzoned) != "allow" && strings.ToLower(ConfigData.Alerts.Zones.Unzoned) != "drop" {
+		configErrors = append(configErrors, "Option for unzoned events must be 'allow' or 'drop'")
+	} else {
+		log.Println("Events outside a zone:", strings.ToLower(ConfigData.Alerts.Zones.Unzoned))
+	}
+
+	if len(ConfigData.Alerts.Zones.Allow) > 0 {
+		log.Println("Zones to generate alerts for:")
+		for _, c := range ConfigData.Alerts.Zones.Allow {
+			log.Println(" -", c)
+		}
+	} else {
+		log.Println("All zones included in alerts")
+	}
+	if len(ConfigData.Alerts.Zones.Block) > 0 {
+		log.Println("Zones to exclude from alerting:")
+		for _, c := range ConfigData.Alerts.Zones.Block {
+			log.Println(" -", c)
+		}
+	} else {
+		log.Println("No zones excluded")
+	}
+
 	// Check / Load alerting configuration
 	if ConfigData.Alerts.Discord.Enabled {
 		log.Print("Discord alerting enabled.")
@@ -154,7 +185,7 @@ func validateConfig() {
 	if ConfigData.Alerts.Gotify.Enabled {
 		log.Print("Gotify alerting enabled.")
 		// Check if Gotify server URL contains protocol, assume HTTP if not specified
-		if !strings.Contains(ConfigData.Alerts.Gotify.Server, "http://") || !strings.Contains(ConfigData.Alerts.Gotify.Server, "https://") {
+		if !strings.Contains(ConfigData.Alerts.Gotify.Server, "http://") && !strings.Contains(ConfigData.Alerts.Gotify.Server, "https://") {
 			log.Println("No protocol specified on Gotify Server. Assuming http://. If this is incorrect, please adjust the config file.")
 			ConfigData.Alerts.Gotify.Server = fmt.Sprintf("http://%s", ConfigData.Alerts.Gotify.Server)
 		}
