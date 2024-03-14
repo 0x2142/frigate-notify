@@ -10,7 +10,10 @@ import (
 // SendAlert forwards alert information to all enabled alerting methods
 func SendAlert(message, snapshotURL string, snapshot io.Reader) {
 	// Create copy of snapshot for each alerting method
-	snap, _ := io.ReadAll(snapshot)
+	var snap []byte
+	if snapshot != nil {
+		snap, _ = io.ReadAll(snapshot)
+	}
 	if config.ConfigData.Alerts.Discord.Enabled {
 		SendDiscordMessage(message, bytes.NewReader(snap))
 	}
