@@ -80,7 +80,7 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 		// If snapshot was collected, pull down image to send with alert
 		var snapshot io.Reader
 		var snapshotURL string
-		if event.After.HasSnapshot {
+		if !event.After.HasSnapshot {
 			snapshotURL = config.ConfigData.Frigate.Server + eventsURI + "/" + event.After.ID + snapshotURI
 			snapshot = GetSnapshot(snapshotURL, event.After.ID)
 		}

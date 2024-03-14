@@ -1,17 +1,13 @@
 package notifier
 
 import (
-	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"strings"
-	"time"
 
 	"github.com/0x2142/frigate-notify/config"
+	"github.com/0x2142/frigate-notify/util"
 )
 
 // gotifyError defines structure of Gotify error messages
@@ -57,7 +53,9 @@ func SendGotifyPush(message, snapshotURL string) {
 		return
 	}
 
-	response, err := HTTPPost(data)
+	gotifyURL := fmt.Sprintf("%s/message?token=%s&", config.ConfigData.Alerts.Gotify.Server, config.ConfigData.Alerts.Gotify.Token)
+
+	response, err := util.HTTPPost(gotifyURL, config.ConfigData.Alerts.Gotify.Insecure, data)
 	if err != nil {
 		log.Print("Failed to send Gotify notification: ", err)
 		return
@@ -70,41 +68,4 @@ func SendGotifyPush(message, snapshotURL string) {
 		return
 	}
 	log.Print("Gotify message sent")
-}
-
-// HTTPPost performs an HTTP POST to the target URL
-// and includes auth parameters, ignoring certificates, etc
-func HTTPPost(payload []byte) ([]byte, error) {
-	gotifyURL := fmt.Sprintf("%s/message?token=%s&", config.ConfigData.Alerts.Gotify.Server, config.ConfigData.Alerts.Gotify.Token)
-
-	// New HTTP Client
-	client := http.Client{Timeout: 10 * time.Second}
-
-	// Ignore SSL verification if set
-	if config.ConfigData.Alerts.Gotify.Insecure {
-		client.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
-	}
-
-	// Setup new HTTP Request
-	req, err := http.NewRequest(http.MethodPost, gotifyURL, bytes.NewBuffer(payload))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	// Send HTTP POST
-	response, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-
-	// Read response body
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
 }

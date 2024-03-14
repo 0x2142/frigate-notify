@@ -4,6 +4,7 @@
 
 - Update config management
 - Improve config file validation
+- Fix issue where HTTP requests would fail if only IP & port were specified in config
 
 ## [v0.2.2](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.2) - Nov 29 2023
 
