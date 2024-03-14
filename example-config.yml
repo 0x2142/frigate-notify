@@ -44,6 +44,20 @@ alerts:
     # Title for any alert messages (Default: Frigate Alert)
     title:
 
+  zones:
+    # Allow notifications for events outside a zone
+    # Set to `drop` to disallow this
+    unzoned: allow
+    # List of valid zones to generate alerts
+    # If blank, all events with a zone will generate notifications
+    allow:
+     - test_zone_01
+    # List of zones to never generate notifications
+    block:
+     - test_zone_02
+
+
+
   discord:
     # Set to true to enable alerting via Discord messages
     enabled: false

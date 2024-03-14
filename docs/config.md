@@ -101,6 +101,32 @@ alerts:
     title: Frigate Alert
 ```
 
+### Zones
+
+This config section allows control over whether to generate alerts on all zones, or only specific ones. By default, the app will generate notifications on **all** Frigate events, regardless of whether the event includes zone info.
+
+- **unzoned** (Optional - Default: `allow`)
+    - Controls alerts on events outside a zone
+    - By default, events without a zone will generate alerts
+    - Set to `drop` to prevent generating alerts from events without a zone
+- **allow** (Optional)
+    - Specify a list of zones to allow notifications
+    - All other zones will be ignored
+    - If `unzoned` is set to `allow`, notifications will still be sent on events without any zone info
+- **block** (Optional)
+    - Specify a list of zones to always ignore
+    - This takes precedence over the `allow` list
+
+```yaml title="Config File Snippet"
+alerts:
+  zones:
+    unzoned: allow
+    allow:
+     - test_zone_01
+    block:
+     - test_zone_02
+```
+
 ### Discord
 
 - **enabled** (Optional - Default: `false`)
@@ -229,6 +255,13 @@ frigate:
 alerts:  
   general:
     title:
+
+  zones:
+    unzoned: allow
+    allow:
+     - test_zone_01
+    block:
+     - test_zone_02
 
   discord:
     enabled: false
