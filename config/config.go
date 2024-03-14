@@ -1,8 +1,10 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/kkyr/fig"
 )
@@ -114,6 +116,12 @@ func validateConfig() {
 		configErrors = append(configErrors, "Please configure only one polling method: Frigate Web API or MQTT")
 	}
 
+	// Check if Frigate server URL contains protocol, assume HTTP if not specified
+	if !strings.Contains(ConfigData.Frigate.Server, "http://") || !strings.Contains(ConfigData.Frigate.Server, "https://") {
+		log.Println("No protocol specified on Frigate Server. Assuming http://. If this is incorrect, please adjust the config file.")
+		ConfigData.Frigate.Server = fmt.Sprintf("http://%s", ConfigData.Frigate.Server)
+	}
+
 	// Check for camera exclusions
 	if len(ConfigData.Frigate.Cameras.Exclude) > 0 {
 		log.Println("Cameras to exclude from alerting:")
@@ -145,6 +153,11 @@ func validateConfig() {
 	}
 	if ConfigData.Alerts.Gotify.Enabled {
 		log.Print("Gotify alerting enabled.")
+		// Check if Gotify server URL contains protocol, assume HTTP if not specified
+		if !strings.Contains(ConfigData.Alerts.Gotify.Server, "http://") || !strings.Contains(ConfigData.Alerts.Gotify.Server, "https://") {
+			log.Println("No protocol specified on Gotify Server. Assuming http://. If this is incorrect, please adjust the config file.")
+			ConfigData.Alerts.Gotify.Server = fmt.Sprintf("http://%s", ConfigData.Alerts.Gotify.Server)
+		}
 		if ConfigData.Alerts.Gotify.Server == "" {
 			configErrors = append(configErrors, "No Gotify server specified!")
 		}
