@@ -31,6 +31,7 @@ func SendTelegramMessage(message string, snapshot io.Reader) {
 		photo.ParseMode = "HTML"
 		if _, err := bot.Send(photo); err != nil {
 			log.Print("Failed to send alert via Telegram:", err)
+			return
 		}
 	} else {
 		// Send plain text message if no snapshot available
@@ -39,6 +40,7 @@ func SendTelegramMessage(message string, snapshot io.Reader) {
 		msg.ParseMode = "HTML"
 		if _, err := bot.Send(msg); err != nil {
 			log.Print("Failed to send alert via Telegram:", err)
+			return
 		}
 	}
 	log.Println("Telegram alert sent")

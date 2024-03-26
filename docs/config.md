@@ -199,7 +199,52 @@ alerts:
     recipient: nvr_group@your.domain.local, someone_else@your.domain.local
 ```
 
-### Monitor
+### Telegram
+
+In order to use Telegram for alerts, a bot token & chat ID are required.
+
+To obtain a bot token, follow [this](https://core.telegram.org/bots#how-do-i-create-a-bot) doc to message @BotFather.
+
+Once you have a bot token, make sure to initiate a chat message with your bot. Then visit the following URL:
+
+- `https://api.telegram.org/bot<BOT_TOKEN>/getUpdates` 
+- Replace `<BOT_TOKEN>` with the API token provided by @BotFather. 
+
+Within the response, locate your message to the bot, then grab the ID under `message > chat > id`. An example response is shown below, where `999999999` is the ID we need to save:
+
+```json
+{
+  "update_id": 1234567,
+  "message": {
+    "chat": {
+      "id": 999999999,
+      "first_name": "Test User",
+      "username": "test-username1234",
+      "type": "private"
+    }
+  }
+}
+```
+
+- **enabled** (Optional - Default: `false`)
+    - Set to `true` to enable alerting via Telegram
+- **chatid** (Required)
+    - Chat ID for the alert recipient
+    - Required if this alerting method is enabled
+- **token** (Required)
+    - Bot token generated from [@BotFather](https://core.telegram.org/bots#how-do-i-create-a-bot)
+    - Required if this alerting method is enabled
+
+```yaml title="Config File Snippet"
+alerts:  
+  telegram:
+    enabled: true
+    chatid: 123456789
+    token: 987654321:ABCDEFGHIJKLMNOP
+```
+
+
+## Monitor
 
 If enabled, this application will check in with tools like [HealthChecks](https://github.com/healthchecks/healthchecks) or [Uptime Kuma](https://github.com/louislam/uptime-kuma) on a regular interval for health / status monitoring.
 
