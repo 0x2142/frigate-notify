@@ -47,7 +47,10 @@ func buildMessage(time time.Time, event Event) string {
 	if len(zones) >= 1 {
 		message += fmt.Sprintf("\nZone(s): %v  ", strings.Join(zones, ", "))
 	}
-	message += fmt.Sprintf("\n\n[Link to Frigate](%s)", config.ConfigData.Frigate.Server)
+	message += "\n\nLinks: "
+	message += fmt.Sprintf("[Camera](%s/cameras/%s)", config.ConfigData.Frigate.Server, event.Camera)
+	message += " | "
+	message += fmt.Sprintf("[Event Clip](%s/api/events/%s/clip.mp4)", config.ConfigData.Frigate.Server, event.ID)
 
 	return message
 }

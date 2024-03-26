@@ -52,3 +52,7 @@ The sample config contains inline descriptions for each field. For additional de
 ## Changelog
 
 Additional details on each release are in the [Changelog](https://frigate-notify.0x2142.com/changelog/)
+
+## Support
+
+<a href="https://www.buymeacoffee.com/0x2142" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174"></a>
