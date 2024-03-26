@@ -43,11 +43,12 @@ type Cameras struct {
 }
 
 type Alerts struct {
-	General General `fig:"general"`
-	Zones   Zones   `fig:"zones"`
-	Discord Discord `fig:"discord"`
-	Gotify  Gotify  `fig:"gotify"`
-	SMTP    SMTP    `fig:"smtp"`
+	General  General  `fig:"general"`
+	Zones    Zones    `fig:"zones"`
+	Discord  Discord  `fig:"discord"`
+	Gotify   Gotify   `fig:"gotify"`
+	SMTP     SMTP     `fig:"smtp"`
+	Telegram Telegram `fig:"telegram"`
 }
 
 type General struct {
@@ -80,6 +81,12 @@ type SMTP struct {
 	User      string `fig:"user" default:""`
 	Password  string `fig:"password" default:""`
 	Recipient string `fig:"recipient" default:""`
+}
+
+type Telegram struct {
+	Enabled bool   `fig:"enabled" default:false`
+	ChatID  int64  `fig:"chatid" default:0`
+	Token   string `fig:"token" default:""`
 }
 
 type Monitor struct {
@@ -211,6 +218,15 @@ func validateConfig() {
 		}
 		if ConfigData.Alerts.SMTP.Port == 0 {
 			ConfigData.Alerts.SMTP.Port = 25
+		}
+	}
+	if ConfigData.Alerts.Telegram.Enabled {
+		log.Print("Telegram alerting enabled.")
+		if ConfigData.Alerts.Telegram.ChatID == 0 {
+			configErrors = append(configErrors, "No Telegram Chat ID specified!")
+		}
+		if ConfigData.Alerts.Telegram.Token == "" {
+			configErrors = append(configErrors, "No Telegram bot token specified!")
 		}
 	}
 

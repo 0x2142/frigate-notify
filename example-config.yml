@@ -89,7 +89,14 @@ alerts:
     password:
     # Email alerts sent to any addresses listed below, separated by comma
     recipient:
-
+  # Telegram Config
+  telegram:
+    # Set to true to enable alerting via Telegram
+    enabled: false
+    # Chat ID of alert recipient
+    chatid:
+    # Bot API token
+    token:
 
 ## App Monitoring
 # Sends HTTP GET to provided URL for aliveness checks
