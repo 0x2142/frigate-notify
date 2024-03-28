@@ -56,8 +56,6 @@ alerts:
     block:
      - test_zone_02
 
-
-
   discord:
     # Set to true to enable alerting via Discord messages
     enabled: false
@@ -89,6 +87,7 @@ alerts:
     password:
     # Email alerts sent to any addresses listed below, separated by comma
     recipient:
+
   # Telegram Config
   telegram:
     # Set to true to enable alerting via Telegram
@@ -97,6 +96,7 @@ alerts:
     chatid:
     # Bot API token
     token:
+
 
 ## App Monitoring
 # Sends HTTP GET to provided URL for aliveness checks

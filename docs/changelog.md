@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.2.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.4) - Mar 27 2024
+## [v0.2.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.4) - Mar 28 2024
 
  - Added support for alerts via [Telegram](https://frigate-notify.0x2142.com/config/#telegram)
  - Updated notification message to now include links to the camera & event clip

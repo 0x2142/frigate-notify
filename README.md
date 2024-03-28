@@ -49,6 +49,14 @@ The sample config contains inline descriptions for each field. For additional de
 
 ![Gotify](/screenshots/gotify.png)
 
+**SMTP**
+
+![SMTP](/screenshots/smtp.png)
+
+**Telegram**
+
+![Telegram](/screenshots/telegram.png)
+
 ## Changelog
 
 Additional details on each release are in the [Changelog](https://frigate-notify.0x2142.com/changelog/)

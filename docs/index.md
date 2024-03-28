@@ -10,7 +10,7 @@ This project is designed to generate notifications based on [Frigate](https://gi
 
 Currently Frigate only supports notifications through Home Assistant, which I'm not using right now. So I set out to build a simple notification app that would work with a standalone Frigate server.
 
-## Features 
+## Features
 
 **Event Polling**
 
