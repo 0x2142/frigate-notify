@@ -10,7 +10,7 @@ This project is designed to generate notifications based on [Frigate](https://gi
 
 Currently Frigate only supports notifications through Home Assistant, which I'm not using right now. So I set out to build a simple notification app that would work with a standalone Frigate server.
 
-## Features 
+## Features
 
 **Event Polling**
 
@@ -22,6 +22,7 @@ Currently Frigate only supports notifications through Home Assistant, which I'm 
 - Discord
 - Gotify
 - SMTP
+- Telegram
 
 **Other**
 
@@ -34,6 +35,8 @@ Currently Frigate only supports notifications through Home Assistant, which I'm 
     While this is a hobby project for me, I'll do my best to respond & update the code for anything reasonable.
 
     Thanks again for being here! 😊
+
+    <a href="https://www.buymeacoffee.com/0x2142" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 

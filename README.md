@@ -23,6 +23,7 @@ Currently Frigate only supports notifications through Home Assistant, which I'm 
 - Discord
 - Gotify
 - SMTP
+- Telegram
 
 **Other**
 - Aliveness monitor via HTTP GET (for use with tools like [HealthChecks](https://github.com/healthchecks/healthchecks) or [Uptime Kuma](https://github.com/louislam/uptime-kuma))
@@ -48,6 +49,18 @@ The sample config contains inline descriptions for each field. For additional de
 
 ![Gotify](/screenshots/gotify.png)
 
+**SMTP**
+
+![SMTP](/screenshots/smtp.png)
+
+**Telegram**
+
+![Telegram](/screenshots/telegram.png)
+
 ## Changelog
 
 Additional details on each release are in the [Changelog](https://frigate-notify.0x2142.com/changelog/)
+
+## Support
+
+<a href="https://www.buymeacoffee.com/0x2142" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174"></a>
