@@ -16,5 +16,6 @@ FROM scratch
 WORKDIR /app
 
 COPY --from=build /frigate-notify /app/frigate-notify
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 ENTRYPOINT [ "/app/frigate-notify" ]
