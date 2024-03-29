@@ -10,7 +10,7 @@ import (
 	"github.com/gomarkdown/markdown"
 )
 
-// SendTelegramMessage pushes alert message to Discord via webhook
+// SendTelegramMessage sends alert through Telegram to individual users
 func SendTelegramMessage(message string, snapshot io.Reader) {
 	bot, err := tgbotapi.NewBotAPI(config.ConfigData.Alerts.Telegram.Token)
 	if err != nil {

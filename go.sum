@@ -16,6 +16,8 @@ github.com/gomarkdown/markdown v0.0.0-20231222211730-1d6d20845b47 h1:k4Tw0nt6lwr
 github.com/gomarkdown/markdown v0.0.0-20231222211730-1d6d20845b47/go.mod h1:JDGcbDT52eL4fju3sZ4TeHGsQwhG9nbDV21aMyhwPoA=
 github.com/gorilla/websocket v1.5.1 h1:gmztn0JnHVt9JZquRuzLw3g4wouNVzKL15iLr/zn/QY=
 github.com/gorilla/websocket v1.5.1/go.mod h1:x3kM2JMyaluk02fnUJpQuwD2dCS5NDG2ZHL0uE0tcaY=
+github.com/gregdel/pushover v1.3.0 h1:CewbxqsThoN/1imgwkDKFkRkltaQMoyBV0K9IquQLtw=
+github.com/gregdel/pushover v1.3.0/go.mod h1:EcaO66Nn1StkpEm1iKtBTV3d2A16SoMsVER1PthX7to=
 github.com/kkyr/fig v0.4.0 h1:4D/g72a8ij1fgRypuIbEoqIT7ukf2URVBtE777/gkbc=
 github.com/kkyr/fig v0.4.0/go.mod h1:U4Rq/5eUNJ8o5UvOEc9DiXtNf41srOLn2r/BfCyuc58=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=

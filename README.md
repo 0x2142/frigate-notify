@@ -4,12 +4,11 @@
 
 [![Static Badge](https://img.shields.io/badge/Project-Documentation-blue)](https://frigate-notify.0x2142.com) [![GitHub Repo stars](https://img.shields.io/github/stars/0x2142/frigate-notify)]() [![GitHub release (with filter)](https://img.shields.io/github/v/release/0x2142/frigate-notify)](https://github.com/0x2142/frigate-notify/releases) [![Static Badge](https://img.shields.io/badge/Docker-latest-blue)](https://github.com/0x2142/frigate-notify/pkgs/container/frigate-notify)
 
-
 </div>
 
 ## About
 
-This project is designed to generate notifications based on [Frigate](https://github.com/blakeblackshear/frigate) NVR events.
+This project is designed to generate event notifications from a standalone [Frigate](https://github.com/blakeblackshear/frigate) NVR instance.
 
 Currently Frigate only supports notifications through Home Assistant, which I'm not using right now. So I set out to build a simple notification app that would work with a standalone Frigate server.
 
@@ -24,6 +23,7 @@ Currently Frigate only supports notifications through Home Assistant, which I'm 
 - Gotify
 - SMTP
 - Telegram
+- Pushover
 
 **Other**
 - Aliveness monitor via HTTP GET (for use with tools like [HealthChecks](https://github.com/healthchecks/healthchecks) or [Uptime Kuma](https://github.com/louislam/uptime-kuma))

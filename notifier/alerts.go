@@ -26,4 +26,7 @@ func SendAlert(message, snapshotURL string, snapshot io.Reader) {
 	if config.ConfigData.Alerts.Telegram.Enabled {
 		SendTelegramMessage(message, bytes.NewReader(snap))
 	}
+	if config.ConfigData.Alerts.Pushover.Enabled {
+		SendPushoverMessage(message, bytes.NewReader(snap))
+	}
 }

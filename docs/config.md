@@ -243,6 +243,44 @@ alerts:
     token: 987654321:ABCDEFGHIJKLMNOP
 ```
 
+### Pushover
+
+- **enabled** (Optional - Default: `false`)
+    - Set to `true` to enable alerting via Pushover
+- **token** (Required)
+    - Pushover application API token
+    - Required if this alerting method is enabled
+- **userkey** (Required)
+    - Recipient user or group key from Pushover dashboard
+    - Required if this alerting method is enabled
+- **devices** (Optional)
+    - Optionally specify list of devices to send notifications to
+    - If left empty, all devices will receive the notification
+- **priority** (Optional)
+    - Optionally set message priority
+    - Valid priorities are -2, -1, 0, 1, 2
+- **retry** (Optional)
+    - Message retry in seconds until message is acknowledged
+    - If `priority` is set to 2, this is required
+    - Minimum value is 30 seconds
+- **expire** (Optional)
+    - Expiration timer for message retry
+    - If `priority` is set to 2, this is required
+- **ttl** (Optional)
+    - Optionally set lifetime of message, in seconds
+    - If set, message notifications are deleted from devices after this time
+
+```yaml title="Config File Snippet"
+  pushover:
+    enabled: true
+    token: aaaaaaaaaaaaaaaaaaaaaa
+    userkey: bbbbbbbbbbbbbbbbbbbbbb
+    devices: device1,device2
+    priority: 0
+    retry:
+    expire:
+    ttl:
+```
 
 ## Monitor
 
@@ -327,6 +365,20 @@ alerts:
     password:
     recipient:
 
+  telegram:
+    enabled: false
+    chatid:
+    token:
+
+  pushover:
+    enabled: false
+    token:
+    userkey:
+    devices:
+    priority:
+    retry:
+    expire:
+    ttl:
 
 monitor:
   enabled: false

@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.2.5](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.5) - TBD
+
+ - Added support for alerts via [Pushover](https://frigate-notify.0x2142.com/config/#pushover)
+
 ## [v0.2.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.4) - Mar 28 2024
 
  - Added support for alerts via [Telegram](https://frigate-notify.0x2142.com/config/#telegram)

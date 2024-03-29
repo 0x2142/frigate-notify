@@ -27,6 +27,7 @@ type Frigate struct {
 type WebAPI struct {
 	Enabled  bool `fig:"enabled" default:false`
 	Interval int  `fig:"interval" default:30`
+	TestMode bool `fig:"testmode" default:false`
 }
 
 type MQTT struct {
@@ -49,6 +50,7 @@ type Alerts struct {
 	Gotify   Gotify   `fig:"gotify"`
 	SMTP     SMTP     `fig:"smtp"`
 	Telegram Telegram `fig:"telegram"`
+	Pushover Pushover `fig:"pushover"`
 }
 
 type General struct {
@@ -87,6 +89,17 @@ type Telegram struct {
 	Enabled bool   `fig:"enabled" default:false`
 	ChatID  int64  `fig:"chatid" default:0`
 	Token   string `fig:"token" default:""`
+}
+
+type Pushover struct {
+	Enabled  bool   `fig:"enabled" default:false`
+	Token    string `fig:"token" default:""`
+	Userkey  string `fig:"userkey" default:""`
+	Devices  string `fig:"devices" default:""`
+	Priority int    `fig:"priority" default:0`
+	Retry    int    `fig:"retry" default:0`
+	Expire   int    `fig:"expire" default:0`
+	TTL      int    `fig:"ttl" default:0`
 }
 
 type Monitor struct {
@@ -130,6 +143,15 @@ func validateConfig() {
 
 	if (ConfigData.Frigate.WebAPI.Enabled && ConfigData.Frigate.MQTT.Enabled) || (!ConfigData.Frigate.WebAPI.Enabled && !ConfigData.Frigate.MQTT.Enabled) {
 		configErrors = append(configErrors, "Please configure only one polling method: Frigate Web API or MQTT")
+	}
+
+	// Warn on test mode being enabled
+	if ConfigData.Frigate.WebAPI.Enabled && ConfigData.Frigate.WebAPI.TestMode {
+		log.Print("~~~~~~~~~~~~~~~~~~~")
+		log.Print("WARNING: Test Mode is enabled.")
+		log.Print("This is intended for development only & will only query Frigate for the last event.")
+		log.Print("Do not enable this in production! App will not accurately check for events.")
+		log.Print("~~~~~~~~~~~~~~~~~~~")
 	}
 
 	// Check if Frigate server URL contains protocol, assume HTTP if not specified
@@ -229,6 +251,30 @@ func validateConfig() {
 			configErrors = append(configErrors, "No Telegram bot token specified!")
 		}
 	}
+	if ConfigData.Alerts.Pushover.Enabled {
+		log.Print("Pushover alerting enabled.")
+		if ConfigData.Alerts.Pushover.Token == "" {
+			configErrors = append(configErrors, "No Pushover API token specified!")
+		}
+		if ConfigData.Alerts.Pushover.Userkey == "" {
+			configErrors = append(configErrors, "No Pushover user key specified!")
+		}
+		if ConfigData.Alerts.Pushover.Priority < -2 || ConfigData.Alerts.Pushover.Priority > 2 {
+			configErrors = append(configErrors, "Pushover priority must be between -2 and 2!")
+		}
+		// Priority 2 is emergency, needs a retry interval & expiration set
+		if ConfigData.Alerts.Pushover.Priority == 2 {
+			if ConfigData.Alerts.Pushover.Retry == 0 || ConfigData.Alerts.Pushover.Expire == 0 {
+				configErrors = append(configErrors, "Pushover retry interval & expiration must be set with priority 2!")
+			}
+			if ConfigData.Alerts.Pushover.Retry < 30 {
+				configErrors = append(configErrors, "Pushover retry cannot be less than 30 seconds!")
+			}
+		}
+		if ConfigData.Alerts.Pushover.TTL < 0 {
+			configErrors = append(configErrors, "Pushover TTL cannot be negative!")
+		}
+	}
 
 	// Validate monitoring config
 	if ConfigData.Monitor.Enabled {
@@ -242,10 +288,12 @@ func validateConfig() {
 	}
 
 	if len(configErrors) > 0 {
+		fmt.Println()
 		log.Println("Config validation failed:")
 		for _, msg := range configErrors {
 			log.Println(" -", msg)
 		}
+		fmt.Println()
 		log.Fatal("Please fix config errors before restarting app.")
 	} else {
 		log.Println("Config file validated!")

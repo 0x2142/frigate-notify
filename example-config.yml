@@ -97,6 +97,25 @@ alerts:
     # Bot API token
     token:
 
+  # Pushover Config
+  pushover:
+    # Set to true to enable alerting via Pushover
+    enabled: false
+    # Pushover API token for this application
+    token:
+    # User or Group key for recipients
+    userkey:
+    # Optional list of target devices by name, separated by comma
+    devices:
+    # Optional message priority, default is 0
+    priority:
+    # If priority is 2, retry & expiration must be set
+    # Values in seconds. Retry must be 30 or higher
+    retry:
+    expire:
+    # Optional message lifetime
+    ttl:
+
 
 ## App Monitoring
 # Sends HTTP GET to provided URL for aliveness checks
