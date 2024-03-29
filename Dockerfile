@@ -1,4 +1,4 @@
-FROM golang:bookworm
+FROM golang:1.22-alpine as build
 
 WORKDIR /app
 
@@ -9,6 +9,12 @@ RUN go mod download
 
 COPY . /app/
 
-RUN go build -o /app/frigate-notify .
+RUN go build -o /frigate-notify .
+
+FROM scratch
+
+WORKDIR /app
+
+COPY --from=build /frigate-notify /app/frigate-notify
 
 ENTRYPOINT [ "/app/frigate-notify" ]
