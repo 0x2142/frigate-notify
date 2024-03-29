@@ -27,6 +27,7 @@ type Frigate struct {
 type WebAPI struct {
 	Enabled  bool `fig:"enabled" default:false`
 	Interval int  `fig:"interval" default:30`
+	TestMode bool `fig:"testmode" default:false`
 }
 
 type MQTT struct {
@@ -142,6 +143,15 @@ func validateConfig() {
 
 	if (ConfigData.Frigate.WebAPI.Enabled && ConfigData.Frigate.MQTT.Enabled) || (!ConfigData.Frigate.WebAPI.Enabled && !ConfigData.Frigate.MQTT.Enabled) {
 		configErrors = append(configErrors, "Please configure only one polling method: Frigate Web API or MQTT")
+	}
+
+	// Warn on test mode being enabled
+	if ConfigData.Frigate.WebAPI.Enabled && ConfigData.Frigate.WebAPI.TestMode {
+		log.Print("~~~~~~~~~~~~~~~~~~~")
+		log.Print("WARNING: Test Mode is enabled.")
+		log.Print("This is intended for development only & will only query Frigate for the last event.")
+		log.Print("Do not enable this in production! App will not accurately check for events.")
+		log.Print("~~~~~~~~~~~~~~~~~~~")
 	}
 
 	// Check if Frigate server URL contains protocol, assume HTTP if not specified

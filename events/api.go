@@ -22,9 +22,15 @@ var LastEventTime float64 = float64(time.Now().Unix())
 
 // CheckForEvents queries for all detection events since last alert time
 func CheckForEvents() {
-	params := "?include_thumbnails=0&after=" + strconv.FormatFloat(LastEventTime, 'f', 6, 64)
-	// For testing, pull 1 event immediately
-	//params := "?include_thumbnails=0&limit=1"
+	var params string
+	if config.ConfigData.Frigate.WebAPI.TestMode {
+		// For testing, pull 1 event immediately
+		params = "?include_thumbnails=0&limit=1"
+	} else {
+		// Check for any events after last query time
+		params = "?include_thumbnails=0&after=" + strconv.FormatFloat(LastEventTime, 'f', 6, 64)
+	}
+
 	url := config.ConfigData.Frigate.Server + eventsURI + params
 	log.Println("Checking for new events...")
 
