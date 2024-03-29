@@ -23,6 +23,7 @@ Currently Frigate only supports notifications through Home Assistant, which I'm 
 - Gotify
 - SMTP
 - Telegram
+- Pushover
 
 **Other**
 
