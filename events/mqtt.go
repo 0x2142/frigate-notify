@@ -64,7 +64,7 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 	var event MQTTEvent
 	json.Unmarshal(msg.Payload(), &event)
 
-	if event.Type == "new" {
+	if event.Type == "new" || event.Type == "update" {
 		// Skip excluded cameras
 		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.After.Camera) {
 			log.Printf("Skipping event from excluded camera: %v", event.After.Camera)
@@ -79,6 +79,20 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 
 		// Check that event passes the zone filter
 		if !isAllowedZone(event.After.ID, event.After.CurrentZones) {
+			return
+		}
+
+		// Skip update events where zone didn't change
+		// Compares current detected zone to previous list of zones entered
+		zoneChanged := false
+		for _, zone := range event.After.CurrentZones {
+			if !slices.Contains(event.Before.EnteredZones, zone) {
+				zoneChanged = true
+				log.Printf("Event ID %v - Entered new zone: %s", event.After.ID, zone)
+			}
+		}
+		if event.Type == "update" && !zoneChanged {
+			log.Printf("Event ID %v - Zone already alerted, skipping...", event.After.ID)
 			return
 		}
 

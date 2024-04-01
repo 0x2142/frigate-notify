@@ -31,6 +31,7 @@ type Event struct {
 	TopScore           float64     `json:"top_score"`
 	Zones              []string    `json:"zones"`
 	CurrentZones       []string    `json:"current_zones"`
+	EnteredZones       []string    `json:"entered_zones"`
 }
 
 // buildMessage constructs message payload for all alerting methods
