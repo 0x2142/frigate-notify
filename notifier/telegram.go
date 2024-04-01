@@ -14,7 +14,7 @@ import (
 func SendTelegramMessage(message string, snapshot io.Reader, eventid string) {
 	bot, err := tgbotapi.NewBotAPI(config.ConfigData.Alerts.Telegram.Token)
 	if err != nil {
-		log.Print("Failed to connect to Telegram:", err)
+		log.Print("Event ID %v - Failed to connect to Telegram:", eventid, err)
 		return
 	}
 
@@ -30,7 +30,7 @@ func SendTelegramMessage(message string, snapshot io.Reader, eventid string) {
 		photo.Caption = htmlMessage
 		photo.ParseMode = "HTML"
 		if _, err := bot.Send(photo); err != nil {
-			log.Print("Failed to send alert via Telegram:", err)
+			log.Print("Event ID %v - Failed to send alert via Telegram:", eventid, err)
 			return
 		}
 	} else {
@@ -39,7 +39,7 @@ func SendTelegramMessage(message string, snapshot io.Reader, eventid string) {
 		msg := tgbotapi.NewMessage(config.ConfigData.Alerts.Telegram.ChatID, htmlMessage)
 		msg.ParseMode = "HTML"
 		if _, err := bot.Send(msg); err != nil {
-			log.Print("Failed to send alert via Telegram:", err)
+			log.Print("Event ID %v - Failed to send alert via Telegram:", eventid, err)
 			return
 		}
 	}

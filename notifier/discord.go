@@ -18,7 +18,7 @@ func SendDiscordMessage(message string, snapshot io.Reader, eventid string) {
 	// Connect to Discord
 	client, err := webhook.NewWithURL(config.ConfigData.Alerts.Discord.Webhook)
 	if err != nil {
-		log.Printf("Unable to send Discord Alert: %v", err)
+		log.Printf("Event ID %v - Unable to send Discord Alert: %v", eventid, err)
 	}
 	defer client.Close(context.TODO())
 
@@ -37,7 +37,7 @@ func SendDiscordMessage(message string, snapshot io.Reader, eventid string) {
 
 	}
 	if err != nil {
-		log.Printf("Unable to send Discord Alert: %v", err)
+		log.Printf("Event ID %v - Unable to send Discord Alert: %v", eventid, err)
 	}
 	log.Printf("Event ID %v - Discord alert sent", eventid)
 }

@@ -72,7 +72,7 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 		}
 		// Skip excluded cameras
 		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.After.Camera) {
-			log.Printf("Skipping event from excluded camera: %v", event.After.Camera)
+			log.Printf("Event ID %v - Skipping event from excluded camera: %v", event.After.ID, event.After.Camera)
 			return
 		}
 

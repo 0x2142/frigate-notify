@@ -47,12 +47,12 @@ func SendPushoverMessage(message string, snapshot io.Reader, eventid string) {
 	if snapshot != nil {
 		notif.AddAttachment(snapshot)
 		if _, err := push.SendMessage(notif, recipient); err != nil {
-			log.Print("Error sending Pushover notification:", err)
+			log.Print("Event ID %v - Error sending Pushover notification:", eventid, err)
 			return
 		}
 	} else {
 		if _, err := push.SendMessage(notif, recipient); err != nil {
-			log.Print("Error sending Pushover notification:", err)
+			log.Print("Event ID %v - Error sending Pushover notification:", eventid, err)
 			return
 		}
 	}

@@ -44,12 +44,12 @@ func SendSMTP(message string, snapshot io.Reader, eventid string) {
 	}
 
 	if err != nil {
-		log.Print("Failed to connect to SMTP Server: ", err)
+		log.Print("Event ID %v - Failed to connect to SMTP Server: ", eventid, err)
 	}
 
 	// Send message
 	if err := c.DialAndSend(m); err != nil {
-		log.Print("Failed to send SMTP message: ", err)
+		log.Print("Event ID %v - Failed to send SMTP message: ", eventid, err)
 		return
 	}
 	log.Printf("Event ID %v - SMTP alert sent", eventid)
