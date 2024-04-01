@@ -33,7 +33,7 @@ type gotifyPayload struct {
 }
 
 // SendGotifyPush forwards alert messages to Gotify push notification server
-func SendGotifyPush(message, snapshotURL string) {
+func SendGotifyPush(message, snapshotURL string, eventid string) {
 	if snapshotURL != "" {
 		message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
 	} else {
@@ -49,7 +49,7 @@ func SendGotifyPush(message, snapshotURL string) {
 
 	data, err := json.Marshal(payload)
 	if err != nil {
-		log.Println("Unable to build Gotify payload: ", err)
+		log.Println("Event ID %v - Unable to build Gotify payload: ", eventid, err)
 		return
 	}
 
@@ -64,8 +64,8 @@ func SendGotifyPush(message, snapshotURL string) {
 	if strings.Contains(string(response), "error") {
 		var errorMessage gotifyError
 		json.Unmarshal(response, &errorMessage)
-		log.Printf("Failed to send Gotify notification: %s - %s", errorMessage.Error, errorMessage.ErrorDescription)
+		log.Printf("Event ID %v - Failed to send Gotify notification: %s - %s", eventid, errorMessage.Error, errorMessage.ErrorDescription)
 		return
 	}
-	log.Print("Gotify message sent")
+	log.Printf("Event ID %v - Gotify alert sent", eventid)
 }

@@ -43,6 +43,9 @@ alerts:
   general:
     # Title for any alert messages (Default: Frigate Alert)
     title:
+    # Optionally modify default time format in notifications
+    # Use Golang's reference time format, or see docs for more info
+    timeformat:
 
   zones:
     # Allow notifications for events outside a zone

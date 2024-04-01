@@ -54,7 +54,8 @@ type Alerts struct {
 }
 
 type General struct {
-	Title string `fig:"title" default:"Frigate Alert"`
+	Title      string `fig:"title" default:"Frigate Alert"`
+	TimeFormat string `fig:"timeformat" default: ""`
 }
 
 type Zones struct {

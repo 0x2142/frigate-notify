@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.2.6](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.6) - Apr 01 2024
+
+ - Fixed issue with setting `unzoned: drop` under zone config, where alerts wouldn't be sent if event began outside a zone.
+ - Fixed issue with correct timezone getting applied on container image
+ - Added `timeformat` option for notifications, which allows custom date/time format
+ - Minor updates to logging to ensure all event logs have an event ID attached
+
 ## [v0.2.5](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.5) - Mar 29 2024
 
  - Added support for alerts via [Pushover](https://frigate-notify.0x2142.com/config/#pushover)

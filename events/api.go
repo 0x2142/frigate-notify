@@ -57,7 +57,7 @@ func CheckForEvents() {
 
 		// Skip excluded cameras
 		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.Camera) {
-			log.Printf("Skipping event from excluded camera: %v", event.Camera)
+			log.Printf("Event ID %v - Skipping event from excluded camera: %v", event.ID, event.Camera)
 			continue
 		}
 
@@ -80,7 +80,7 @@ func CheckForEvents() {
 		message := buildMessage(eventTime, event)
 
 		// Send alert with snapshot
-		notifier.SendAlert(message, snapshotURL, snapshot)
+		notifier.SendAlert(message, snapshotURL, snapshot, event.ID)
 	}
 
 }

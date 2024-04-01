@@ -64,10 +64,15 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 	var event MQTTEvent
 	json.Unmarshal(msg.Payload(), &event)
 
-	if event.Type == "new" {
+	if event.Type == "new" || event.Type == "update" {
+		if event.Type == "new" {
+			log.Printf("Event ID %v - New event received.", event.After.ID)
+		} else if event.Type == "update" {
+			log.Printf("Event ID %v - Event updated from Frigate.", event.After.ID)
+		}
 		// Skip excluded cameras
 		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.After.Camera) {
-			log.Printf("Skipping event from excluded camera: %v", event.After.Camera)
+			log.Printf("Event ID %v - Skipping event from excluded camera: %v", event.After.ID, event.After.Camera)
 			return
 		}
 
@@ -82,6 +87,20 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 			return
 		}
 
+		// Skip update events where zone didn't change
+		// Compares current detected zone to previous list of zones entered
+		zoneChanged := false
+		for _, zone := range event.After.CurrentZones {
+			if !slices.Contains(event.Before.EnteredZones, zone) {
+				zoneChanged = true
+				log.Printf("Event ID %v - Entered new zone: %s", event.After.ID, zone)
+			}
+		}
+		if event.Type == "update" && !zoneChanged {
+			log.Printf("Event ID %v - Zone already alerted, skipping...", event.After.ID)
+			return
+		}
+
 		// If snapshot was collected, pull down image to send with alert
 		var snapshot io.Reader
 		var snapshotURL string
@@ -93,7 +112,7 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 		message := buildMessage(eventTime, event.After.Event)
 
 		// Send alert with snapshot
-		notifier.SendAlert(message, snapshotURL, snapshot)
+		notifier.SendAlert(message, snapshotURL, snapshot, event.After.ID)
 	}
 }
 

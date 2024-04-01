@@ -31,12 +31,18 @@ type Event struct {
 	TopScore           float64     `json:"top_score"`
 	Zones              []string    `json:"zones"`
 	CurrentZones       []string    `json:"current_zones"`
+	EnteredZones       []string    `json:"entered_zones"`
 }
 
 // buildMessage constructs message payload for all alerting methods
 func buildMessage(time time.Time, event Event) string {
+	// If certain time format is provided, re-format date / time string
+	timestr := time.String()
+	if config.ConfigData.Alerts.General.TimeFormat != "" {
+		timestr = time.Format(config.ConfigData.Alerts.General.TimeFormat)
+	}
 	// Build alert message payload, include two spaces at end to force markdown newline
-	message := fmt.Sprintf("Detection at %v  ", time)
+	message := fmt.Sprintf("Detection at %v  ", timestr)
 	message += fmt.Sprintf("\nCamera: %s  ", event.Camera)
 	// Attach detection label & caculate score percentage
 	message += fmt.Sprintf("\nLabel: %v (%v%%)  ", event.Label, int((event.TopScore * 100)))
@@ -53,7 +59,7 @@ func buildMessage(time time.Time, event Event) string {
 	// If event has a recorded clip, include a link to that as well
 	if event.HasClip {
 		message += " | "
-		message += fmt.Sprintf("[Event Clip](%s/api/events/%s/clip.mp4)", config.ConfigData.Frigate.Server, event.ID)
+		message += fmt.Sprintf("[Event Clip](%s/api/events/%s/clip.mp4)  ", config.ConfigData.Frigate.Server, event.ID)
 	}
 
 	return message

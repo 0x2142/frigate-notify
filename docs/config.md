@@ -94,11 +94,17 @@ frigate:
 
 - **title** (Optional - Default: `Frigate Alert`)
     - Title of alert messages that are generated (Email subject, etc)
+- **timeformat** (Optional - Default: `2006-01-02 15:04:05 -0700 MST`)
+    - Optionally set a custom date/time format for notifications
+    - This utilizes Golang's [reference time](https://go.dev/src/time/format.go) for formatting
+    - See [this](https://www.geeksforgeeks.org/time-formatting-in-golang) guide for help
+    - Example below uses RFC1123 format
 
 ```yaml title="Config File Snippet"
 alerts:  
   general:
     title: Frigate Alert
+    timeformat: Mon, 02 Jan 2006 15:04:05 MST
 ```
 
 ### Zones
@@ -338,6 +344,7 @@ frigate:
 alerts:  
   general:
     title:
+    timeformat:
 
   zones:
     unzoned: allow

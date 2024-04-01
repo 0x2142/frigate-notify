@@ -13,7 +13,7 @@ import (
 )
 
 // SendPushoverMessage sends alert message through Pushover service
-func SendPushoverMessage(message string, snapshot io.Reader) {
+func SendPushoverMessage(message string, snapshot io.Reader, eventid string) {
 	push := pushover.New(config.ConfigData.Alerts.Pushover.Token)
 	recipient := pushover.NewRecipient(config.ConfigData.Alerts.Pushover.Userkey)
 
@@ -47,15 +47,15 @@ func SendPushoverMessage(message string, snapshot io.Reader) {
 	if snapshot != nil {
 		notif.AddAttachment(snapshot)
 		if _, err := push.SendMessage(notif, recipient); err != nil {
-			log.Print("Error sending Pushover notification:", err)
+			log.Print("Event ID %v - Error sending Pushover notification:", eventid, err)
 			return
 		}
 	} else {
 		if _, err := push.SendMessage(notif, recipient); err != nil {
-			log.Print("Error sending Pushover notification:", err)
+			log.Print("Event ID %v - Error sending Pushover notification:", eventid, err)
 			return
 		}
 	}
 
-	log.Println("Pushover alert sent")
+	log.Printf("Event ID %v - Pushover alert sent", eventid)
 }
