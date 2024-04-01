@@ -80,7 +80,7 @@ func CheckForEvents() {
 		message := buildMessage(eventTime, event)
 
 		// Send alert with snapshot
-		notifier.SendAlert(message, snapshotURL, snapshot)
+		notifier.SendAlert(message, snapshotURL, snapshot, event.ID)
 	}
 
 }

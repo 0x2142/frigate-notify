@@ -11,7 +11,7 @@ import (
 )
 
 // SendTelegramMessage sends alert through Telegram to individual users
-func SendTelegramMessage(message string, snapshot io.Reader) {
+func SendTelegramMessage(message string, snapshot io.Reader, eventid string) {
 	bot, err := tgbotapi.NewBotAPI(config.ConfigData.Alerts.Telegram.Token)
 	if err != nil {
 		log.Print("Failed to connect to Telegram:", err)
@@ -43,5 +43,5 @@ func SendTelegramMessage(message string, snapshot io.Reader) {
 			return
 		}
 	}
-	log.Println("Telegram alert sent")
+	log.Printf("Event ID %v - Telegram alert sent", eventid)
 }

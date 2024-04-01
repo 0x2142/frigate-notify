@@ -12,7 +12,7 @@ import (
 )
 
 // SendDiscordMessage pushes alert message to Discord via webhook
-func SendDiscordMessage(message string, snapshot io.Reader) {
+func SendDiscordMessage(message string, snapshot io.Reader, eventid string) {
 	var err error
 
 	// Connect to Discord
@@ -39,5 +39,5 @@ func SendDiscordMessage(message string, snapshot io.Reader) {
 	if err != nil {
 		log.Printf("Unable to send Discord Alert: %v", err)
 	}
-	log.Println("Discord alert sent")
+	log.Printf("Event ID %v - Discord alert sent", eventid)
 }

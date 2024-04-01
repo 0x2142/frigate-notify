@@ -12,7 +12,7 @@ import (
 )
 
 // SendSMTP forwards alert data via email
-func SendSMTP(message string, snapshot io.Reader) {
+func SendSMTP(message string, snapshot io.Reader, eventid string) {
 	// Set up email alert
 	m := mail.NewMsg()
 	m.From(config.ConfigData.Alerts.SMTP.User)
@@ -52,7 +52,7 @@ func SendSMTP(message string, snapshot io.Reader) {
 		log.Print("Failed to send SMTP message: ", err)
 		return
 	}
-	log.Println("SMTP alert sent")
+	log.Printf("Event ID %v - SMTP alert sent", eventid)
 
 }
 

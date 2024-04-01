@@ -107,7 +107,7 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 		message := buildMessage(eventTime, event.After.Event)
 
 		// Send alert with snapshot
-		notifier.SendAlert(message, snapshotURL, snapshot)
+		notifier.SendAlert(message, snapshotURL, snapshot, event.After.ID)
 	}
 }
 

@@ -13,7 +13,7 @@ import (
 )
 
 // SendPushoverMessage sends alert message through Pushover service
-func SendPushoverMessage(message string, snapshot io.Reader) {
+func SendPushoverMessage(message string, snapshot io.Reader, eventid string) {
 	push := pushover.New(config.ConfigData.Alerts.Pushover.Token)
 	recipient := pushover.NewRecipient(config.ConfigData.Alerts.Pushover.Userkey)
 
@@ -57,5 +57,5 @@ func SendPushoverMessage(message string, snapshot io.Reader) {
 		}
 	}
 
-	log.Println("Pushover alert sent")
+	log.Printf("Event ID %v - Pushover alert sent", eventid)
 }
