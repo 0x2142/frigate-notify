@@ -13,7 +13,7 @@ import (
 	"github.com/0x2142/frigate-notify/util"
 )
 
-var APP_VER = "v0.2.5"
+var APP_VER = "v0.2.6"
 
 func main() {
 	log.Println("Frigate Notify -", APP_VER)
