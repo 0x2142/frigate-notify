@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/0x2142/frigate-notify/config"
 	frigate "github.com/0x2142/frigate-notify/events"

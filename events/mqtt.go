@@ -65,7 +65,7 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 	json.Unmarshal(msg.Payload(), &event)
 
 	if event.Type == "new" || event.Type == "update" {
-		fmt.Printf("Event ID %v - %v", event.After.ID, event.Type)
+		log.Printf("Event ID %v - %v", event.After.ID, event.Type)
 		// Skip excluded cameras
 		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.After.Camera) {
 			log.Printf("Skipping event from excluded camera: %v", event.After.Camera)
