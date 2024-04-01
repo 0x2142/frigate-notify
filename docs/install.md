@@ -11,11 +11,14 @@ The app can be run as a container with the bundled [docker-compose.yml](https://
 ```yaml
 version: "3.0"
 services:
-    frigate-notify:
+  frigate-notify:
     image: ghcr.io/0x2142/frigate-notify:latest
+    environment:
+      - TZ=Etc/UTC
     volumes:
-        - /path/to/config:/app/config
+      - /path/to/config:/app/config
     restart: unless-stopped
+
 ```
 
 Update `volumes` in the compose file to the location of the `config.yml` file. By default the app will check the `/app/config` directory for this file.
