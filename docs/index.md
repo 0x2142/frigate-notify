@@ -6,9 +6,9 @@ If you get value out of this tool, please let me know by leaving a star:  <a cla
 
 ## About the Project
 
-This project is designed to generate notifications based on [Frigate](https://github.com/blakeblackshear/frigate) NVR events.
+This project is designed to generate notifications based on events from a standalone instance of [Frigate](https://github.com/blakeblackshear/frigate) NVR.
 
-Currently Frigate only supports notifications through Home Assistant, which I'm not using right now. So I set out to build a simple notification app that would work with a standalone Frigate server.
+Currently Frigate only supports notifications through Home Assistant, which I'm not using at the moment. So I set out to build a simple notification app that would work with a standalone Frigate server.
 
 ## Features
 

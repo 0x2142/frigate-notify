@@ -111,6 +111,16 @@ alerts:
 
 This config section allows control over whether to generate alerts on all zones, or only specific ones. By default, the app will generate notifications on **all** Frigate events, regardless of whether the event includes zone info.
 
+??? note "A note about how this works"
+    
+    **With MQTT**, Frigate will send a `new` event when a detection starts. Subsequent changes, like the detected object transitioning from one zone to another, will trigger `update` events. These `update` events will contain a list of current zone(s) that the object is in, as well as a list of all zones that the object has entered during the event.
+
+    In order to reduce the number of notifications generated, this app will only alert on the *first time* the detected object enters a zone.
+
+    For example, let's say you have a camera in your front yard with zones for sidewalk, driveway, and lawn - but only allow notifications for driveway and lawn. During an event someone was detected originally on the sidewalk, then driveway, lawn, and back to driveway. In this case, you should only receive two notifications. Once for the first time the person entered the driveway zone, and a second when they entered the lawn zone. 
+
+    **With Web API event query**, we only query the event from Frigate one time. So currently, only one alert would be sent depending on the detected zones at the time the web API was queried for new events.
+
 - **unzoned** (Optional - Default: `allow`)
     - Controls alerts on events outside a zone
     - By default, events without a zone will generate alerts
