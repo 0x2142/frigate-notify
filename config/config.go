@@ -31,12 +31,13 @@ type WebAPI struct {
 }
 
 type MQTT struct {
-	Enabled  bool   `fig:"enabled" default:false`
-	Server   string `fig:"server" default:""`
-	Port     int    `fig:"port" default:1883`
-	ClientID string `fig:"clientid" default:"frigate-notify"`
-	Username string `fig:"username" default:""`
-	Password string `fig:"password" default:""`
+	Enabled     bool   `fig:"enabled" default:false`
+	Server      string `fig:"server" default:""`
+	Port        int    `fig:"port" default:1883`
+	ClientID    string `fig:"clientid" default:"frigate-notify"`
+	Username    string `fig:"username" default:""`
+	Password    string `fig:"password" default:""`
+	TopicPrefix string `fig:"topic_prefix" default:"frigate"`
 }
 
 type Cameras struct {

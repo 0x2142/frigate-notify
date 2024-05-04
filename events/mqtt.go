@@ -60,6 +60,7 @@ func SubscribeMQTT() {
 
 // processEvent handles incoming MQTT messages & pulls out relevant info for alerting
 func processEvent(client mqtt.Client, msg mqtt.Message) {
+	fmt.Println("GOT MQTT")
 	// Parse incoming MQTT message
 	var event MQTTEvent
 	json.Unmarshal(msg.Payload(), &event)
@@ -124,9 +125,10 @@ func connectionLostHandler(c mqtt.Client, err error) {
 // connectHandler logs message on MQTT connection
 func connectHandler(client mqtt.Client) {
 	log.Println("Connected to MQTT.")
-	if subscription := client.Subscribe("frigate/events", 0, processEvent); subscription.Wait() && subscription.Error() != nil {
-		log.Printf("Failed to subscribe to topic frigate/events")
+	topic := fmt.Sprintf(config.ConfigData.Frigate.MQTT.TopicPrefix + "/events")
+	if subscription := client.Subscribe(topic, 0, processEvent); subscription.Wait() && subscription.Error() != nil {
+		log.Printf("Failed to subscribe to topic: %s", topic)
 		time.Sleep(10 * time.Second)
 	}
-	log.Printf("Subscribed to MQTT topic frigate/events")
+	log.Printf("Subscribed to MQTT topic: %s", topic)
 }
