@@ -64,8 +64,8 @@ func CheckForEvents() {
 		log.Printf("Event ID %v - Camera %v detected %v in zone(s): %v", event.ID, event.Camera, event.Label, event.Zones)
 		log.Printf("Event ID %v - Start time: %s", event.ID, eventTime)
 
-		// Check that event passes the zone filter
-		if !isAllowedZone(event.ID, event.Zones) {
+		// Check that event passes the zone & label filters
+		if !isAllowedZone(event.ID, event.Zones) || !isAllowedLabel(event.ID, event.Label) {
 			return
 		}
 
