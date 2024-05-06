@@ -47,6 +47,7 @@ type Cameras struct {
 type Alerts struct {
 	General  General  `fig:"general"`
 	Zones    Zones    `fig:"zones"`
+	Labels   Labels   `fig:"labels"`
 	Discord  Discord  `fig:"discord"`
 	Gotify   Gotify   `fig:"gotify"`
 	SMTP     SMTP     `fig:"smtp"`
@@ -63,6 +64,11 @@ type Zones struct {
 	Unzoned string   `fig:"unzoned" default:"allow"`
 	Allow   []string `fig:"allow" default:[]`
 	Block   []string `fig:"block" default:[]`
+}
+
+type Labels struct {
+	Allow []string `fig:"allow" default:[]`
+	Block []string `fig:"block" default:[]`
 }
 
 type Discord struct {
@@ -184,7 +190,7 @@ func validateConfig() {
 		}
 	}
 
-	// Check Zone config
+	// Check Zone filtering config
 	if strings.ToLower(ConfigData.Alerts.Zones.Unzoned) != "allow" && strings.ToLower(ConfigData.Alerts.Zones.Unzoned) != "drop" {
 		configErrors = append(configErrors, "Option for unzoned events must be 'allow' or 'drop'")
 	} else {
@@ -206,6 +212,24 @@ func validateConfig() {
 		}
 	} else {
 		log.Println("No zones excluded")
+	}
+
+	// Check Label filtering config
+	if len(ConfigData.Alerts.Labels.Allow) > 0 {
+		log.Println("Labels to generate alerts for:")
+		for _, c := range ConfigData.Alerts.Labels.Allow {
+			log.Println(" -", c)
+		}
+	} else {
+		log.Println("All labels included in alerts")
+	}
+	if len(ConfigData.Alerts.Labels.Block) > 0 {
+		log.Println("Labels to exclude from alerting:")
+		for _, c := range ConfigData.Alerts.Labels.Block {
+			log.Println(" -", c)
+		}
+	} else {
+		log.Println("No labels excluded")
 	}
 
 	// Check / Load alerting configuration

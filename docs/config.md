@@ -147,6 +147,28 @@ alerts:
      - test_zone_02
 ```
 
+### Labels
+
+Similar to [zones](#zones), notifications can be filtered based on labels. By default, the app will generate notifications regardless of any labels received from Frigate. Using this config section, certain labels can be blocked from sending notifications - or an allowlist can be provided to only generate alerts from specified labels.
+
+- **allow** (Optional)
+    - Specify a list of labels to allow notifications
+    - If set, all other labels will be ignored
+    - If not set, all labels will generate notifications
+- **block** (Optional)
+    - Specify a list of labels to always ignore
+    - This takes precedence over the `allow` list
+
+```yaml title="Config File Snippet"
+alerts:
+  labels:
+    allow:
+     - person
+     - dog
+    block:
+     - bird
+```
+
 ### Discord
 
 - **enabled** (Optional - Default: `false`)

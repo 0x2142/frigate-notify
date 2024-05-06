@@ -60,7 +60,6 @@ func SubscribeMQTT() {
 
 // processEvent handles incoming MQTT messages & pulls out relevant info for alerting
 func processEvent(client mqtt.Client, msg mqtt.Message) {
-	fmt.Println("GOT MQTT")
 	// Parse incoming MQTT message
 	var event MQTTEvent
 	json.Unmarshal(msg.Payload(), &event)
@@ -83,8 +82,8 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("Event ID %v - Camera %v detected %v in zone(s): %v", event.After.ID, event.After.Camera, event.After.Label, event.After.CurrentZones)
 		log.Printf("Event ID %v - Start time: %s", event.After.ID, eventTime)
 
-		// Check that event passes the zone filter
-		if !isAllowedZone(event.After.ID, event.After.CurrentZones) {
+		// Check that event passes the zone & label filters
+		if !isAllowedZone(event.After.ID, event.After.CurrentZones) || !isAllowedLabel(event.After.ID, event.After.Label) {
 			return
 		}
 

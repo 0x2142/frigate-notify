@@ -61,6 +61,12 @@ alerts:
     block:
      - test_zone_02
 
+  labels:
+    # Filter notifications to only specific labels allowed here
+    allow:
+    # List of labels to never generate notifications
+    block:
+
   discord:
     # Set to true to enable alerting via Discord messages
     enabled: false

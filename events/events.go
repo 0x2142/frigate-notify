@@ -92,6 +92,27 @@ func isAllowedZone(id string, zones []string) bool {
 		}
 	}
 	// Default drop event
-	log.Printf("Event ID %v - Dropped. Not on allow list.", id)
+	log.Printf("Event ID %v - Dropped. Not on zone allow list.", id)
+	return false
+}
+
+// isAllowedLabel verifies whether a label should be allowed to generate a notification
+func isAllowedLabel(id string, label string) bool {
+	// Check label block list
+	if slices.Contains(config.ConfigData.Alerts.Labels.Block, label) {
+		log.Printf("Event ID %v - Dropped by label block list.", id)
+		return false
+	}
+	// If no allow list, all events are permitted
+	if len(config.ConfigData.Alerts.Labels.Allow) == 0 {
+		return true
+	}
+	// Check label allow list
+	if slices.Contains(config.ConfigData.Alerts.Labels.Allow, label) {
+		return true
+	}
+
+	// Default drop event
+	log.Printf("Event ID %v - Dropped. Not on label allow list.", id)
 	return false
 }
