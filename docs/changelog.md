@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.2.7](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.7) - TBD
+
+- Allow changing default MQTT topic prefix via config
+
 ## [v0.2.6](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.6) - Apr 01 2024
 
  - Fixed issue with setting `unzoned: drop` under zone config, where alerts wouldn't be sent if event began outside a zone.

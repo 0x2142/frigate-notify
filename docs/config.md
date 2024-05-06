@@ -58,6 +58,9 @@ frigate:
 - **password** (Optional)
     - MQTT password
     - Required if `username` is set
+- **topic_prefix** (Optional - Default: `frigate`)
+    - Optionally change MQTT topic prefix
+    - This should match the topic prefix used by Frigate
 
 ```yaml title="Config File Snippet"
 frigate:
@@ -68,6 +71,7 @@ frigate:
     clientid: frigate-notify
     username: mqtt-user
     password: mqtt-pass
+    topic_prefix: frigate
 ```
 
 ### Cameras
@@ -345,6 +349,7 @@ frigate:
     clientid:
     username: 
     password: 
+    topic_prefix: 
   
   cameras:
     exclude:

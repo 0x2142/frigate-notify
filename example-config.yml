@@ -28,6 +28,8 @@ frigate:
     # MQTT Authentication. Leave both blank for anonymous
     username: 
     password: 
+    # Optionally set custom topic prefix (Default: frigate)
+    topic_prefix: 
   
   cameras:
     # List of cameras to exclude from being monitored
