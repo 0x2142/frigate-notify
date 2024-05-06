@@ -390,6 +390,13 @@ alerts:
     block:
      - test_zone_02
 
+  labels:
+    allow:
+     - person
+     - dog
+    block:
+     - bird
+
   discord:
     enabled: false
     webhook: 
