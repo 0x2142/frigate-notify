@@ -1,6 +1,6 @@
 # Install / Setup 
 
-Both methods below will require a [configuration](config.md) file to be provided. A template can be found [here](config.md#sample-config)
+Both methods below will require a [configuration](config.md) file to be provided. A configuration template can be found [here](config.md#sample-config)
 
 ## Docker (Recommended)
 
@@ -16,16 +16,28 @@ services:
     environment:
       - TZ=Etc/UTC
     volumes:
-      - /path/to/config:/app/config
+      - /path/to/config.yml:/app/config.yml
     restart: unless-stopped
-
 ```
 
 Update `volumes` in the compose file to the location of the `config.yml` file. By default the app will check the `/app/config` directory for this file.
 
-The file name & path can also be modified by specifying a path via the `FN_CONFIGFILE` environment variable.
+The file name & path can also be modified by specifying a path via the `FN_CONFIGFILE` environment variable:
 
-Or optionally, run without docker compose:
+```yaml
+version: "3.0"
+services:
+  frigate-notify:
+    image: ghcr.io/0x2142/frigate-notify:latest
+    environment:
+      FN_CONFIGFILE: /app/config/config.yml
+      TZ: Etc/UTC
+    volumes:
+      - /path/to/config_directory:/app/config
+    restart: unless-stopped
+```
+
+Optionally, you can run without compose:
 
 ```bash
 docker run -v /path/to/config.yml:/app/config.yml ghcr.io/0x2142/frigate-notify:latest
