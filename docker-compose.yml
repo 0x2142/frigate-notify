@@ -5,5 +5,5 @@ services:
     environment:
       - TZ=Etc/UTC
     volumes:
-      - /path/to/config:/app/config
+      - /path/to/config.yml:/app/config.yml
     restart: unless-stopped

@@ -15,7 +15,7 @@ Configuration snippets will be provided throughout this page. Feel free to copy 
 
 ```yaml title="Config File Snippet"
 frigate:
-  server: nvr.your.domain.local
+  server: nvr.your.domain.tld
   ignoressl: true
 ```
 
@@ -66,7 +66,7 @@ frigate:
 frigate:
   mqtt: 
     enabled: true
-    server: mqtt.your.domain.local
+    server: mqtt.your.domain.tld
     port: 1883
     clientid: frigate-notify
     username: mqtt-user
@@ -202,7 +202,7 @@ alerts:
 alerts:  
   gotify:
     enabled: false
-    server: gotify.your.domain.local
+    server: gotify.your.domain.tld
     token: ABCDEF
     ignoressl: true
 ```
@@ -233,12 +233,12 @@ alerts:
 alerts:  
   smtp:
     enabled: false
-    server: smtp.your.domain.local
+    server: smtp.your.domain.tld
     port: 587
     tls: true
-    user: test_user@your.domain.local
+    user: test_user@your.domain.tld
     password: test_pass
-    recipient: nvr_group@your.domain.local, someone_else@your.domain.local
+    recipient: nvr_group@your.domain.tld, someone_else@your.domain.tld
 ```
 
 ### Telegram
