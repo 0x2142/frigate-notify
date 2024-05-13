@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.2.8](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.8) - Upcoming Release
+
+- Add support for notifications via [Nfty](https://frigate-notify.0x2142.com/config/#nfty)
+
 ## [v0.2.7](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.7) - May 06 2024
 
 - Allow changing default MQTT topic prefix via config

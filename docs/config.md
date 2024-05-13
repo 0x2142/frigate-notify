@@ -324,6 +324,31 @@ alerts:
     ttl:
 ```
 
+### Nfty
+
+!!!note
+    The default Frigate-Notify alert message uses Markdown. Currently, Nfty only supports Markdown in the web browser. This means that mobile notifications will be shown in plain-text & display un-rendered Markdown syntax. 
+
+- **enabled** (Optional - Default: `false`)
+    - Set to `true` to enable alerting via Nfty
+- **server** (Required)
+    - Full URL of the desired Nfty server
+    - Required if this alerting method is enabled
+- **topic** (Required)
+    - Destination topic that will receive alert notifications
+    - Required if this alerting method is enabled
+- **ignoressl** (Optional - Default: `false`)
+    - Set to `true` to allow self-signed certificates
+
+```yaml title="Config File Snippet"
+alerts: 
+  nfty:
+    enabled: true
+    server: https://nfty.your.domain.tld
+    topic: frigate
+    ignoressl: true
+```
+
 ## Monitor
 
 If enabled, this application will check in with tools like [HealthChecks](https://github.com/healthchecks/healthchecks) or [Uptime Kuma](https://github.com/louislam/uptime-kuma) on a regular interval for health / status monitoring.
@@ -430,6 +455,12 @@ alerts:
     retry:
     expire:
     ttl:
+
+  nfty:
+    enabled: false
+    server:
+    topic:
+    ignoressl:
 
 monitor:
   enabled: false
