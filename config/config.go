@@ -17,11 +17,12 @@ type Config struct {
 }
 
 type Frigate struct {
-	Server   string  `fig:"server" validate:"required"`
-	Insecure bool    `fig:"ignoressl" default:false`
-	WebAPI   WebAPI  `fig:"webapi"`
-	MQTT     MQTT    `fig:"mqtt"`
-	Cameras  Cameras `fig:"cameras"`
+	Server   string              `fig:"server" validate:"required"`
+	Insecure bool                `fig:"ignoressl" default:false`
+	Headers  []map[string]string `fig:"headers"`
+	WebAPI   WebAPI              `fig:"webapi"`
+	MQTT     MQTT                `fig:"mqtt"`
+	Cameras  Cameras             `fig:"cameras"`
 }
 
 type WebAPI struct {

@@ -12,11 +12,18 @@ Configuration snippets will be provided throughout this page. Feel free to copy 
     - IP or hostname of the Frigate NVR
 - **ignoressl** (Optional - Default: `false`)
     - Set to `true` to allow self-signed certificates
+- **headers** (Optional)
+    - Send additional HTTP headers to Frigate
+    - Useful for things like authentication
+    - Header format: `Header: Value`
+    - Example: `Authorization: Basic abcd1234`
 
 ```yaml title="Config File Snippet"
 frigate:
   server: nvr.your.domain.tld
   ignoressl: true
+  headers:
+    - Authorization: Basic abcd1234
 ```
 
 ### WebAPI
@@ -372,9 +379,7 @@ monitor:
   ignoressl: 
 ```
 
-
 ---
-
 
 ## Sample Config { data-search-exclude }
 
@@ -384,6 +389,7 @@ A full config file template has been provided below:
 frigate:
   server: 
   ignoressl: 
+  headers:
 
   webapi:
     enabled: 

@@ -35,9 +35,10 @@ func CheckForEvents() {
 	log.Println("Checking for new events...")
 
 	// Query events
-	response, err := util.HTTPGet(url, config.ConfigData.Frigate.Insecure)
+	response, err := util.HTTPGet(url, config.ConfigData.Frigate.Insecure, config.ConfigData.Frigate.Headers...)
 	if err != nil {
 		log.Printf("Cannot get events from %s", url)
+		log.Printf("Error received: %s", err)
 	}
 
 	var events []Event
@@ -87,7 +88,7 @@ func CheckForEvents() {
 
 // GetSnapshot downloads a snapshot from Frigate
 func GetSnapshot(snapshotURL, eventID string) io.Reader {
-	response, err := util.HTTPGet(snapshotURL, config.ConfigData.Frigate.Insecure)
+	response, err := util.HTTPGet(snapshotURL, config.ConfigData.Frigate.Insecure, config.ConfigData.Frigate.Headers...)
 	if err != nil {
 		log.Println("Could not access snaphot. Error: ", err)
 	}
