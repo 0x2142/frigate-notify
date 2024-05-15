@@ -1,8 +1,7 @@
 Detection at {{ .Extra.FormattedTime }}
 Camera: {{ .Camera }}
 Label: {{ .Label }} ({{ .Extra.TopScorePercent }})
-{{ if ge (len .Zones) 1 }}
-Zone(s): {{ .Zones}}
+{{ if ge (len .Zones ) 1 }}Zone(s): {{ .Extra.ZoneList }}
 {{ end }}
 Links:
 {{ if ne .Extra.PublicURL "" }} - Camera: {{ .Extra.PublicURL }}/cameras/{{ .Camera }}

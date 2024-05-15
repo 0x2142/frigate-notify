@@ -48,6 +48,7 @@ type Event struct {
 type ExtraFields struct {
 	FormattedTime   string
 	TopScorePercent string
+	ZoneList        string
 	LocalURL        string
 	PublicURL       string
 }

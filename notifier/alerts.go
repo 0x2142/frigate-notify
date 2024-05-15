@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strings"
 	"text/template"
 	"time"
 
@@ -43,6 +44,12 @@ func renderMessage(sourceTemplate string, event models.Event) string {
 	// Assign Frigate URL to extra event fields
 	event.Extra.LocalURL = config.ConfigData.Frigate.Server
 	event.Extra.PublicURL = config.ConfigData.Frigate.PublicURL
+
+	// MQTT uses CurrentZones, Web API uses Zones
+	// Combine into one object to use regardless of connection method
+	event.Zones = append(event.Zones, event.CurrentZones...)
+	// Join zones into plain comma-separated string
+	event.Extra.ZoneList = strings.Join(event.Zones, ", ")
 
 	// If certain time format is provided, re-format date / time string
 	eventTime := time.Unix(int64(event.StartTime), 0)
