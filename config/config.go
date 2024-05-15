@@ -1,12 +1,15 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/0x2142/frigate-notify/models"
+	"github.com/0x2142/frigate-notify/util"
 	"github.com/kkyr/fig"
 )
 
@@ -181,6 +184,20 @@ func validateConfig() {
 	if !strings.Contains(ConfigData.Frigate.Server, "http://") && !strings.Contains(ConfigData.Frigate.Server, "https://") {
 		log.Println("No protocol specified on Frigate Server. Assuming http://. If this is incorrect, please adjust the config file.")
 		ConfigData.Frigate.Server = fmt.Sprintf("http://%s", ConfigData.Frigate.Server)
+	}
+
+	// Test connectivity to Frigate
+	log.Print("Checking connection to Frigate server...")
+	statsAPI := fmt.Sprintf("%s/api/stats", ConfigData.Frigate.Server)
+	response, err := util.HTTPGet(statsAPI, ConfigData.Frigate.Insecure)
+	if err != nil {
+		log.Fatalf("Cannot reach Frigate server at %v, error: %v", ConfigData.Frigate.Server, err)
+	}
+	var stats models.FrigateStats
+	json.Unmarshal([]byte(response), &stats)
+	log.Printf("Successfully connected to %v", ConfigData.Frigate.Server)
+	if stats.Service.Version != "" {
+		log.Printf("Frigate server is running version %v", stats.Service.Version)
 	}
 
 	// Check Public / External URL if set
