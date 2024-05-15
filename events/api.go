@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/0x2142/frigate-notify/config"
+	"github.com/0x2142/frigate-notify/models"
 	"github.com/0x2142/frigate-notify/notifier"
 	"github.com/0x2142/frigate-notify/util"
 	"golang.org/x/exp/slices"
@@ -41,7 +42,7 @@ func CheckForEvents() {
 		log.Printf("Error received: %s", err)
 	}
 
-	var events []Event
+	var events []models.Event
 
 	json.Unmarshal([]byte(response), &events)
 
@@ -78,10 +79,8 @@ func CheckForEvents() {
 			snapshot = GetSnapshot(snapshotURL, event.ID)
 		}
 
-		message := buildMessage(eventTime, event)
-
 		// Send alert with snapshot
-		notifier.SendAlert(message, snapshotURL, snapshot, event.ID)
+		notifier.SendAlert(event, snapshotURL, snapshot, event.ID)
 	}
 
 }

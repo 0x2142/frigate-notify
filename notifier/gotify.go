@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/0x2142/frigate-notify/config"
+	"github.com/0x2142/frigate-notify/models"
 	"github.com/0x2142/frigate-notify/util"
 )
 
@@ -33,7 +34,10 @@ type gotifyPayload struct {
 }
 
 // SendGotifyPush forwards alert messages to Gotify push notification server
-func SendGotifyPush(message, snapshotURL string, eventid string) {
+func SendGotifyPush(event models.Event, snapshotURL string, eventid string) {
+	// Build notification
+	message := renderMessage("markdown", event)
+
 	if snapshotURL != "" {
 		message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
 	} else {

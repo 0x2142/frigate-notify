@@ -7,13 +7,17 @@ import (
 	"log"
 
 	"github.com/0x2142/frigate-notify/config"
+	"github.com/0x2142/frigate-notify/models"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/webhook"
 )
 
 // SendDiscordMessage pushes alert message to Discord via webhook
-func SendDiscordMessage(message string, snapshot io.Reader, eventid string) {
+func SendDiscordMessage(event models.Event, snapshot io.Reader, eventid string) {
 	var err error
+
+	// Build notification
+	message := renderMessage("markdown", event)
 
 	// Connect to Discord
 	client, err := webhook.NewWithURL(config.ConfigData.Alerts.Discord.Webhook)

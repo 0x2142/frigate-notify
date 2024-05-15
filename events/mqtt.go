@@ -8,21 +8,11 @@ import (
 	"time"
 
 	"github.com/0x2142/frigate-notify/config"
+	"github.com/0x2142/frigate-notify/models"
 	"github.com/0x2142/frigate-notify/notifier"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"golang.org/x/exp/slices"
 )
-
-// MQTTEvent stores incoming MQTT payloads from Frigate
-type MQTTEvent struct {
-	Before struct {
-		Event
-	} `json:"before,omitempty"`
-	After struct {
-		Event
-	} `json:"after,omitempty"`
-	Type string `json:"type"`
-}
 
 // SubscribeMQTT establishes subscription to MQTT server & listens for messages
 func SubscribeMQTT() {
@@ -61,7 +51,7 @@ func SubscribeMQTT() {
 // processEvent handles incoming MQTT messages & pulls out relevant info for alerting
 func processEvent(client mqtt.Client, msg mqtt.Message) {
 	// Parse incoming MQTT message
-	var event MQTTEvent
+	var event models.MQTTEvent
 	json.Unmarshal(msg.Payload(), &event)
 
 	if event.Type == "new" || event.Type == "update" {
@@ -109,10 +99,8 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 			snapshot = GetSnapshot(snapshotURL, event.After.ID)
 		}
 
-		message := buildMessage(eventTime, event.After.Event)
-
 		// Send alert with snapshot
-		notifier.SendAlert(message, snapshotURL, snapshot, event.After.ID)
+		notifier.SendAlert(event.After.Event, snapshotURL, snapshot, event.After.ID)
 	}
 }
 
