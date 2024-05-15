@@ -150,11 +150,10 @@ func LoadConfig(configFile string) {
 	if err != nil {
 		log.Fatal("Failed to load config file! Error: ", err)
 	}
+	log.Print("Config file loaded.")
 
 	// Send config file to validation before completing
 	validateConfig()
-
-	log.Print("Config file loaded.")
 }
 
 // validateConfig checks config file structure & loads info into associated packages
