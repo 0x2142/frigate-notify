@@ -162,6 +162,11 @@ func validateConfig() {
 		configErrors = append(configErrors, "Please configure only one polling method: Frigate Web API or MQTT")
 	}
 
+	// Set default web API interval if not specified
+	if ConfigData.Frigate.WebAPI.Enabled && ConfigData.Frigate.WebAPI.Interval == 0 {
+		ConfigData.Frigate.WebAPI.Interval = 30
+	}
+
 	// Warn on test mode being enabled
 	if ConfigData.Frigate.WebAPI.Enabled && ConfigData.Frigate.WebAPI.TestMode {
 		log.Print("~~~~~~~~~~~~~~~~~~~")

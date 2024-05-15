@@ -36,7 +36,7 @@ frigate:
 - **enabled** (Optional - Default: `false`)
     - If set to `true`, Frigate events are collected by polling the web API
 - **interval** (Optional - Default: `30`)
-    - How frequently to check the Frigate web API for new events, in seconds 
+    - How frequently to check the Frigate web API for new events, in seconds
 
 ```yaml title="Config File Snippet"
 frigate:
