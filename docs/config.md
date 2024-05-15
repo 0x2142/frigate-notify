@@ -326,11 +326,6 @@ alerts:
 
 ### Nfty
 
-!!!note
-    The default Frigate-Notify alert message uses Markdown. Currently, Nfty only supports Markdown in the web browser. This means that mobile notifications will be shown in plain-text & display un-rendered Markdown syntax.
-
-    ⭐ This is temporary - In an upcoming release, this behavior will be adjusted to clean up the markdown syntax.
-
 - **enabled** (Optional - Default: `false`)
     - Set to `true` to enable alerting via Nfty
 - **server** (Required)
