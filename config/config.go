@@ -53,6 +53,7 @@ type Alerts struct {
 	SMTP     SMTP     `fig:"smtp"`
 	Telegram Telegram `fig:"telegram"`
 	Pushover Pushover `fig:"pushover"`
+	Nfty     Nfty     `fig:"nfty"`
 }
 
 type General struct {
@@ -108,6 +109,13 @@ type Pushover struct {
 	Retry    int    `fig:"retry" default:0`
 	Expire   int    `fig:"expire" default:0`
 	TTL      int    `fig:"ttl" default:0`
+}
+
+type Nfty struct {
+	Enabled  bool   `fig:"enabled" default:false`
+	Server   string `fig:"server" default:""`
+	Topic    string `fig:"topic" default:""`
+	Insecure bool   `fig:"ignoressl" default:false`
 }
 
 type Monitor struct {
@@ -300,6 +308,16 @@ func validateConfig() {
 		if ConfigData.Alerts.Pushover.TTL < 0 {
 			configErrors = append(configErrors, "Pushover TTL cannot be negative!")
 		}
+	}
+	if ConfigData.Alerts.Nfty.Enabled {
+		log.Print("Nfty alerting enabled.")
+		if ConfigData.Alerts.Nfty.Server == "" {
+			configErrors = append(configErrors, "No Nfty server specified!")
+		}
+		if ConfigData.Alerts.Nfty.Topic == "" {
+			configErrors = append(configErrors, "No Nfty topic specified!")
+		}
+
 	}
 
 	// Validate monitoring config

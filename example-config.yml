@@ -127,6 +127,16 @@ alerts:
     # Optional message lifetime
     ttl:
 
+  # Nfty Config
+  nfty:
+    # Set to true to enable alerting via
+    enabled: false
+    # URL of Nfty server
+    server:
+    # Nfty topic for notifications
+    topic:
+    # Set to true if using SSL & a self-signed certificate
+    ignoressl:
 
 ## App Monitoring
 # Sends HTTP GET to provided URL for aliveness checks

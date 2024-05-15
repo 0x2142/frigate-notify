@@ -43,7 +43,7 @@ func HTTPGet(url string, insecure bool) ([]byte, error) {
 
 // HTTPPost performs an HTTP POST to the target URL
 // and includes auth parameters, ignoring certificates, etc
-func HTTPPost(url string, insecure bool, payload []byte) ([]byte, error) {
+func HTTPPost(url string, insecure bool, payload []byte, headers ...map[string]string) ([]byte, error) {
 	// New HTTP Client
 	client := http.Client{Timeout: 10 * time.Second}
 
@@ -58,7 +58,17 @@ func HTTPPost(url string, insecure bool, payload []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", "application/json")
+	//req.Header.Set("Content-Type", "application/json")
+
+	if len(headers) > 0 {
+		for _, h := range headers {
+			for k, v := range h {
+				req.Header.Add(k, v)
+			}
+
+		}
+
+	}
 
 	// Send HTTP POST
 	response, err := client.Do(req)

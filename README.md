@@ -24,6 +24,7 @@ Currently Frigate only supports notifications through Home Assistant, which I'm 
 - SMTP
 - Telegram
 - Pushover
+- Nfty
 
 **Other**
 - Aliveness monitor via HTTP GET (for use with tools like [HealthChecks](https://github.com/healthchecks/healthchecks) or [Uptime Kuma](https://github.com/louislam/uptime-kuma))

@@ -49,13 +49,14 @@ func SendGotifyPush(message, snapshotURL string, eventid string) {
 
 	data, err := json.Marshal(payload)
 	if err != nil {
-		log.Println("Event ID %v - Unable to build Gotify payload: ", eventid, err)
+		log.Printf("Event ID %v - Unable to build Gotify payload: %v", eventid, err)
 		return
 	}
 
 	gotifyURL := fmt.Sprintf("%s/message?token=%s&", config.ConfigData.Alerts.Gotify.Server, config.ConfigData.Alerts.Gotify.Token)
 
-	response, err := util.HTTPPost(gotifyURL, config.ConfigData.Alerts.Gotify.Insecure, data)
+	header := map[string]string{"Content-Type": "application/json"}
+	response, err := util.HTTPPost(gotifyURL, config.ConfigData.Alerts.Gotify.Insecure, data, header)
 	if err != nil {
 		log.Print("Failed to send Gotify notification: ", err)
 		return
