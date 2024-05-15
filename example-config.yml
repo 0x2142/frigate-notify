@@ -10,6 +10,11 @@ frigate:
   # Set to true if using SSL & a self-signed certificate
   ignoressl: false
 
+  # List of HTTP headers to send to Frigate, in format Header: Value
+  headers:
+    # Example:
+    # - Authorization: Basic abcd1234
+
   webapi:
     # Set to true to enable event collection via the web API
     enabled: 

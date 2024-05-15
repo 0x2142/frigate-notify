@@ -3,13 +3,15 @@ package util
 import (
 	"bytes"
 	"crypto/tls"
+	"errors"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 // HTTPGet is a simple HTTP client function to return page body
-func HTTPGet(url string, insecure bool) ([]byte, error) {
+func HTTPGet(url string, insecure bool, headers ...map[string]string) ([]byte, error) {
 
 	// New HTTP Client
 	client := http.Client{Timeout: 10 * time.Second}
@@ -25,6 +27,16 @@ func HTTPGet(url string, insecure bool) ([]byte, error) {
 		return nil, err
 	}
 
+	// Add headers
+	if len(headers) > 0 {
+		for _, h := range headers {
+			for k, v := range h {
+				req.Header.Add(k, v)
+			}
+
+		}
+	}
+
 	// Send HTTP GET
 	response, err := client.Do(req)
 	if err != nil {
@@ -36,6 +48,10 @@ func HTTPGet(url string, insecure bool) ([]byte, error) {
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if response.StatusCode != 200 {
+		return nil, errors.New(strconv.Itoa(response.StatusCode))
 	}
 
 	return body, nil
@@ -58,8 +74,8 @@ func HTTPPost(url string, insecure bool, payload []byte, headers ...map[string]s
 	if err != nil {
 		return nil, err
 	}
-	//req.Header.Set("Content-Type", "application/json")
 
+	// Add headers
 	if len(headers) > 0 {
 		for _, h := range headers {
 			for k, v := range h {
@@ -67,7 +83,6 @@ func HTTPPost(url string, insecure bool, payload []byte, headers ...map[string]s
 			}
 
 		}
-
 	}
 
 	// Send HTTP POST
