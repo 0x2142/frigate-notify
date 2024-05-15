@@ -1,8 +1,8 @@
-Detection at {{ .Extra.FormattedTime }}
-Camera: {{ .Camera }}
-Label: {{ .Label }} ({{ .Extra.TopScorePercent }})
-{{ if ge (len .Zones) 1 }}
-Zone(s): {{ .Zones}}
+Detection at {{ .Extra.FormattedTime }}  
+Camera: {{ .Camera }}  
+Label: {{ .Label }} ({{ .Extra.TopScorePercent }})  
+{{ if ge (len .Zones ) 1 }}Zone(s): {{ .Extra.ZoneList }}  
 {{ end }}
-Links: [Camera]({{ .Extra.LocalURL }}/cameras/{{ .Camera }}) {{- if .HasClip }} | [Event Clip]({{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4)
+{{ if ne .Extra.PublicURL "" }}Links: [Camera]({{ .Extra.PublicURL }}/cameras/{{ .Camera }}) {{ if .HasClip }} | [Event Clip]({{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4){{ end }}
+{{ else }}Links: [Camera]({{ .Extra.LocalURL }}/cameras/{{ .Camera }}){{ if .HasClip }} | [Event Clip]({{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4){{ end }}
 {{ end }}

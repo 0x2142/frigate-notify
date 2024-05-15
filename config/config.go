@@ -1,12 +1,15 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/0x2142/frigate-notify/models"
+	"github.com/0x2142/frigate-notify/util"
 	"github.com/kkyr/fig"
 )
 
@@ -17,12 +20,13 @@ type Config struct {
 }
 
 type Frigate struct {
-	Server   string              `fig:"server" validate:"required"`
-	Insecure bool                `fig:"ignoressl" default:false`
-	Headers  []map[string]string `fig:"headers"`
-	WebAPI   WebAPI              `fig:"webapi"`
-	MQTT     MQTT                `fig:"mqtt"`
-	Cameras  Cameras             `fig:"cameras"`
+	Server    string              `fig:"server" validate:"required"`
+	Insecure  bool                `fig:"ignoressl" default:false`
+	PublicURL string              `fig:"public_url" default:""`
+	Headers   []map[string]string `fig:"headers"`
+	WebAPI    WebAPI              `fig:"webapi"`
+	MQTT      MQTT                `fig:"mqtt"`
+	Cameras   Cameras             `fig:"cameras"`
 }
 
 type WebAPI struct {
@@ -146,11 +150,10 @@ func LoadConfig(configFile string) {
 	if err != nil {
 		log.Fatal("Failed to load config file! Error: ", err)
 	}
+	log.Print("Config file loaded.")
 
 	// Send config file to validation before completing
 	validateConfig()
-
-	log.Print("Config file loaded.")
 }
 
 // validateConfig checks config file structure & loads info into associated packages
@@ -160,6 +163,11 @@ func validateConfig() {
 
 	if (ConfigData.Frigate.WebAPI.Enabled && ConfigData.Frigate.MQTT.Enabled) || (!ConfigData.Frigate.WebAPI.Enabled && !ConfigData.Frigate.MQTT.Enabled) {
 		configErrors = append(configErrors, "Please configure only one polling method: Frigate Web API or MQTT")
+	}
+
+	// Set default web API interval if not specified
+	if ConfigData.Frigate.WebAPI.Enabled && ConfigData.Frigate.WebAPI.Interval == 0 {
+		ConfigData.Frigate.WebAPI.Interval = 30
 	}
 
 	// Warn on test mode being enabled
@@ -175,6 +183,27 @@ func validateConfig() {
 	if !strings.Contains(ConfigData.Frigate.Server, "http://") && !strings.Contains(ConfigData.Frigate.Server, "https://") {
 		log.Println("No protocol specified on Frigate Server. Assuming http://. If this is incorrect, please adjust the config file.")
 		ConfigData.Frigate.Server = fmt.Sprintf("http://%s", ConfigData.Frigate.Server)
+	}
+
+	// Test connectivity to Frigate
+	log.Print("Checking connection to Frigate server...")
+	statsAPI := fmt.Sprintf("%s/api/stats", ConfigData.Frigate.Server)
+	response, err := util.HTTPGet(statsAPI, ConfigData.Frigate.Insecure)
+	if err != nil {
+		log.Fatalf("Cannot reach Frigate server at %v, error: %v", ConfigData.Frigate.Server, err)
+	}
+	var stats models.FrigateStats
+	json.Unmarshal([]byte(response), &stats)
+	log.Printf("Successfully connected to %v", ConfigData.Frigate.Server)
+	if stats.Service.Version != "" {
+		log.Printf("Frigate server is running version %v", stats.Service.Version)
+	}
+
+	// Check Public / External URL if set
+	if ConfigData.Frigate.PublicURL != "" {
+		if !strings.Contains(ConfigData.Frigate.PublicURL, "http://") && !strings.Contains(ConfigData.Frigate.PublicURL, "https://") {
+			configErrors = append(configErrors, "Public URL must include http:// or https://")
+		}
 	}
 
 	// Check for camera exclusions

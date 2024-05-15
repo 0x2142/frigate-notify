@@ -9,9 +9,15 @@ Configuration snippets will be provided throughout this page. Feel free to copy 
 ### Server
 
 - **server** (Required)
-    - IP or hostname of the Frigate NVR
+    - IP, hostname, or URL of the Frigate NVR
+    - If IP or hostname specified, app will prepend `http://`
+    - If Frigate is not behind a reverse proxy, append port number if necessary
 - **ignoressl** (Optional - Default: `false`)
-    - Set to `true` to allow self-signed certificates
+    - Set to `true` to allow self-signed certificates for `server`
+- **public_url** (Optional)
+    - Should be set if Frigate is available via an external, public URL
+    - This value is used for the links used in notifications
+    - Format should be full URL (example: `https://nvr.your.public.domain.tld`)
 - **headers** (Optional)
     - Send additional HTTP headers to Frigate
     - Useful for things like authentication
@@ -22,6 +28,7 @@ Configuration snippets will be provided throughout this page. Feel free to copy 
 frigate:
   server: nvr.your.domain.tld
   ignoressl: true
+  public_url: https://nvr.your.public.domain.tld
   headers:
     - Authorization: Basic abcd1234
 ```
@@ -34,7 +41,7 @@ frigate:
 - **enabled** (Optional - Default: `false`)
     - If set to `true`, Frigate events are collected by polling the web API
 - **interval** (Optional - Default: `30`)
-    - How frequently to check the Frigate web API for new events, in seconds 
+    - How frequently to check the Frigate web API for new events, in seconds
 
 ```yaml title="Config File Snippet"
 frigate:
@@ -385,7 +392,8 @@ A full config file template has been provided below:
 ```yaml
 frigate:
   server: 
-  ignoressl: 
+  ignoressl:
+  public_url:
   headers:
 
   webapi:

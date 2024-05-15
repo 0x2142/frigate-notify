@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strings"
 	"text/template"
 	"time"
 
@@ -42,12 +43,25 @@ func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, event
 func renderMessage(sourceTemplate string, event models.Event) string {
 	// Assign Frigate URL to extra event fields
 	event.Extra.LocalURL = config.ConfigData.Frigate.Server
+	event.Extra.PublicURL = config.ConfigData.Frigate.PublicURL
+
+	// MQTT uses CurrentZones, Web API uses Zones
+	// Combine into one object to use regardless of connection method
+	event.Zones = append(event.Zones, event.CurrentZones...)
+	// Join zones into plain comma-separated string
+	event.Extra.ZoneList = strings.Join(event.Zones, ", ")
 
 	// If certain time format is provided, re-format date / time string
 	eventTime := time.Unix(int64(event.StartTime), 0)
 	event.Extra.FormattedTime = eventTime.String()
 	if config.ConfigData.Alerts.General.TimeFormat != "" {
 		event.Extra.FormattedTime = eventTime.Format(config.ConfigData.Alerts.General.TimeFormat)
+	}
+
+	// For Web API query, top-level top_score value is no longer used
+	// So need to replace it with data.top_score value
+	if event.TopScore == 0 {
+		event.TopScore = event.Data.TopScore
 	}
 	// Calc TopScore percentage
 	event.Extra.TopScorePercent = fmt.Sprintf("%v%%", int((event.TopScore * 100)))

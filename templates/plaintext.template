@@ -1,11 +1,11 @@
 Detection at {{ .Extra.FormattedTime }}
 Camera: {{ .Camera }}
 Label: {{ .Label }} ({{ .Extra.TopScorePercent }})
-{{ if ge (len .Zones) 1 }}
-Zone(s): {{ .Zones}}
+{{ if ge (len .Zones ) 1 }}Zone(s): {{ .Extra.ZoneList }}
 {{ end }}
 Links:
- - Camera: {{ .Extra.LocalURL }}/cameras/{{ .Camera }}
-{{- if .HasClip }}
- - Event Clip: {{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4
+{{ if ne .Extra.PublicURL "" }} - Camera: {{ .Extra.PublicURL }}/cameras/{{ .Camera }}
+{{ if .HasClip }} - Event Clip: {{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}
+{{ else }} - Camera: {{ .Extra.LocalURL }}/cameras/{{ .Camera }}
+{{ if .HasClip }} - Event Clip: {{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}
 {{ end }}

@@ -8,7 +8,6 @@ require (
 	github.com/disgoorg/disgo v0.17.2
 	github.com/eclipse/paho.mqtt.golang v1.4.3
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
-	github.com/gomarkdown/markdown v0.0.0-20231222211730-1d6d20845b47
 	github.com/gregdel/pushover v1.3.0
 	github.com/kkyr/fig v0.4.0
 	github.com/wneessen/go-mail v0.4.1

@@ -1,10 +1,15 @@
 # Changelog
 
-## [v0.2.8](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.8) - Upcoming Release
+## [v0.2.8](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.8) - May 15 2024
 
 - Add support for notifications via [Nfty](https://frigate-notify.0x2142.com/config/#nfty)
 - Add ability to send additional HTTP [headers](https://frigate-notify.0x2142.com/config/#frigate) to Frigate
+- Add new `public_url` config item for Frigate
+    - This will be used in notification links & should be configured if Frigate is accessible via the internet
+- Add startup check to verify Frigate API is accessible
 - Rework event notifications to be built from templates
+- Fix default interval for querying evens via web API
+- Fix issue where label score is 0% via web API event query
 
 ## [v0.2.7](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.7) - May 06 2024
 

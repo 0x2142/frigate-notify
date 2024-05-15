@@ -13,9 +13,17 @@ type MQTTEvent struct {
 
 // Event stores Frigate alert attributes
 type Event struct {
-	Area               interface{} `json:"area"`
-	Box                interface{} `json:"box"`
-	Camera             string      `json:"camera"`
+	Area   interface{} `json:"area"`
+	Box    interface{} `json:"box"`
+	Camera string      `json:"camera"`
+	Data   struct {
+		Attributes []interface{} `json:"attributes"`
+		Box        []float64     `json:"box"`
+		Region     []float64     `json:"region"`
+		Score      float64       `json:"score"`
+		TopScore   float64       `json:"top_score"`
+		Type       string        `json:"type"`
+	} `json:"data"`
 	EndTime            interface{} `json:"end_time"`
 	FalsePositive      interface{} `json:"false_positive"`
 	HasClip            bool        `json:"has_clip"`
@@ -40,5 +48,7 @@ type Event struct {
 type ExtraFields struct {
 	FormattedTime   string
 	TopScorePercent string
+	ZoneList        string
 	LocalURL        string
+	PublicURL       string
 }
