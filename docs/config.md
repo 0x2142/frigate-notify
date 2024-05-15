@@ -9,7 +9,9 @@ Configuration snippets will be provided throughout this page. Feel free to copy 
 ### Server
 
 - **server** (Required)
-    - IP or hostname of the Frigate NVR
+    - IP, hostname, or URL of the Frigate NVR
+    - If IP or hostname specified, app will prepend `http://`
+    - If Frigate is not behind a reverse proxy, append port number if necessary
 - **ignoressl** (Optional - Default: `false`)
     - Set to `true` to allow self-signed certificates
 - **headers** (Optional)
