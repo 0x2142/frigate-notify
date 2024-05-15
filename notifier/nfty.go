@@ -7,11 +7,15 @@ import (
 	"strings"
 
 	"github.com/0x2142/frigate-notify/config"
+	"github.com/0x2142/frigate-notify/models"
 	"github.com/0x2142/frigate-notify/util"
 )
 
 // SendNftyPush forwards alert messages to Nfty server
-func SendNftyPush(message string, snapshot io.Reader, eventid string) {
+func SendNftyPush(event models.Event, snapshot io.Reader, eventid string) {
+	// Build notification
+	message := renderMessage("plaintext", event)
+
 	NftyURL := fmt.Sprintf("%s/%s", config.ConfigData.Alerts.Nfty.Server, config.ConfigData.Alerts.Nfty.Topic)
 
 	// Set headers

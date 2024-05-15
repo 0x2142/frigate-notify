@@ -4,6 +4,7 @@
 
 - Add support for notifications via [Nfty](https://frigate-notify.0x2142.com/config/#nfty)
 - Add ability to send additional HTTP [headers](https://frigate-notify.0x2142.com/config/#frigate) to Frigate
+- Rework event notifications to be built from templates
 
 ## [v0.2.7](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.7) - May 06 2024
 

@@ -7,12 +7,15 @@ import (
 	"time"
 
 	"github.com/0x2142/frigate-notify/config"
-	"github.com/gomarkdown/markdown"
+	"github.com/0x2142/frigate-notify/models"
 	"github.com/wneessen/go-mail"
 )
 
 // SendSMTP forwards alert data via email
-func SendSMTP(message string, snapshot io.Reader, eventid string) {
+func SendSMTP(event models.Event, snapshot io.Reader, eventid string) {
+	// Build notification
+	message := renderMessage("html", event)
+
 	// Set up email alert
 	m := mail.NewMsg()
 	m.From(config.ConfigData.Alerts.SMTP.User)
@@ -24,9 +27,9 @@ func SendSMTP(message string, snapshot io.Reader, eventid string) {
 	} else {
 		message += "\n\nNo snapshot saved."
 	}
+
 	// Convert message body to HTML
-	htmlMessage := markdown.ToHTML([]byte(message), nil, nil)
-	m.SetBodyString(mail.TypeTextHTML, string(htmlMessage))
+	m.SetBodyString(mail.TypeTextHTML, message)
 
 	time.Sleep(5 * time.Second)
 
@@ -44,12 +47,12 @@ func SendSMTP(message string, snapshot io.Reader, eventid string) {
 	}
 
 	if err != nil {
-		log.Print("Event ID %v - Failed to connect to SMTP Server: ", eventid, err)
+		log.Printf("Event ID %v - Failed to connect to SMTP Server: %v", eventid, err)
 	}
 
 	// Send message
 	if err := c.DialAndSend(m); err != nil {
-		log.Print("Event ID %v - Failed to send SMTP message: ", eventid, err)
+		log.Printf("Event ID %v - Failed to send SMTP message: %v", eventid, err)
 		return
 	}
 	log.Printf("Event ID %v - SMTP alert sent", eventid)

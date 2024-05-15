@@ -6,40 +6,38 @@ import (
 	"strings"
 
 	"github.com/0x2142/frigate-notify/config"
+	"github.com/0x2142/frigate-notify/models"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/gomarkdown/markdown"
 )
 
 // SendTelegramMessage sends alert through Telegram to individual users
-func SendTelegramMessage(message string, snapshot io.Reader, eventid string) {
+func SendTelegramMessage(event models.Event, snapshot io.Reader, eventid string) {
+	// Build notification
+	message := renderMessage("html", event)
+	message = strings.ReplaceAll(message, "<br />", "")
+
 	bot, err := tgbotapi.NewBotAPI(config.ConfigData.Alerts.Telegram.Token)
 	if err != nil {
-		log.Print("Event ID %v - Failed to connect to Telegram:", eventid, err)
+		log.Printf("Event ID %v - Failed to connect to Telegram: %v", eventid, err)
 		return
 	}
-
-	// Convert message to HTML & remove tags not permitted by Telegram
-	htmlMessage := string(markdown.ToHTML([]byte(message), nil, nil))
-	htmlMessage = strings.Replace(htmlMessage, "<p>", "", -1)
-	htmlMessage = strings.Replace(htmlMessage, "</p>", "", -1)
-	htmlMessage = strings.Replace(htmlMessage, "<br>", "", -1)
 
 	if snapshot != nil {
 		// Attach & send snapshot
 		photo := tgbotapi.NewPhoto(config.ConfigData.Alerts.Telegram.ChatID, tgbotapi.FileReader{Name: "Snapshot", Reader: snapshot})
-		photo.Caption = htmlMessage
+		photo.Caption = message
 		photo.ParseMode = "HTML"
 		if _, err := bot.Send(photo); err != nil {
-			log.Print("Event ID %v - Failed to send alert via Telegram:", eventid, err)
+			log.Printf("Event ID %v - Failed to send alert via Telegram: %v", eventid, err)
 			return
 		}
 	} else {
 		// Send plain text message if no snapshot available
-		htmlMessage += "No snapshot saved."
-		msg := tgbotapi.NewMessage(config.ConfigData.Alerts.Telegram.ChatID, htmlMessage)
+		message += "No snapshot saved."
+		msg := tgbotapi.NewMessage(config.ConfigData.Alerts.Telegram.ChatID, message)
 		msg.ParseMode = "HTML"
 		if _, err := bot.Send(msg); err != nil {
-			log.Print("Event ID %v - Failed to send alert via Telegram:", eventid, err)
+			log.Printf("Event ID %v - Failed to send alert via Telegram: %v", eventid, err)
 			return
 		}
 	}

@@ -8,22 +8,22 @@ import (
 	"time"
 
 	"github.com/0x2142/frigate-notify/config"
-	"github.com/gomarkdown/markdown"
+	"github.com/0x2142/frigate-notify/models"
 	"github.com/gregdel/pushover"
 )
 
 // SendPushoverMessage sends alert message through Pushover service
-func SendPushoverMessage(message string, snapshot io.Reader, eventid string) {
+func SendPushoverMessage(event models.Event, snapshot io.Reader, eventid string) {
+	// Build notification
+	message := renderMessage("html", event)
+	message = strings.ReplaceAll(message, "<br />", "")
+
 	push := pushover.New(config.ConfigData.Alerts.Pushover.Token)
 	recipient := pushover.NewRecipient(config.ConfigData.Alerts.Pushover.Userkey)
 
-	// Convert message to HTML & strip newline characters
-	htmlMessage := string(markdown.ToHTML([]byte(message), nil, nil))
-	htmlMessage = strings.Replace(htmlMessage, "\n", "", -1)
-
 	// Create new message
 	notif := &pushover.Message{
-		Message:  htmlMessage,
+		Message:  message,
 		Title:    config.ConfigData.Alerts.General.Title,
 		Priority: config.ConfigData.Alerts.Pushover.Priority,
 		HTML:     true,
@@ -47,12 +47,12 @@ func SendPushoverMessage(message string, snapshot io.Reader, eventid string) {
 	if snapshot != nil {
 		notif.AddAttachment(snapshot)
 		if _, err := push.SendMessage(notif, recipient); err != nil {
-			log.Print("Event ID %v - Error sending Pushover notification:", eventid, err)
+			log.Printf("Event ID %v - Error sending Pushover notification: %v", eventid, err)
 			return
 		}
 	} else {
 		if _, err := push.SendMessage(notif, recipient); err != nil {
-			log.Print("Event ID %v - Error sending Pushover notification:", eventid, err)
+			log.Printf("Event ID %v - Error sending Pushover notification: %v", eventid, err)
 			return
 		}
 	}
