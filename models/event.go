@@ -41,4 +41,5 @@ type ExtraFields struct {
 	FormattedTime   string
 	TopScorePercent string
 	LocalURL        string
+	PublicURL       string
 }

@@ -13,7 +13,11 @@ Configuration snippets will be provided throughout this page. Feel free to copy 
     - If IP or hostname specified, app will prepend `http://`
     - If Frigate is not behind a reverse proxy, append port number if necessary
 - **ignoressl** (Optional - Default: `false`)
-    - Set to `true` to allow self-signed certificates
+    - Set to `true` to allow self-signed certificates for `server`
+- **public_url** (Optional)
+    - Should be set if Frigate is available via an external, public URL
+    - This value is used for the links used in notifications
+    - Format should be full URL (example: `https://nvr.your.public.domain.tld`)
 - **headers** (Optional)
     - Send additional HTTP headers to Frigate
     - Useful for things like authentication
@@ -24,6 +28,7 @@ Configuration snippets will be provided throughout this page. Feel free to copy 
 frigate:
   server: nvr.your.domain.tld
   ignoressl: true
+  public_url: https://nvr.your.public.domain.tld
   headers:
     - Authorization: Basic abcd1234
 ```
@@ -387,7 +392,8 @@ A full config file template has been provided below:
 ```yaml
 frigate:
   server: 
-  ignoressl: 
+  ignoressl:
+  public_url:
   headers:
 
   webapi:

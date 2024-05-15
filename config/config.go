@@ -17,12 +17,13 @@ type Config struct {
 }
 
 type Frigate struct {
-	Server   string              `fig:"server" validate:"required"`
-	Insecure bool                `fig:"ignoressl" default:false`
-	Headers  []map[string]string `fig:"headers"`
-	WebAPI   WebAPI              `fig:"webapi"`
-	MQTT     MQTT                `fig:"mqtt"`
-	Cameras  Cameras             `fig:"cameras"`
+	Server    string              `fig:"server" validate:"required"`
+	Insecure  bool                `fig:"ignoressl" default:false`
+	PublicURL string              `fig:"public_url" default:""`
+	Headers   []map[string]string `fig:"headers"`
+	WebAPI    WebAPI              `fig:"webapi"`
+	MQTT      MQTT                `fig:"mqtt"`
+	Cameras   Cameras             `fig:"cameras"`
 }
 
 type WebAPI struct {
@@ -180,6 +181,13 @@ func validateConfig() {
 	if !strings.Contains(ConfigData.Frigate.Server, "http://") && !strings.Contains(ConfigData.Frigate.Server, "https://") {
 		log.Println("No protocol specified on Frigate Server. Assuming http://. If this is incorrect, please adjust the config file.")
 		ConfigData.Frigate.Server = fmt.Sprintf("http://%s", ConfigData.Frigate.Server)
+	}
+
+	// Check Public / External URL if set
+	if ConfigData.Frigate.PublicURL != "" {
+		if !strings.Contains(ConfigData.Frigate.PublicURL, "http://") && !strings.Contains(ConfigData.Frigate.PublicURL, "https://") {
+			configErrors = append(configErrors, "Public URL must include http:// or https://")
+		}
 	}
 
 	// Check for camera exclusions

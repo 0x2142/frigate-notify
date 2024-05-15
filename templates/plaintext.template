@@ -5,7 +5,8 @@ Label: {{ .Label }} ({{ .Extra.TopScorePercent }})
 Zone(s): {{ .Zones}}
 {{ end }}
 Links:
- - Camera: {{ .Extra.LocalURL }}/cameras/{{ .Camera }}
-{{- if .HasClip }}
- - Event Clip: {{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4
+{{ if ne .Extra.PublicURL "" }} - Camera: {{ .Extra.PublicURL }}/cameras/{{ .Camera }}
+{{ if .HasClip }} - Event Clip: {{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}
+{{ else }} - Camera: {{ .Extra.LocalURL }}/cameras/{{ .Camera }}
+{{ if .HasClip }} - Event Clip: {{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}
 {{ end }}

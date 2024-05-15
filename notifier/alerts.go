@@ -42,6 +42,7 @@ func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, event
 func renderMessage(sourceTemplate string, event models.Event) string {
 	// Assign Frigate URL to extra event fields
 	event.Extra.LocalURL = config.ConfigData.Frigate.Server
+	event.Extra.PublicURL = config.ConfigData.Frigate.PublicURL
 
 	// If certain time format is provided, re-format date / time string
 	eventTime := time.Unix(int64(event.StartTime), 0)
