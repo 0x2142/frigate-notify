@@ -1,11 +1,11 @@
 package notifier
 
 import (
-	"fmt"
 	"io"
-	"log"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
@@ -34,7 +34,6 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader, eventid string)
 	if notif.Priority == 2 {
 		notif.Retry = time.Duration(config.ConfigData.Alerts.Pushover.Retry) * time.Second
 		notif.Expire = time.Duration(config.ConfigData.Alerts.Pushover.Expire) * time.Second
-		fmt.Print(notif.Retry, notif.Expire)
 	}
 
 	// Add target devices if specified
@@ -47,15 +46,24 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader, eventid string)
 	if snapshot != nil {
 		notif.AddAttachment(snapshot)
 		if _, err := push.SendMessage(notif, recipient); err != nil {
-			log.Printf("Event ID %v - Error sending Pushover notification: %v", eventid, err)
+			log.Warn().
+				Str("event_id", event.ID).
+				Str("provider", "Pushover").
+				Msgf("Unable to send alert: %v", err)
 			return
 		}
 	} else {
 		if _, err := push.SendMessage(notif, recipient); err != nil {
-			log.Printf("Event ID %v - Error sending Pushover notification: %v", eventid, err)
+			log.Warn().
+				Str("event_id", event.ID).
+				Str("provider", "Pushover").
+				Msgf("Unable to send alert: %v", err)
 			return
 		}
 	}
 
-	log.Printf("Event ID %v - Pushover alert sent", eventid)
+	log.Info().
+		Str("event_id", event.ID).
+		Str("provider", "Pushover").
+		Msgf("Alert sent")
 }

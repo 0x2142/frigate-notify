@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
+	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
@@ -32,15 +34,15 @@ func SubscribeMQTT() {
 	var retry = 0
 	for !subscribed {
 		if retry >= 3 {
-			log.Fatalf("ERROR: Max retries exceeded. Failed to establish MQTT session to %s", config.ConfigData.Frigate.MQTT.Server)
+			log.Fatal().Msgf("Max retries exceeded. Failed to establish MQTT session to %s", config.ConfigData.Frigate.MQTT.Server)
 		}
 		// Connect to MQTT broker
 		client := mqtt.NewClient(opts)
 
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
 			retry += 1
-			log.Printf("Could not connect to MQTT at %v: %v", config.ConfigData.Frigate.MQTT.Server, token.Error())
-			log.Printf("Retrying in 10 seconds. Attempt %v of 3.", retry)
+			log.Warn().Msgf("Could not connect to MQTT at %v: %v", config.ConfigData.Frigate.MQTT.Server, token.Error())
+			log.Warn().Msgf("Retrying in 10 seconds. Attempt %v of 3.", retry)
 			time.Sleep(10 * time.Second)
 			continue
 		}
@@ -56,21 +58,34 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 
 	if event.Type == "new" || event.Type == "update" {
 		if event.Type == "new" {
-			log.Printf("Event ID %v - New event received.", event.After.ID)
+			log.Info().
+				Str("event_id", event.After.ID).
+				Msg("New event received")
 		} else if event.Type == "update" {
-			log.Printf("Event ID %v - Event updated from Frigate.", event.After.ID)
+			log.Info().
+				Str("event_id", event.After.ID).
+				Msg("Event update received")
 		}
 		// Skip excluded cameras
 		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.After.Camera) {
-			log.Printf("Event ID %v - Skipping event from excluded camera: %v", event.After.ID, event.After.Camera)
+			log.Info().
+				Str("event_id", event.After.ID).
+				Str("camera", event.After.Camera).
+				Msg("Event dropped - Camera Excluded")
 			return
 		}
 
 		// Convert to human-readable timestamp
 		eventTime := time.Unix(int64(event.After.StartTime), 0)
-
-		log.Printf("Event ID %v - Camera %v detected %v in zone(s): %v", event.After.ID, event.After.Camera, event.After.Label, event.After.CurrentZones)
-		log.Printf("Event ID %v - Start time: %s", event.After.ID, eventTime)
+		log.Info().
+			Str("event_id", event.After.ID).
+			Str("camera", event.After.Camera).
+			Str("label", event.After.Label).
+			Str("zones", strings.Join(event.After.CurrentZones, ",")).
+			Msg("Event Detected")
+		log.Debug().
+			Str("event_id", event.After.ID).
+			Msgf("Event start time: %s", eventTime)
 
 		// Check that event passes the zone & label filters
 		if !isAllowedZone(event.After.ID, event.After.CurrentZones) || !isAllowedLabel(event.After.ID, event.After.Label) {
@@ -83,11 +98,21 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 		for _, zone := range event.After.CurrentZones {
 			if !slices.Contains(event.Before.EnteredZones, zone) {
 				zoneChanged = true
-				log.Printf("Event ID %v - Entered new zone: %s", event.After.ID, zone)
+				log.Debug().
+					Str("event_id", event.After.ID).
+					Str("camera", event.After.Camera).
+					Str("label", event.After.Label).
+					Str("zones", strings.Join(event.After.CurrentZones, ",")).
+					Msg("Object entered new zone")
 			}
 		}
 		if event.Type == "update" && !zoneChanged {
-			log.Printf("Event ID %v - Zone already alerted, skipping...", event.After.ID)
+			log.Info().
+				Str("event_id", event.After.ID).
+				Str("camera", event.After.Camera).
+				Str("label", event.After.Label).
+				Str("zones", strings.Join(event.After.CurrentZones, ",")).
+				Msg("Event dropped - Already notified on this zone")
 			return
 		}
 
@@ -106,16 +131,18 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 
 // connectionLostHandler logs error message on MQTT connection loss
 func connectionLostHandler(c mqtt.Client, err error) {
-	log.Println("Lost connection to MQTT broker. Error: ", err)
+	log.Error().
+		Err(err).
+		Msg("Lost connection to MQTT broker")
 }
 
 // connectHandler logs message on MQTT connection
 func connectHandler(client mqtt.Client) {
-	log.Println("Connected to MQTT.")
+	log.Info().Msg("Connected to MQTT.")
 	topic := fmt.Sprintf(config.ConfigData.Frigate.MQTT.TopicPrefix + "/events")
 	if subscription := client.Subscribe(topic, 0, processEvent); subscription.Wait() && subscription.Error() != nil {
-		log.Printf("Failed to subscribe to topic: %s", topic)
+		log.Error().Msgf("Failed to subscribe to topic: %s", topic)
 		time.Sleep(10 * time.Second)
 	}
-	log.Printf("Subscribed to MQTT topic: %s", topic)
+	log.Info().Msgf("Subscribed to MQTT topic: %s", topic)
 }

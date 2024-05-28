@@ -3,8 +3,9 @@ package notifier
 import (
 	"fmt"
 	"io"
-	"log"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
@@ -41,9 +42,16 @@ func SendNftyPush(event models.Event, snapshot io.Reader, eventid string) {
 
 	_, err := util.HTTPPost(NftyURL, config.ConfigData.Alerts.Nfty.Insecure, attachment, headers...)
 	if err != nil {
-		log.Print("Failed to send Nfty notification: ", err)
+		log.Warn().
+			Str("event_id", event.ID).
+			Str("provider", "Nfty").
+			Err(err).
+			Msg("Unable to send alert")
 		return
 	}
 
-	log.Printf("Event ID %v - Nfty alert sent", eventid)
+	log.Info().
+		Str("event_id", event.ID).
+		Str("provider", "Nfty").
+		Msg("Alert sent")
 }

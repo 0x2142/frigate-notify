@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
@@ -22,7 +23,11 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader, eventid string) 
 	// Connect to Discord
 	client, err := webhook.NewWithURL(config.ConfigData.Alerts.Discord.Webhook)
 	if err != nil {
-		log.Printf("Event ID %v - Unable to send Discord Alert: %v", eventid, err)
+		log.Warn().
+			Str("event_id", event.ID).
+			Str("provider", "Discord").
+			Err(err).
+			Msg("Unable to send alert")
 	}
 	defer client.Close(context.TODO())
 
@@ -41,7 +46,14 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader, eventid string) 
 
 	}
 	if err != nil {
-		log.Printf("Event ID %v - Unable to send Discord Alert: %v", eventid, err)
+		log.Warn().
+			Str("event_id", event.ID).
+			Str("provider", "Discord").
+			Err(err).
+			Msg("Unable to send alert")
 	}
-	log.Printf("Event ID %v - Discord alert sent", eventid)
+	log.Info().
+		Str("event_id", event.ID).
+		Str("provider", "Discord").
+		Msg("Alert sent")
 }

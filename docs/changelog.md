@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.3.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.8) - Upcoming Release
+
+- Reworked & reduced logging.
+
 ## [v0.2.8](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.8) - May 15 2024
 
 - Add support for notifications via [Nfty](https://frigate-notify.0x2142.com/config/#nfty)
