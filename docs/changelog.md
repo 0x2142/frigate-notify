@@ -1,26 +1,27 @@
 # Changelog
 
-## [v0.3.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.8) - Upcoming Release
+## [v0.3.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.0) - Upcoming Release
 
-- Reworked & reduced logging.
+ - Reworked & reduced logging, added [debug option](https://frigate-notify.0x2142.com/config/options/)
+ - Add ability to define custom [notification templates](https://frigate-notify.0x2142.com/config/templates/#alert-templates)
 
 ## [v0.2.8](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.8) - May 15 2024
 
-- Add support for notifications via [Nfty](https://frigate-notify.0x2142.com/config/#nfty)
-- Add ability to send additional HTTP [headers](https://frigate-notify.0x2142.com/config/#frigate) to Frigate
-- Add new `public_url` config item for Frigate
-    - This will be used in notification links & should be configured if Frigate is accessible via the internet
-- Add startup check to verify Frigate API is accessible
-- Rework event notifications to be built from templates
-- Fix default interval for querying evens via web API
-- Fix issue where label score is 0% via web API event query
+ - Add support for notifications via [Nfty](https://frigate-notify.0x2142.com/config/file/#nfty)
+ - Add ability to send additional HTTP [headers](https://frigate-notify.0x2142.com/config/file/#frigate) to Frigate
+ - Add new `public_url` config item for Frigate
+     - This will be used in notification links & should be configured if Frigate is accessible via the internet
+ - Add startup check to verify Frigate API is accessible
+ - Rework event notifications to be built from templates
+ - Fix default interval for querying evens via web API
+ - Fix issue where label score is 0% via web API event query
 
 ## [v0.2.7](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.7) - May 06 2024
 
-- Allow changing default MQTT topic prefix via config
-- Added ability to filter notifications based on [labels](https://frigate-notify.0x2142.com/config/#labels)
-    - New option to allow only notifications with specified labels
-    - New option to deny notifications based on labels
+ - Allow changing default MQTT topic prefix via config
+ - Added ability to filter notifications based on [labels](https://frigate-notify.0x2142.com/config/file/#labels)
+     - New option to allow only notifications with specified labels
+     - New option to deny notifications based on labels
 
 ## [v0.2.6](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.6) - Apr 01 2024
 
@@ -31,12 +32,12 @@
 
 ## [v0.2.5](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.5) - Mar 29 2024
 
- - Added support for alerts via [Pushover](https://frigate-notify.0x2142.com/config/#pushover)
+ - Added support for alerts via [Pushover](https://frigate-notify.0x2142.com/config/file/#pushover)
  - Reduced container image from ~1Gb to ~11Mb
 
 ## [v0.2.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.4) - Mar 28 2024
 
- - Added support for alerts via [Telegram](https://frigate-notify.0x2142.com/config/#telegram)
+ - Added support for alerts via [Telegram](https://frigate-notify.0x2142.com/config/file/#telegram)
  - Updated notification message to now include links to the camera & event clip
 
 ## [v0.2.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.3) - Mar 14 2024
@@ -45,7 +46,7 @@
  - Improved config file validation
  - Fixed issue where HTTP requests would fail if only IP & port were specified in config
  - Fixed crash if Frigate has no event info & app couldn't pull snapshots
- - Added ability to filter notifications based on [zones](https://frigate-notify.0x2142.com/config/#zones)
+ - Added ability to filter notifications based on [zones](https://frigate-notify.0x2142.com/config/file/#zones)
      - New config option to only allow notifications based on zone
      - New config option to deny notifications based on zone
      - New config option to allow or drop events outside of a designated zone

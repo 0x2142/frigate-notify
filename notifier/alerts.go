@@ -70,13 +70,19 @@ func renderMessage(sourceTemplate string, event models.Event) string {
 
 	// Render template
 	var tmpl *template.Template
+	var err error
 	if sourceTemplate == "markdown" || sourceTemplate == "plaintext" || sourceTemplate == "html" {
 		var templateFile = "./templates/" + sourceTemplate + ".template"
 		tmpl = template.Must(template.ParseFiles(templateFile))
+	} else {
+		tmpl, err = template.New("custom").Parse(sourceTemplate)
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to render event message")
+		}
 	}
 
 	var renderedTemplate bytes.Buffer
-	err := tmpl.Execute(&renderedTemplate, event)
+	err = tmpl.Execute(&renderedTemplate, event)
 	if err != nil {
 		log.Fatal().
 			Err(err).

@@ -16,9 +16,18 @@ import (
 // SendDiscordMessage pushes alert message to Discord via webhook
 func SendDiscordMessage(event models.Event, snapshot io.Reader, eventid string) {
 	var err error
-
+	var message string
 	// Build notification
-	message := renderMessage("markdown", event)
+	if config.ConfigData.Alerts.Discord.Template != "" {
+		message = renderMessage(config.ConfigData.Alerts.Discord.Template, event)
+		log.Debug().
+			Str("event_id", event.ID).
+			Str("provider", "Discord").
+			Str("rendered_template", message).
+			Msg("Custom message template used")
+	} else {
+		message = renderMessage("markdown", event)
+	}
 
 	// Connect to Discord
 	client, err := webhook.NewWithURL(config.ConfigData.Alerts.Discord.Webhook)

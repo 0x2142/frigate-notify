@@ -15,8 +15,18 @@ import (
 // SendPushoverMessage sends alert message through Pushover service
 func SendPushoverMessage(event models.Event, snapshot io.Reader, eventid string) {
 	// Build notification
-	message := renderMessage("html", event)
-	message = strings.ReplaceAll(message, "<br />", "")
+	var message string
+	if config.ConfigData.Alerts.Pushover.Template != "" {
+		message = renderMessage(config.ConfigData.Alerts.Pushover.Template, event)
+		log.Debug().
+			Str("event_id", event.ID).
+			Str("provider", "Pushover").
+			Str("rendered_template", message).
+			Msg("Custom message template used")
+	} else {
+		message = renderMessage("html", event)
+		message = strings.ReplaceAll(message, "<br />", "")
+	}
 
 	push := pushover.New(config.ConfigData.Alerts.Pushover.Token)
 	recipient := pushover.NewRecipient(config.ConfigData.Alerts.Pushover.Userkey)
