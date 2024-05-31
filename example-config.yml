@@ -1,5 +1,5 @@
 ## SAMPLE CONFIG FILE
-# For more info, see docs at https://frigate-notify.0x2142.com/config/
+# For more info, see docs at https://frigate-notify.0x2142.com/config/file/
 
 ## Event Collection Methods
 # Note: Only enable one - webapi OR mqtt
@@ -79,6 +79,8 @@ alerts:
     enabled: false
     # Insert full webhook URL below
     webhook: 
+    # Custom notification template, if desired
+    template:
   
   gotify:
     # Set to true to enable alerting via a Gotify push notification server
@@ -89,6 +91,8 @@ alerts:
     token: 
     # Set to true if using SSL & a self-signed certificate
     ignoressl:
+    # Custom notification template, if desired
+    template:
   
   smtp:
     # Set to true to enable alerting via SMTP
@@ -105,6 +109,8 @@ alerts:
     password:
     # Email alerts sent to any addresses listed below, separated by comma
     recipient:
+    # Custom notification template, if desired
+    template:
 
   # Telegram Config
   telegram:
@@ -114,6 +120,8 @@ alerts:
     chatid:
     # Bot API token
     token:
+    # Custom notification template, if desired
+    template:
 
   # Pushover Config
   pushover:
@@ -133,6 +141,8 @@ alerts:
     expire:
     # Optional message lifetime
     ttl:
+    # Custom notification template, if desired
+    template:
 
   # Nfty Config
   nfty:
@@ -144,6 +154,8 @@ alerts:
     topic:
     # Set to true if using SSL & a self-signed certificate
     ignoressl:
+    # Custom notification template, if desired
+    template:
 
 ## App Monitoring
 # Sends HTTP GET to provided URL for aliveness checks
