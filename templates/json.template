@@ -1,0 +1,22 @@
+{
+    "time": "{{ .Extra.FormattedTime }}",
+    "id": "{{ .ID }}",
+    "camera": "{{ .Camera }}",
+    "label": "{{ .Label }}", 
+    "score": "{{ .Extra.TopScorePercent }}",
+    "current_zones": "{{ .CurrentZones }}",
+    "entered_zones": "{{ .EnteredZones }}",
+    "has_clip": "{{ .HasClip }}",
+    "has_snapshot": "{{ .HasSnapshot }}",
+    "links": {
+        {{ if ne .Extra.PublicURL "" }} "camera": "{{ .Extra.PublicURL }}/cameras/{{ .Camera }}",
+        {{ if .HasClip }} "clip": "{{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}",
+        {{ if .HasSnapshot }} "snapshot": "{{ .Extra.PublicURL }}/api/events/{{ .ID }}/snapshot.jpg{{ end }}",
+        {{ else }} "camera": "{{ .Extra.LocalURL }}/cameras/{{ .Camera }}",
+        {{ if .HasClip }} "clip": "{{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}",
+        {{ if .HasSnapshot }} "snapshot": "{{ .Extra.LocalURL }}/api/events/{{ .ID }}/snapshot.jpg{{ end }}",
+        {{ end }}
+    },
+}
+
+

@@ -4,6 +4,7 @@
 
  - Reworked & reduced logging, added [debug option](https://frigate-notify.0x2142.com/config/options/)
  - Add ability to define custom [notification templates](https://frigate-notify.0x2142.com/config/templates/#alert-templates)
+ - Add support for notifications via [webhook](https://frigate-notify.0x2142.com/config/file/#webhook)
 
 ## [v0.2.8](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.8) - May 15 2024
 

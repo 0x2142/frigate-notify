@@ -60,6 +60,7 @@ type Alerts struct {
 	Telegram Telegram `fig:"telegram"`
 	Pushover Pushover `fig:"pushover"`
 	Nfty     Nfty     `fig:"nfty"`
+	Webhook  Webhook  `fig:"webhook"`
 }
 
 type General struct {
@@ -128,6 +129,14 @@ type Nfty struct {
 	Topic    string `fig:"topic" default:""`
 	Insecure bool   `fig:"ignoressl" default:false`
 	Template string `fig:"template" default:""`
+}
+
+type Webhook struct {
+	Enabled  bool                   `fig:"enabled" default:false`
+	Server   string                 `fig:"server" default:""`
+	Insecure bool                   `fig:"ignoressl" default:false`
+	Headers  []map[string]string    `fig:"headers"`
+	Template map[string]interface{} `fig:"template"`
 }
 
 type Monitor struct {
@@ -381,6 +390,12 @@ func validateConfig() {
 		// Check template syntax
 		if msg := checkTemplate("Nfty", ConfigData.Alerts.Nfty.Template); msg != "" {
 			configErrors = append(configErrors, msg)
+		}
+	}
+	if ConfigData.Alerts.Webhook.Enabled {
+		log.Debug().Msg("Webhook alerting enabled.")
+		if ConfigData.Alerts.Webhook.Server == "" {
+			configErrors = append(configErrors, "No Webhook server specified!")
 		}
 	}
 

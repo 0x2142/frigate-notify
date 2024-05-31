@@ -25,6 +25,7 @@ Currently Frigate only supports notifications through Home Assistant, which I'm 
 - Telegram
 - Pushover
 - Nfty
+- Generic Webhook
 
 **Other**
 
