@@ -146,7 +146,7 @@ alerts:
 
   # Nfty Config
   nfty:
-    # Set to true to enable alerting via
+    # Set to true to enable alerting via nfty
     enabled: false
     # URL of Nfty server
     server:
@@ -155,6 +155,22 @@ alerts:
     # Set to true if using SSL & a self-signed certificate
     ignoressl:
     # Custom notification template, if desired
+    template:
+
+  # Webhook Config
+  webhook:
+    # Set to true to enable alerting via webhook
+    enabled: false
+    # URL of webhook receiver
+    server:
+    # Set to true if using SSL & a self-signed certificate
+    ignoressl:
+    # List of HTTP headers to send to webhook receiver, in format Header: Value
+    headers:
+      # Example:
+      # - Authorization: Basic abcd1234
+    # Custom notification template, if desired
+    # Note that template must be valid JSON
     template:
 
 ## App Monitoring

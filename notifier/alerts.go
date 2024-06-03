@@ -39,6 +39,9 @@ func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, event
 	if config.ConfigData.Alerts.Nfty.Enabled {
 		SendNftyPush(event, bytes.NewReader(snap), eventid)
 	}
+	if config.ConfigData.Alerts.Webhook.Enabled {
+		SendWebhook(event)
+	}
 }
 
 // Build notification based on template
@@ -71,7 +74,7 @@ func renderMessage(sourceTemplate string, event models.Event) string {
 	// Render template
 	var tmpl *template.Template
 	var err error
-	if sourceTemplate == "markdown" || sourceTemplate == "plaintext" || sourceTemplate == "html" {
+	if sourceTemplate == "markdown" || sourceTemplate == "plaintext" || sourceTemplate == "html" || sourceTemplate == "json" {
 		var templateFile = "./templates/" + sourceTemplate + ".template"
 		tmpl = template.Must(template.ParseFiles(templateFile))
 	} else {
