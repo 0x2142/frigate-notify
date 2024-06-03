@@ -49,7 +49,7 @@ func SendGotifyPush(event models.Event, snapshotURL string, eventid string) {
 		message = renderMessage("markdown", event)
 	}
 
-	if snapshotURL != "" {
+	if event.HasSnapshot {
 		message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
 	} else {
 		message += "\n\nNo snapshot available."

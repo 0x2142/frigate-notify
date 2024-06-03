@@ -37,7 +37,7 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader, eventid string)
 		return
 	}
 
-	if snapshot != nil {
+	if event.HasSnapshot {
 		// Attach & send snapshot
 		photo := tgbotapi.NewPhoto(config.ConfigData.Alerts.Telegram.ChatID, tgbotapi.FileReader{Name: "Snapshot", Reader: snapshot})
 		photo.Caption = message

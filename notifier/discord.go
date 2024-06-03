@@ -44,7 +44,7 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader, eventid string) 
 	message = title + message
 
 	// Send alert & attach snapshot if one was saved
-	if snapshot != nil {
+	if event.HasSnapshot {
 		image := discord.NewFile("snapshot.jpg", "", snapshot)
 		embed := discord.NewEmbedBuilder().SetDescription(message).SetTitle(title).SetImage("attachment://snapshot.jpg").SetColor(5793266).Build()
 		_, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetEmbeds(embed).SetFiles(image).Build())

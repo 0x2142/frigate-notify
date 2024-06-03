@@ -39,7 +39,7 @@ func SendNftyPush(event models.Event, snapshot io.Reader, eventid string) {
 	headers = append(headers, map[string]string{"X-Actions": "view, View Clip, " + clip + ", clear=true"})
 
 	var attachment []byte
-	if snapshot != nil {
+	if event.HasSnapshot {
 		headers = append(headers, map[string]string{"X-Filename": "snapshot.jpg"})
 		attachment, _ = io.ReadAll(snapshot)
 	} else {
