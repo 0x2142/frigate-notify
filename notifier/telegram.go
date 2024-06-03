@@ -2,8 +2,9 @@ package notifier
 
 import (
 	"io"
-	"log"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
@@ -18,7 +19,11 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader, eventid string)
 
 	bot, err := tgbotapi.NewBotAPI(config.ConfigData.Alerts.Telegram.Token)
 	if err != nil {
-		log.Printf("Event ID %v - Failed to connect to Telegram: %v", eventid, err)
+		log.Warn().
+			Str("event_id", event.ID).
+			Str("provider", "Telegram").
+			Err(err).
+			Msg("Unable to send alert")
 		return
 	}
 
@@ -28,7 +33,11 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader, eventid string)
 		photo.Caption = message
 		photo.ParseMode = "HTML"
 		if _, err := bot.Send(photo); err != nil {
-			log.Printf("Event ID %v - Failed to send alert via Telegram: %v", eventid, err)
+			log.Warn().
+				Str("event_id", event.ID).
+				Str("provider", "Telegram").
+				Err(err).
+				Msg("Unable to send alert")
 			return
 		}
 	} else {
@@ -37,9 +46,16 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader, eventid string)
 		msg := tgbotapi.NewMessage(config.ConfigData.Alerts.Telegram.ChatID, message)
 		msg.ParseMode = "HTML"
 		if _, err := bot.Send(msg); err != nil {
-			log.Printf("Event ID %v - Failed to send alert via Telegram: %v", eventid, err)
+			log.Warn().
+				Str("event_id", event.ID).
+				Str("provider", "Telegram").
+				Err(err).
+				Msg("Unable to send alert")
 			return
 		}
 	}
-	log.Printf("Event ID %v - Telegram alert sent", eventid)
+	log.Info().
+		Str("event_id", event.ID).
+		Str("provider", "Telegram").
+		Msg("Alert sent")
 }

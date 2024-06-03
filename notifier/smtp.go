@@ -2,9 +2,10 @@ package notifier
 
 import (
 	"io"
-	"log"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
@@ -47,15 +48,26 @@ func SendSMTP(event models.Event, snapshot io.Reader, eventid string) {
 	}
 
 	if err != nil {
-		log.Printf("Event ID %v - Failed to connect to SMTP Server: %v", eventid, err)
+		log.Warn().
+			Str("event_id", event.ID).
+			Str("provider", "SMTP").
+			Err(err).
+			Msg("Unable to send alert")
 	}
 
 	// Send message
 	if err := c.DialAndSend(m); err != nil {
-		log.Printf("Event ID %v - Failed to send SMTP message: %v", eventid, err)
+		log.Warn().
+			Str("event_id", event.ID).
+			Str("provider", "SMTP").
+			Err(err).
+			Msg("Unable to send alert")
 		return
 	}
-	log.Printf("Event ID %v - SMTP alert sent", eventid)
+	log.Info().
+		Str("event_id", event.ID).
+		Str("provider", "SMTP").
+		Msg("Alert sent")
 
 }
 

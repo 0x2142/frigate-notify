@@ -3,8 +3,9 @@ package notifier
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
@@ -53,7 +54,11 @@ func SendGotifyPush(event models.Event, snapshotURL string, eventid string) {
 
 	data, err := json.Marshal(payload)
 	if err != nil {
-		log.Printf("Event ID %v - Unable to build Gotify payload: %v", eventid, err)
+		log.Warn().
+			Str("event_id", event.ID).
+			Str("provider", "Gotify").
+			Err(err).
+			Msg("Unable to send alert")
 		return
 	}
 
@@ -62,15 +67,25 @@ func SendGotifyPush(event models.Event, snapshotURL string, eventid string) {
 	header := map[string]string{"Content-Type": "application/json"}
 	response, err := util.HTTPPost(gotifyURL, config.ConfigData.Alerts.Gotify.Insecure, data, header)
 	if err != nil {
-		log.Print("Failed to send Gotify notification: ", err)
+		log.Warn().
+			Str("event_id", event.ID).
+			Str("provider", "Gotify").
+			Err(err).
+			Msg("Unable to send alert")
 		return
 	}
 	// Check for errors:
 	if strings.Contains(string(response), "error") {
 		var errorMessage gotifyError
 		json.Unmarshal(response, &errorMessage)
-		log.Printf("Event ID %v - Failed to send Gotify notification: %s - %s", eventid, errorMessage.Error, errorMessage.ErrorDescription)
+		log.Warn().
+			Str("event_id", event.ID).
+			Str("provider", "Gotify").
+			Msgf("Unable to send alert: %v - %v", errorMessage.Error, errorMessage.ErrorDescription)
 		return
 	}
-	log.Printf("Event ID %v - Gotify alert sent", eventid)
+	log.Info().
+		Str("event_id", event.ID).
+		Str("provider", "Gotify").
+		Msg("Alert sent")
 }

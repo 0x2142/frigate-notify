@@ -8,6 +8,8 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
 )
@@ -76,7 +78,9 @@ func renderMessage(sourceTemplate string, event models.Event) string {
 	var renderedTemplate bytes.Buffer
 	err := tmpl.Execute(&renderedTemplate, event)
 	if err != nil {
-		panic(err)
+		log.Fatal().
+			Err(err).
+			Msgf("Failed to render event message")
 	}
 
 	return renderedTemplate.String()

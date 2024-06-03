@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
@@ -33,20 +35,21 @@ func CheckForEvents() {
 	}
 
 	url := config.ConfigData.Frigate.Server + eventsURI + params
-	log.Println("Checking for new events...")
+	log.Debug().Msg("Checking for new events...")
 
 	// Query events
 	response, err := util.HTTPGet(url, config.ConfigData.Frigate.Insecure, config.ConfigData.Frigate.Headers...)
 	if err != nil {
-		log.Printf("Cannot get events from %s", url)
-		log.Printf("Error received: %s", err)
+		log.Error().
+			Err(err).
+			Msgf("Cannot get events from %s", url)
 	}
 
 	var events []models.Event
 
 	json.Unmarshal([]byte(response), &events)
 
-	log.Printf("Found %v new events.", len(events))
+	log.Debug().Msgf("Found %v new events", len(events))
 
 	for _, event := range events {
 		// Convert to human-readable timestamp
@@ -59,12 +62,22 @@ func CheckForEvents() {
 
 		// Skip excluded cameras
 		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.Camera) {
-			log.Printf("Event ID %v - Skipping event from excluded camera: %v", event.ID, event.Camera)
+			log.Debug().
+				Str("event_id", event.ID).
+				Str("camera", event.Camera).
+				Msg("Skipping event from excluded camera")
 			continue
 		}
 
-		log.Printf("Event ID %v - Camera %v detected %v in zone(s): %v", event.ID, event.Camera, event.Label, event.Zones)
-		log.Printf("Event ID %v - Start time: %s", event.ID, eventTime)
+		log.Info().
+			Str("event_id", event.ID).
+			Str("camera", event.Camera).
+			Str("label", event.Label).
+			Str("zones", strings.Join(event.Zones, ",")).
+			Msg("Event Detected")
+		log.Debug().
+			Str("event_id", event.ID).
+			Msgf("Event start time: %s", eventTime)
 
 		// Check that event passes the zone & label filters
 		if !isAllowedZone(event.ID, event.Zones) || !isAllowedLabel(event.ID, event.Label) {
@@ -89,7 +102,11 @@ func CheckForEvents() {
 func GetSnapshot(snapshotURL, eventID string) io.Reader {
 	response, err := util.HTTPGet(snapshotURL, config.ConfigData.Frigate.Insecure, config.ConfigData.Frigate.Headers...)
 	if err != nil {
-		log.Println("Could not access snaphot. Error: ", err)
+		log.Warn().
+			Str("event_id", eventID).
+			Err(err).
+			Msgf("Could not access snaphot")
+		return nil
 	}
 
 	return bytes.NewReader(response)

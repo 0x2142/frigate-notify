@@ -1,12 +1,26 @@
 # Config
 
-This section will walk through the available configuration items.
+Configuration is primarily provided to Frigate-Notify via a [Config File](#config-file). A [sample config](#sample-config) file is available for customization at the bottom of this page.
 
-Configuration snippets will be provided throughout this page. Feel free to copy the full [Sample Config](#sample-config) at the bottom of this page to customize.
+Additionaly, a few [options](#config-options) are available through command line flags and/or environment variables.
 
-## Frigate
+## Config Options
 
-### Server
+The following options are available as command line flags or environment variables:
+
+| Flag     | Environment Variable | Description                             |
+|----------|----------------------|-----------------------------------------|
+| -c       | FN_CONFIGFILE        | Specify alternate config file location  |
+| -debug   | FN_DEBUG             | Set to `true` to enable debug logging   |
+| -jsonlog | FN_JSONLOG           | Set to `true` to enable logging in JSON |
+
+## Config File
+
+The following section details options available via the `config.yml` file. Config snippets are provided for each section, however it is recommended to check the full [sample config](#sample-config) below.
+
+### Frigate
+
+#### Server
 
 - **server** (Required)
     - IP, hostname, or URL of the Frigate NVR
@@ -33,7 +47,7 @@ frigate:
     - Authorization: Basic abcd1234
 ```
 
-### WebAPI
+#### WebAPI
 
 !!! note
     Only one monitoring method can be configured, either `webapi` or `mqtt`. The other must be set to `enabled: false`.
@@ -50,7 +64,7 @@ frigate:
     interval: 60
 ```
 
-### MQTT
+#### MQTT
 
 !!! note
     Only one monitoring method can be configured, either `webapi` or `mqtt`. The other must be set to `enabled: false`.
@@ -88,7 +102,7 @@ frigate:
     topic_prefix: frigate
 ```
 
-### Cameras
+#### Cameras
 
 - **exclude** (Optional)
     - If desired, provide a list of cameras to ignore
@@ -103,12 +117,12 @@ frigate:
       - test_cam_02
 ```
 
-## Alerting
+### Alerting
 
 !!! note
     Any combination of alerting methods may be enabled, though you'll probably want to enable at least one! 😅
 
-### General
+#### General
 
 - **title** (Optional - Default: `Frigate Alert`)
     - Title of alert messages that are generated (Email subject, etc)
@@ -125,7 +139,7 @@ alerts:
     timeformat: Mon, 02 Jan 2006 15:04:05 MST
 ```
 
-### Zones
+#### Zones
 
 This config section allows control over whether to generate alerts on all zones, or only specific ones. By default, the app will generate notifications on **all** Frigate events, regardless of whether the event includes zone info.
 
@@ -161,7 +175,7 @@ alerts:
      - test_zone_02
 ```
 
-### Labels
+#### Labels
 
 Similar to [zones](#zones), notifications can be filtered based on labels. By default, the app will generate notifications regardless of any labels received from Frigate. Using this config section, certain labels can be blocked from sending notifications - or an allowlist can be provided to only generate alerts from specified labels.
 
@@ -183,7 +197,7 @@ alerts:
      - bird
 ```
 
-### Discord
+#### Discord
 
 - **enabled** (Optional - Default: `false`)
     - Set to `true` to enable alerting via Discord webhooks
@@ -199,7 +213,7 @@ alerts:
     webhook: https://<your-discord-webhook-here>
 ```
 
-### Gotify
+#### Gotify
 
 - **enabled** (Optional - Default: `false`)
     - Set to `true` to enable alerting via Gotify
@@ -221,7 +235,7 @@ alerts:
     ignoressl: true
 ```
 
-### SMTP
+#### SMTP
 
 - **enabled** (Optional - Default: `false`)
     - Set to `true` to enable alerting via SMTP
@@ -255,7 +269,7 @@ alerts:
     recipient: nvr_group@your.domain.tld, someone_else@your.domain.tld
 ```
 
-### Telegram
+#### Telegram
 
 In order to use Telegram for alerts, a bot token & chat ID are required.
 
@@ -299,7 +313,7 @@ alerts:
     token: 987654321:ABCDEFGHIJKLMNOP
 ```
 
-### Pushover
+#### Pushover
 
 - **enabled** (Optional - Default: `false`)
     - Set to `true` to enable alerting via Pushover
@@ -338,7 +352,7 @@ alerts:
     ttl:
 ```
 
-### Nfty
+#### Nfty
 
 - **enabled** (Optional - Default: `false`)
     - Set to `true` to enable alerting via Nfty
@@ -360,7 +374,7 @@ alerts:
     ignoressl: true
 ```
 
-## Monitor
+### Monitor
 
 If enabled, this application will check in with tools like [HealthChecks](https://github.com/healthchecks/healthchecks) or [Uptime Kuma](https://github.com/louislam/uptime-kuma) on a regular interval for health / status monitoring.
 
