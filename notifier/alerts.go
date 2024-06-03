@@ -22,25 +22,25 @@ func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, event
 		snap, _ = io.ReadAll(snapshot)
 	}
 	if config.ConfigData.Alerts.Discord.Enabled {
-		SendDiscordMessage(event, bytes.NewReader(snap))
+		go SendDiscordMessage(event, bytes.NewReader(snap))
 	}
 	if config.ConfigData.Alerts.Gotify.Enabled {
-		SendGotifyPush(event, snapshotURL)
+		go SendGotifyPush(event, snapshotURL)
 	}
 	if config.ConfigData.Alerts.SMTP.Enabled {
-		SendSMTP(event, bytes.NewReader(snap))
+		go SendSMTP(event, bytes.NewReader(snap))
 	}
 	if config.ConfigData.Alerts.Telegram.Enabled {
-		SendTelegramMessage(event, bytes.NewReader(snap))
+		go SendTelegramMessage(event, bytes.NewReader(snap))
 	}
 	if config.ConfigData.Alerts.Pushover.Enabled {
-		SendPushoverMessage(event, bytes.NewReader(snap))
+		go SendPushoverMessage(event, bytes.NewReader(snap))
 	}
 	if config.ConfigData.Alerts.Nfty.Enabled {
-		SendNftyPush(event, bytes.NewReader(snap))
+		go SendNftyPush(event, bytes.NewReader(snap))
 	}
 	if config.ConfigData.Alerts.Webhook.Enabled {
-		SendWebhook(event)
+		go SendWebhook(event)
 	}
 }
 
