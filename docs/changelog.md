@@ -5,6 +5,11 @@
  - Reworked & reduced logging, added [debug option](https://frigate-notify.0x2142.com/config/options/)
  - Add ability to define custom [notification templates](https://frigate-notify.0x2142.com/config/templates/#alert-templates)
  - Add support for notifications via [webhook](https://frigate-notify.0x2142.com/config/file/#webhook)
+ - Add retry logic to startup check
+     - App will now retry up to 5 times, checking once every 30 seconds
+     - [Config](https://frigate-notify.0x2142.com/config/file/#server) options now available to modify max attempts & retry interval
+ - Enable concurrent notification processing
+ - Fix issue where some event providers would fail if no snapshot was available via Frigate
 
 ## [v0.2.8](https://github.com/0x2142/frigate-notify/releases/tag/v0.2.8) - May 15 2024
 
