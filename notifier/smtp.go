@@ -13,7 +13,7 @@ import (
 )
 
 // SendSMTP forwards alert data via email
-func SendSMTP(event models.Event, snapshot io.Reader, eventid string) {
+func SendSMTP(event models.Event, snapshot io.Reader) {
 	// Build notification
 	var message string
 	if config.ConfigData.Alerts.SMTP.Template != "" {

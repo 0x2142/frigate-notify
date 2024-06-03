@@ -14,7 +14,7 @@ import (
 )
 
 // SendDiscordMessage pushes alert message to Discord via webhook
-func SendDiscordMessage(event models.Event, snapshot io.Reader, eventid string) {
+func SendDiscordMessage(event models.Event, snapshot io.Reader) {
 	var err error
 	var message string
 	// Build notification

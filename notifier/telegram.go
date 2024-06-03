@@ -12,7 +12,7 @@ import (
 )
 
 // SendTelegramMessage sends alert through Telegram to individual users
-func SendTelegramMessage(event models.Event, snapshot io.Reader, eventid string) {
+func SendTelegramMessage(event models.Event, snapshot io.Reader) {
 	// Build notification
 	var message string
 	if config.ConfigData.Alerts.Telegram.Template != "" {

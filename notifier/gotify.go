@@ -35,7 +35,7 @@ type gotifyPayload struct {
 }
 
 // SendGotifyPush forwards alert messages to Gotify push notification server
-func SendGotifyPush(event models.Event, snapshotURL string, eventid string) {
+func SendGotifyPush(event models.Event, snapshotURL string) {
 	// Build notification
 	var message string
 	if config.ConfigData.Alerts.Gotify.Template != "" {
