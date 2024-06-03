@@ -41,7 +41,12 @@ theme:
 nav:
   - Home: index.md
   - Install: install.md
-  - Config: config.md
+  - Config: 
+     - config/index.md
+     - Config File: config/file.md
+     - Config Options: config/options.md 
+     - Templates: config/templates.md
+     - Sample Config: config/sample.md
   - Changelog: changelog.md 
   
 # Extras

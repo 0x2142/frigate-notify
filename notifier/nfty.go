@@ -15,7 +15,17 @@ import (
 // SendNftyPush forwards alert messages to Nfty server
 func SendNftyPush(event models.Event, snapshot io.Reader, eventid string) {
 	// Build notification
-	message := renderMessage("plaintext", event)
+	var message string
+	if config.ConfigData.Alerts.Nfty.Template != "" {
+		message = renderMessage(config.ConfigData.Alerts.Nfty.Template, event)
+		log.Debug().
+			Str("event_id", event.ID).
+			Str("provider", "Nfty").
+			Str("rendered_template", message).
+			Msg("Custom message template used")
+	} else {
+		message = renderMessage("plaintext", event)
+	}
 
 	NftyURL := fmt.Sprintf("%s/%s", config.ConfigData.Alerts.Nfty.Server, config.ConfigData.Alerts.Nfty.Topic)
 
@@ -33,7 +43,7 @@ func SendNftyPush(event models.Event, snapshot io.Reader, eventid string) {
 		headers = append(headers, map[string]string{"X-Filename": "snapshot.jpg"})
 		attachment, _ = io.ReadAll(snapshot)
 	} else {
-		message += "\n\nNo snapshot saved."
+		message += "\n\nNo snapshot available."
 	}
 
 	// Escape newlines in message

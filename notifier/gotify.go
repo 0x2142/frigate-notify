@@ -37,12 +37,22 @@ type gotifyPayload struct {
 // SendGotifyPush forwards alert messages to Gotify push notification server
 func SendGotifyPush(event models.Event, snapshotURL string, eventid string) {
 	// Build notification
-	message := renderMessage("markdown", event)
+	var message string
+	if config.ConfigData.Alerts.Gotify.Template != "" {
+		message = renderMessage(config.ConfigData.Alerts.Gotify.Template, event)
+		log.Debug().
+			Str("event_id", event.ID).
+			Str("provider", "Gotify").
+			Str("rendered_template", message).
+			Msg("Custom message template used")
+	} else {
+		message = renderMessage("markdown", event)
+	}
 
 	if snapshotURL != "" {
 		message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
 	} else {
-		message += "\n\nNo snapshot saved."
+		message += "\n\nNo snapshot available."
 	}
 	payload := gotifyPayload{
 		Message:  message,

@@ -14,8 +14,18 @@ import (
 // SendTelegramMessage sends alert through Telegram to individual users
 func SendTelegramMessage(event models.Event, snapshot io.Reader, eventid string) {
 	// Build notification
-	message := renderMessage("html", event)
-	message = strings.ReplaceAll(message, "<br />", "")
+	var message string
+	if config.ConfigData.Alerts.Telegram.Template != "" {
+		message = renderMessage(config.ConfigData.Alerts.Telegram.Template, event)
+		log.Debug().
+			Str("event_id", event.ID).
+			Str("provider", "Telegram").
+			Str("rendered_template", message).
+			Msg("Custom message template used")
+	} else {
+		message = renderMessage("html", event)
+		message = strings.ReplaceAll(message, "<br />", "")
+	}
 
 	bot, err := tgbotapi.NewBotAPI(config.ConfigData.Alerts.Telegram.Token)
 	if err != nil {

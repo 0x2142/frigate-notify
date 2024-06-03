@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"os"
 	"path/filepath"
 	"strings"
@@ -78,8 +79,9 @@ type Labels struct {
 }
 
 type Discord struct {
-	Enabled bool   `fig:"enabled" default:false`
-	Webhook string `fig:"webhook" default:""`
+	Enabled  bool   `fig:"enabled" default:false`
+	Webhook  string `fig:"webhook" default:""`
+	Template string `fig:"template" default:""`
 }
 
 type Gotify struct {
@@ -87,6 +89,7 @@ type Gotify struct {
 	Server   string `fig:"server" default:""`
 	Token    string `fig:"token" default:""`
 	Insecure bool   `fig:"ignoressl" default:false`
+	Template string `fig:"template" default:""`
 }
 
 type SMTP struct {
@@ -97,12 +100,14 @@ type SMTP struct {
 	User      string `fig:"user" default:""`
 	Password  string `fig:"password" default:""`
 	Recipient string `fig:"recipient" default:""`
+	Template  string `fig:"template" default:""`
 }
 
 type Telegram struct {
-	Enabled bool   `fig:"enabled" default:false`
-	ChatID  int64  `fig:"chatid" default:0`
-	Token   string `fig:"token" default:""`
+	Enabled  bool   `fig:"enabled" default:false`
+	ChatID   int64  `fig:"chatid" default:0`
+	Token    string `fig:"token" default:""`
+	Template string `fig:"template" default:""`
 }
 
 type Pushover struct {
@@ -114,6 +119,7 @@ type Pushover struct {
 	Retry    int    `fig:"retry" default:0`
 	Expire   int    `fig:"expire" default:0`
 	TTL      int    `fig:"ttl" default:0`
+	Template string `fig:"template" default:""`
 }
 
 type Nfty struct {
@@ -121,6 +127,7 @@ type Nfty struct {
 	Server   string `fig:"server" default:""`
 	Topic    string `fig:"topic" default:""`
 	Insecure bool   `fig:"ignoressl" default:false`
+	Template string `fig:"template" default:""`
 }
 
 type Monitor struct {
@@ -280,6 +287,10 @@ func validateConfig() {
 		if ConfigData.Alerts.Discord.Webhook == "" {
 			configErrors = append(configErrors, "No Discord webhook specified!")
 		}
+		// Check template syntax
+		if msg := checkTemplate("Discord", ConfigData.Alerts.Discord.Template); msg != "" {
+			configErrors = append(configErrors, msg)
+		}
 	}
 	if ConfigData.Alerts.Gotify.Enabled {
 		log.Debug().Msg("Gotify alerting enabled.")
@@ -293,6 +304,10 @@ func validateConfig() {
 		}
 		if ConfigData.Alerts.Gotify.Token == "" {
 			configErrors = append(configErrors, "No Gotify token specified!")
+		}
+		// Check template syntax
+		if msg := checkTemplate("Gotify", ConfigData.Alerts.Gotify.Template); msg != "" {
+			configErrors = append(configErrors, msg)
 		}
 	}
 	if ConfigData.Alerts.SMTP.Enabled {
@@ -309,6 +324,10 @@ func validateConfig() {
 		if ConfigData.Alerts.SMTP.Port == 0 {
 			ConfigData.Alerts.SMTP.Port = 25
 		}
+		// Check template syntax
+		if msg := checkTemplate("SMTP", ConfigData.Alerts.SMTP.Template); msg != "" {
+			configErrors = append(configErrors, msg)
+		}
 	}
 	if ConfigData.Alerts.Telegram.Enabled {
 		log.Debug().Msg("Telegram alerting enabled.")
@@ -317,6 +336,10 @@ func validateConfig() {
 		}
 		if ConfigData.Alerts.Telegram.Token == "" {
 			configErrors = append(configErrors, "No Telegram bot token specified!")
+		}
+		// Check template syntax
+		if msg := checkTemplate("Telegram", ConfigData.Alerts.Telegram.Template); msg != "" {
+			configErrors = append(configErrors, msg)
 		}
 	}
 	if ConfigData.Alerts.Pushover.Enabled {
@@ -342,6 +365,10 @@ func validateConfig() {
 		if ConfigData.Alerts.Pushover.TTL < 0 {
 			configErrors = append(configErrors, "Pushover TTL cannot be negative!")
 		}
+		// Check template syntax
+		if msg := checkTemplate("Pushover", ConfigData.Alerts.Pushover.Template); msg != "" {
+			configErrors = append(configErrors, msg)
+		}
 	}
 	if ConfigData.Alerts.Nfty.Enabled {
 		log.Debug().Msg("Nfty alerting enabled.")
@@ -351,7 +378,10 @@ func validateConfig() {
 		if ConfigData.Alerts.Nfty.Topic == "" {
 			configErrors = append(configErrors, "No Nfty topic specified!")
 		}
-
+		// Check template syntax
+		if msg := checkTemplate("Nfty", ConfigData.Alerts.Nfty.Template); msg != "" {
+			configErrors = append(configErrors, msg)
+		}
 	}
 
 	// Validate monitoring config
@@ -376,4 +406,13 @@ func validateConfig() {
 	} else {
 		log.Info().Msg("Config file validated!")
 	}
+}
+
+func checkTemplate(provider, alertTemplate string) string {
+	var templateError string
+	_, err := template.New("").Parse(alertTemplate)
+	if err != nil {
+		templateError = fmt.Sprintf("Failed to parse %s template: %s", provider, err.Error())
+	}
+	return templateError
 }

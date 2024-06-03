@@ -1,6 +1,6 @@
 # Install / Setup
 
-Both methods below will require a [configuration](config.md) file to be provided. A configuration template can be found [here](config.md#sample-config)
+Both methods below will require a [configuration file](config/file.md) to be provided. A configuration template can be found [here](config/sample.md)
 
 ## Docker (Recommended)
 

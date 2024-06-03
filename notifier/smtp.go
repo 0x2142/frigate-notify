@@ -15,7 +15,17 @@ import (
 // SendSMTP forwards alert data via email
 func SendSMTP(event models.Event, snapshot io.Reader, eventid string) {
 	// Build notification
-	message := renderMessage("html", event)
+	var message string
+	if config.ConfigData.Alerts.SMTP.Template != "" {
+		message = renderMessage(config.ConfigData.Alerts.SMTP.Template, event)
+		log.Debug().
+			Str("event_id", event.ID).
+			Str("provider", "SMTP").
+			Str("rendered_template", message).
+			Msg("Custom message template used")
+	} else {
+		message = renderMessage("html", event)
+	}
 
 	// Set up email alert
 	m := mail.NewMsg()
@@ -26,7 +36,7 @@ func SendSMTP(event models.Event, snapshot io.Reader, eventid string) {
 	if snapshot != nil {
 		m.AttachReader("snapshot.jpg", snapshot)
 	} else {
-		message += "\n\nNo snapshot saved."
+		message += "\n\nNo snapshot available."
 	}
 
 	// Convert message body to HTML
