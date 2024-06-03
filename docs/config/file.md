@@ -21,6 +21,13 @@ The following section details options available via the `config.yml` file. Confi
     - Useful for things like authentication
     - Header format: `Header: Value`
     - Example: `Authorization: Basic abcd1234`
+- **startup_check** (Optional)
+    - On startup, frigate-notify will attempt to reach the configured Frigate NVR to validate connectivity
+    - These options allow customization of the max attempts & retry interval
+    - **attempts** (Optional - Default: `5`)
+        - Max number of attempts to reach Frigate server
+    - **interval** (Optional - Default: `30`)
+        - Interval between retries, in seconds
 
 ```yaml title="Config File Snippet"
 frigate:
@@ -29,6 +36,9 @@ frigate:
   public_url: https://nvr.your.public.domain.tld
   headers:
     - Authorization: Basic abcd1234
+  startup_check:
+    attempts: 5
+    interval: 30
 ```
 
 ### WebAPI

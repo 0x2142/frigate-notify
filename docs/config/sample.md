@@ -8,6 +8,9 @@ frigate:
   ignoressl:
   public_url:
   headers:
+  startup_check:
+    attempts:
+    interval:
 
   webapi:
     enabled: 

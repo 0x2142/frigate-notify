@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/0x2142/frigate-notify/models"
 	"github.com/0x2142/frigate-notify/util"
@@ -21,13 +22,19 @@ type Config struct {
 }
 
 type Frigate struct {
-	Server    string              `fig:"server" validate:"required"`
-	Insecure  bool                `fig:"ignoressl" default:false`
-	PublicURL string              `fig:"public_url" default:""`
-	Headers   []map[string]string `fig:"headers"`
-	WebAPI    WebAPI              `fig:"webapi"`
-	MQTT      MQTT                `fig:"mqtt"`
-	Cameras   Cameras             `fig:"cameras"`
+	Server       string              `fig:"server" validate:"required"`
+	Insecure     bool                `fig:"ignoressl" default:false`
+	PublicURL    string              `fig:"public_url" default:""`
+	Headers      []map[string]string `fig:"headers"`
+	StartupCheck StartupCheck        `fig:"startup_check"`
+	WebAPI       WebAPI              `fig:"webapi"`
+	MQTT         MQTT                `fig:"mqtt"`
+	Cameras      Cameras             `fig:"cameras"`
+}
+
+type StartupCheck struct {
+	Attempts int `fig:"attempts" default:5`
+	Interval int `fig:"interval" default:30`
 }
 
 type WebAPI struct {
@@ -177,6 +184,8 @@ func LoadConfig(configFile string) {
 // validateConfig checks config file structure & loads info into associated packages
 func validateConfig() {
 	var configErrors []string
+	var response []byte
+	var err error
 	log.Debug().Msg("Validating config file...")
 
 	if (ConfigData.Frigate.WebAPI.Enabled && ConfigData.Frigate.MQTT.Enabled) || (!ConfigData.Frigate.WebAPI.Enabled && !ConfigData.Frigate.MQTT.Enabled) {
@@ -206,11 +215,30 @@ func validateConfig() {
 	// Test connectivity to Frigate
 	log.Debug().Msg("Checking connection to Frigate server...")
 	statsAPI := fmt.Sprintf("%s/api/stats", ConfigData.Frigate.Server)
-	response, err := util.HTTPGet(statsAPI, ConfigData.Frigate.Insecure)
-	if err != nil {
+	current_attempt := 1
+	if ConfigData.Frigate.StartupCheck.Attempts == 0 {
+		ConfigData.Frigate.StartupCheck.Attempts = 5
+	}
+	if ConfigData.Frigate.StartupCheck.Interval == 0 {
+		ConfigData.Frigate.StartupCheck.Interval = 30
+	}
+	for current_attempt < ConfigData.Frigate.StartupCheck.Attempts {
+		response, err = util.HTTPGet(statsAPI, ConfigData.Frigate.Insecure)
+		if err != nil {
+			log.Warn().
+				Err(err).
+				Int("attempt", current_attempt).
+				Int("max_tries", ConfigData.Frigate.StartupCheck.Attempts).
+				Int("interval", ConfigData.Frigate.StartupCheck.Interval).
+				Msgf("Cannot reach Frigate server at %v", ConfigData.Frigate.Server)
+			time.Sleep(time.Duration(ConfigData.Frigate.StartupCheck.Interval) * time.Second)
+			current_attempt += 1
+		}
+	}
+	if current_attempt == ConfigData.Frigate.StartupCheck.Attempts {
 		log.Fatal().
 			Err(err).
-			Msgf("Cannot reach Frigate server at %v", ConfigData.Frigate.Server)
+			Msgf("Max attempts reached - Cannot reach Frigate server at %v", ConfigData.Frigate.Server)
 	}
 	var stats models.FrigateStats
 	json.Unmarshal([]byte(response), &stats)

@@ -13,7 +13,7 @@ import (
 )
 
 // SendPushoverMessage sends alert message through Pushover service
-func SendPushoverMessage(event models.Event, snapshot io.Reader, eventid string) {
+func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 	// Build notification
 	var message string
 	if config.ConfigData.Alerts.Pushover.Template != "" {
@@ -53,7 +53,7 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader, eventid string)
 	}
 
 	// Send notification
-	if snapshot != nil {
+	if event.HasSnapshot {
 		notif.AddAttachment(snapshot)
 		if _, err := push.SendMessage(notif, recipient); err != nil {
 			log.Warn().

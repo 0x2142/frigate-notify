@@ -35,7 +35,7 @@ type gotifyPayload struct {
 }
 
 // SendGotifyPush forwards alert messages to Gotify push notification server
-func SendGotifyPush(event models.Event, snapshotURL string, eventid string) {
+func SendGotifyPush(event models.Event, snapshotURL string) {
 	// Build notification
 	var message string
 	if config.ConfigData.Alerts.Gotify.Template != "" {
@@ -49,7 +49,7 @@ func SendGotifyPush(event models.Event, snapshotURL string, eventid string) {
 		message = renderMessage("markdown", event)
 	}
 
-	if snapshotURL != "" {
+	if event.HasSnapshot {
 		message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
 	} else {
 		message += "\n\nNo snapshot available."

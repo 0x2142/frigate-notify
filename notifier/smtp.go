@@ -13,7 +13,7 @@ import (
 )
 
 // SendSMTP forwards alert data via email
-func SendSMTP(event models.Event, snapshot io.Reader, eventid string) {
+func SendSMTP(event models.Event, snapshot io.Reader) {
 	// Build notification
 	var message string
 	if config.ConfigData.Alerts.SMTP.Template != "" {
@@ -33,7 +33,7 @@ func SendSMTP(event models.Event, snapshot io.Reader, eventid string) {
 	m.To(ParseSMTPRecipients()...)
 	m.Subject(config.ConfigData.Alerts.General.Title)
 	// Attach snapshot if one exists
-	if snapshot != nil {
+	if event.HasSnapshot {
 		m.AttachReader("snapshot.jpg", snapshot)
 	} else {
 		message += "\n\nNo snapshot available."

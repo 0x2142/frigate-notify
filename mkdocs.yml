@@ -1,6 +1,6 @@
 # Site Info
 site_name: Frigate-Notify
-site_url: https://0x2142.github.io/frigate-notify
+site_url: https://0x2142.github.io/frigate-notify/
 site_author: Matt Schmitz
 repo_name: 0x2142/frigate-notify
 repo_url: https://github.com/0x2142/frigate-notify
@@ -51,6 +51,8 @@ nav:
   
 # Extras
 extra:
+  version:
+    provider: mike
   social:
     - icon: fontawesome/brands/mastodon 
       link: https://0x2142.com/@matt
