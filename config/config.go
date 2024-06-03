@@ -233,6 +233,8 @@ func validateConfig() {
 				Msgf("Cannot reach Frigate server at %v", ConfigData.Frigate.Server)
 			time.Sleep(time.Duration(ConfigData.Frigate.StartupCheck.Interval) * time.Second)
 			current_attempt += 1
+		} else {
+			break
 		}
 	}
 	if current_attempt == ConfigData.Frigate.StartupCheck.Attempts {
