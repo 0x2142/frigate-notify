@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.3.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.0) - Upcoming Release
+## [v0.3.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.0) - Jun 03 2024
 
  - Reworked & reduced logging, added [debug option](https://frigate-notify.0x2142.com/latest/config/options/)
  - Add ability to define custom [notification templates](https://frigate-notify.0x2142.com/latest/config/templates/#alert-templates)
