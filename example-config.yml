@@ -17,6 +17,13 @@ frigate:
     # Example:
     # - Authorization: Basic abcd1234
 
+  # On startup, frigate-notify will check reachability of Frigate server
+  startup_check:
+    # Max number of attempts (Default: 5)
+    attempts: 3
+    # Interval between attempts, in seconds (Default: 30)
+    interval: 30
+
   webapi:
     # Set to true to enable event collection via the web API
     enabled: 
