@@ -35,7 +35,13 @@ func SendNftyPush(event models.Event, snapshot io.Reader) {
 	headers = append(headers, map[string]string{"X-Title": config.ConfigData.Alerts.General.Title})
 
 	// Set action link to the recorded clip
-	clip := fmt.Sprintf("%s/api/events/%s/clip.mp4", config.ConfigData.Frigate.Server, event.ID)
+	var clip string
+	if config.ConfigData.Frigate.PublicURL != "" {
+		clip = fmt.Sprintf("%s/api/events/%s/clip.mp4", config.ConfigData.Frigate.PublicURL, event.ID)
+	} else {
+		clip = fmt.Sprintf("%s/api/events/%s/clip.mp4", config.ConfigData.Frigate.Server, event.ID)
+	}
+
 	headers = append(headers, map[string]string{"X-Actions": "view, View Clip, " + clip + ", clear=true"})
 
 	var attachment []byte
