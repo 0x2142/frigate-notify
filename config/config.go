@@ -72,7 +72,8 @@ type Alerts struct {
 
 type General struct {
 	Title      string `fig:"title" default:"Frigate Alert"`
-	TimeFormat string `fig:"timeformat" default: ""`
+	TimeFormat string `fig:"timeformat" default:""`
+	NoSnap     string `fig:"nosnap" default:"allow"`
 }
 
 type Zones struct {
@@ -276,6 +277,13 @@ func validateConfig() {
 		if ConfigData.Frigate.MQTT.Port == 0 {
 			ConfigData.Frigate.MQTT.Port = 1883
 		}
+	}
+
+	// Check action on no snapshot available
+	if strings.ToLower(ConfigData.Alerts.General.NoSnap) != "allow" && strings.ToLower(ConfigData.Alerts.General.NoSnap) != "drop" {
+		configErrors = append(configErrors, "Option for nosnap must be 'allow' or 'drop'")
+	} else {
+		log.Debug().Msgf("Events without a snapshot: %v", strings.ToLower(ConfigData.Alerts.General.NoSnap))
 	}
 
 	// Check Zone filtering config

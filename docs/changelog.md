@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.3.1](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.0) - Upcoming Release
+
+- Fix issue where Nfty action button would use local Frigate URL even if `public_url` was configured
+- Added [config file](https://frigate-notify.0x2142.com/latest/config/file/#general) option to drop events that don't have a snapshot image
+
 ## [v0.3.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.0) - Jun 03 2024
 
  - Reworked & reduced logging, added [debug option](https://frigate-notify.0x2142.com/latest/config/options/)

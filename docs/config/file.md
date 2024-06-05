@@ -125,12 +125,17 @@ frigate:
     - This utilizes Golang's [reference time](https://go.dev/src/time/format.go) for formatting
     - See [this](https://www.geeksforgeeks.org/time-formatting-in-golang) guide for help
     - Example below uses RFC1123 format
+- **nosnap** (Optional - Default: `allow`)
+    - Specify what to do with events that have no snapshot image
+    - By default, these events will be sent & notification message will say "No snapshot available"
+    - Set to `drop` to silently drop these events & not send notifications
 
 ```yaml title="Config File Snippet"
 alerts:  
   general:
     title: Frigate Alert
     timeformat: Mon, 02 Jan 2006 15:04:05 MST
+    nosnap: 
 ```
 
 ### Zones

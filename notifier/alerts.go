@@ -16,6 +16,13 @@ import (
 
 // SendAlert forwards alert information to all enabled alerting methods
 func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, eventid string) {
+	// Drop event if no snapshot & skip_nosnap is true
+	if !event.HasSnapshot && strings.ToLower(config.ConfigData.Alerts.General.NoSnap) == "drop" {
+		log.Debug().
+			Str("event_id", event.ID).
+			Msg("Event dropped - No snapshot available")
+		return
+	}
 	// Create copy of snapshot for each alerting method
 	var snap []byte
 	if snapshot != nil {

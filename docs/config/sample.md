@@ -33,6 +33,7 @@ alerts:
   general:
     title:
     timeformat:
+    nosnap:
 
   zones:
     unzoned: allow

@@ -62,6 +62,9 @@ alerts:
     # Optionally modify default time format in notifications
     # Use Golang's reference time format, or see docs for more info
     timeformat:
+    # Allow notification of events without a snapshot
+    # Set to `drop` to disallow this
+    nosnap: allow 
 
   zones:
     # Allow notifications for events outside a zone
