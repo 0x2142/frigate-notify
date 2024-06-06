@@ -371,12 +371,12 @@ alerts:
     template:
 ```
 
-### Nfty
+### Ntfy
 
 - **enabled** (Optional - Default: `false`)
-    - Set to `true` to enable alerting via Nfty
+    - Set to `true` to enable alerting via Ntfy
 - **server** (Required)
-    - Full URL of the desired Nfty server
+    - Full URL of the desired Ntfy server
     - Required if this alerting method is enabled
 - **topic** (Required)
     - Destination topic that will receive alert notifications
@@ -384,7 +384,7 @@ alerts:
 - **ignoressl** (Optional - Default: `false`)
     - Set to `true` to allow self-signed certificates
 - **headers** (Optional)
-    - Send additional HTTP headers to Nfty server
+    - Send additional HTTP headers to Ntfy server
     - Header format: `Header: Value`
     - Example: `Authorization: Basic abcd1234`
 - **template** (Optional)
@@ -393,9 +393,9 @@ alerts:
 
 ```yaml title="Config File Snippet"
 alerts: 
-  nfty:
+  ntfy:
     enabled: true
-    server: https://nfty.your.domain.tld
+    server: https://ntfy.your.domain.tld
     topic: frigate
     ignoressl: true
     headers:

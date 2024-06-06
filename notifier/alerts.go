@@ -43,8 +43,8 @@ func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, event
 	if config.ConfigData.Alerts.Pushover.Enabled {
 		go SendPushoverMessage(event, bytes.NewReader(snap))
 	}
-	if config.ConfigData.Alerts.Nfty.Enabled {
-		go SendNftyPush(event, bytes.NewReader(snap))
+	if config.ConfigData.Alerts.Ntfy.Enabled {
+		go SendNtfyPush(event, bytes.NewReader(snap))
 	}
 	if config.ConfigData.Alerts.Webhook.Enabled {
 		go SendWebhook(event)

@@ -88,7 +88,7 @@ alerts:
     ttl:
     template:
 
-  nfty:
+  ntfy:
     enabled: false
     server:
     topic:

@@ -67,6 +67,7 @@ type Alerts struct {
 	Telegram Telegram `fig:"telegram"`
 	Pushover Pushover `fig:"pushover"`
 	Nfty     Nfty     `fig:"nfty"`
+	Ntfy     Ntfy     `fig:"ntfy"`
 	Webhook  Webhook  `fig:"webhook"`
 }
 
@@ -131,7 +132,17 @@ type Pushover struct {
 	Template string `fig:"template" default:""`
 }
 
+// DEPRECATED: Misspelling of Ntfy
 type Nfty struct {
+	Enabled  bool                `fig:"enabled" default:false`
+	Server   string              `fig:"server" default:""`
+	Topic    string              `fig:"topic" default:""`
+	Insecure bool                `fig:"ignoressl" default:false`
+	Headers  []map[string]string `fig:"headers"`
+	Template string              `fig:"template" default:""`
+}
+
+type Ntfy struct {
 	Enabled  bool                `fig:"enabled" default:false`
 	Server   string              `fig:"server" default:""`
 	Topic    string              `fig:"topic" default:""`
@@ -417,6 +428,18 @@ func validateConfig() {
 		if msg := checkTemplate("Pushover", ConfigData.Alerts.Pushover.Template); msg != "" {
 			configErrors = append(configErrors, msg)
 		}
+	}
+	// Deprecation warning
+	// TODO: Remove misspelled Ntfy config with v0.4.0 or later
+	if ConfigData.Alerts.Nfty.Enabled {
+		log.Warn().Msg("Config for 'nfty' will be deprecated due to misspelling. Please update config to 'ntfy'")
+		// Copy data to new Ntfy struct
+		ConfigData.Alerts.Ntfy.Enabled = ConfigData.Alerts.Nfty.Enabled
+		ConfigData.Alerts.Ntfy.Server = ConfigData.Alerts.Nfty.Server
+		ConfigData.Alerts.Ntfy.Topic = ConfigData.Alerts.Nfty.Topic
+		ConfigData.Alerts.Ntfy.Insecure = ConfigData.Alerts.Nfty.Insecure
+		ConfigData.Alerts.Ntfy.Headers = ConfigData.Alerts.Nfty.Headers
+		ConfigData.Alerts.Ntfy.Template = ConfigData.Alerts.Nfty.Template
 	}
 	if ConfigData.Alerts.Nfty.Enabled {
 		log.Debug().Msg("Nfty alerting enabled.")

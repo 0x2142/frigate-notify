@@ -154,17 +154,17 @@ alerts:
     # Custom notification template, if desired
     template:
 
-  # Nfty Config
-  nfty:
-    # Set to true to enable alerting via nfty
+  # Ntfy Config
+  ntfy:
+    # Set to true to enable alerting via ntfy
     enabled: false
-    # URL of Nfty server
+    # URL of Ntfy server
     server:
-    # Nfty topic for notifications
+    # Ntfy topic for notifications
     topic:
     # Set to true if using SSL & a self-signed certificate
     ignoressl:
-    # List of HTTP headers to send to Nfty, in format Header: Value
+    # List of HTTP headers to send to Ntfy, in format Header: Value
     headers:
       # Example:
       # - Authorization: Basic abcd1234
