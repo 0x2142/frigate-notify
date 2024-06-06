@@ -16,6 +16,8 @@ import (
 
 // SendAlert forwards alert information to all enabled alerting methods
 func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, eventid string) {
+	// Add Frigate Major version metadata
+	event.Extra.FrigateMajorVersion = config.ConfigData.Frigate.Version
 	// Drop event if no snapshot & skip_nosnap is true
 	if !event.HasSnapshot && strings.ToLower(config.ConfigData.Alerts.General.NoSnap) == "drop" {
 		log.Debug().

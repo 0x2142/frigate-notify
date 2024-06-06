@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,6 +31,7 @@ type Frigate struct {
 	WebAPI       WebAPI              `fig:"webapi"`
 	MQTT         MQTT                `fig:"mqtt"`
 	Cameras      Cameras             `fig:"cameras"`
+	Version      int
 }
 
 type StartupCheck struct {
@@ -260,6 +262,8 @@ func validateConfig() {
 	log.Info().Msgf("Successfully connected to %v", ConfigData.Frigate.Server)
 	if stats.Service.Version != "" {
 		log.Debug().Msgf("Frigate server is running version %v", stats.Service.Version)
+		// Save major version number
+		ConfigData.Frigate.Version, _ = strconv.Atoi(strings.Split(stats.Service.Version, ".")[1])
 	}
 
 	// Check Public / External URL if set

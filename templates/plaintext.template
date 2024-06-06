@@ -4,9 +4,9 @@ Label: {{ .Label }} ({{ .Extra.TopScorePercent }})
 {{ if ge (len .Zones ) 1 }}Zone(s): {{ .Extra.ZoneList }}
 {{ end }}
 Links:
-{{ if ne .Extra.PublicURL "" }} - Camera: {{ .Extra.PublicURL }}/cameras/{{ .Camera }}
+{{ if ne .Extra.PublicURL "" }}{{if ge .Extra.FrigateMajorVersion 14 }} - Camera: {{ .Extra.PublicURL }}/#{{ .Camera }}{{else}} - Camera: {{ .Extra.PublicURL }}/cameras/{{ .Camera }}{{end}}
 {{ if .HasClip }} - Event Clip: {{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}
-{{ else }} - Camera: {{ .Extra.LocalURL }}/cameras/{{ .Camera }}
+{{ else }}{{if ge .Extra.FrigateMajorVersion 14 }} - Camera: {{ .Extra.LocalURL }}/#{{ .Camera }}{{ else }} - Camera: {{ .Extra.LocalURL }}/cameras/{{ .Camera }}{{ end }}
 {{ if .HasClip }} - Event Clip: {{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}
 {{ end }}
 
