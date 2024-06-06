@@ -6,3 +6,6 @@ Label: {{ .Label }} ({{ .Extra.TopScorePercent }})
 {{ if ne .Extra.PublicURL "" }}Links: [Camera]({{ .Extra.PublicURL }}/cameras/{{ .Camera }}) {{ if .HasClip }} | [Event Clip]({{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4){{ end }}
 {{ else }}Links: [Camera]({{ .Extra.LocalURL }}/cameras/{{ .Camera }}){{ if .HasClip }} | [Event Clip]({{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4){{ end }}
 {{ end }}
+
+{{ if not .HasSnapshot }}No snapshot available.  {{end}}
+

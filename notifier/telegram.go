@@ -52,7 +52,6 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader) {
 		}
 	} else {
 		// Send plain text message if no snapshot available
-		message += "No snapshot saved."
 		msg := tgbotapi.NewMessage(config.ConfigData.Alerts.Telegram.ChatID, message)
 		msg.ParseMode = "HTML"
 		if _, err := bot.Send(msg); err != nil {

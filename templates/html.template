@@ -7,3 +7,4 @@ Label: {{ .Label }} ({{ .Extra.TopScorePercent }}) <br />
 {{ if ne .Extra.PublicURL "" }}Links: <a href="{{ .Extra.PublicURL }}/cameras/{{ .Camera }}">Camera</a> {{ if .HasClip }} | <a href="{{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4">Event Clip</a> <br />{{ end }}
 {{ else }}Links: <a href="{{ .Extra.LocalURL }}/cameras/{{ .Camera }}">Camera</a>{{ if .HasClip }} | <a href="{{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4">Event Clip</a> <br />{{ end }}
 {{ end }}
+{{ if not .HasSnapshot }}<br />No snapshot available.{{end}}

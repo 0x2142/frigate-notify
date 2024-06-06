@@ -49,8 +49,6 @@ func SendNtfyPush(event models.Event, snapshot io.Reader) {
 	if event.HasSnapshot {
 		headers = append(headers, map[string]string{"X-Filename": "snapshot.jpg"})
 		attachment, _ = io.ReadAll(snapshot)
-	} else {
-		message += "\n\nNo snapshot available."
 	}
 
 	// Escape newlines in message

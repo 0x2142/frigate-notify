@@ -9,3 +9,5 @@ Links:
 {{ else }} - Camera: {{ .Extra.LocalURL }}/cameras/{{ .Camera }}
 {{ if .HasClip }} - Event Clip: {{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}
 {{ end }}
+
+{{ if not .HasSnapshot }}No snapshot available.{{end}}

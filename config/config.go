@@ -441,16 +441,16 @@ func validateConfig() {
 		ConfigData.Alerts.Ntfy.Headers = ConfigData.Alerts.Nfty.Headers
 		ConfigData.Alerts.Ntfy.Template = ConfigData.Alerts.Nfty.Template
 	}
-	if ConfigData.Alerts.Nfty.Enabled {
-		log.Debug().Msg("Nfty alerting enabled.")
-		if ConfigData.Alerts.Nfty.Server == "" {
-			configErrors = append(configErrors, "No Nfty server specified!")
+	if ConfigData.Alerts.Ntfy.Enabled {
+		log.Debug().Msg("Ntfy alerting enabled.")
+		if ConfigData.Alerts.Ntfy.Server == "" {
+			configErrors = append(configErrors, "No Ntfy server specified!")
 		}
-		if ConfigData.Alerts.Nfty.Topic == "" {
-			configErrors = append(configErrors, "No Nfty topic specified!")
+		if ConfigData.Alerts.Ntfy.Topic == "" {
+			configErrors = append(configErrors, "No Ntfy topic specified!")
 		}
 		// Check template syntax
-		if msg := checkTemplate("Nfty", ConfigData.Alerts.Nfty.Template); msg != "" {
+		if msg := checkTemplate("Ntfy", ConfigData.Alerts.Ntfy.Template); msg != "" {
 			configErrors = append(configErrors, msg)
 		}
 	}

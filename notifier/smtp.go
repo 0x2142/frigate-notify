@@ -35,8 +35,6 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 	// Attach snapshot if one exists
 	if event.HasSnapshot {
 		m.AttachReader("snapshot.jpg", snapshot)
-	} else {
-		message += "\n\nNo snapshot available."
 	}
 
 	// Convert message body to HTML
