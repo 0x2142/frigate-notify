@@ -132,11 +132,12 @@ type Pushover struct {
 }
 
 type Nfty struct {
-	Enabled  bool   `fig:"enabled" default:false`
-	Server   string `fig:"server" default:""`
-	Topic    string `fig:"topic" default:""`
-	Insecure bool   `fig:"ignoressl" default:false`
-	Template string `fig:"template" default:""`
+	Enabled  bool                `fig:"enabled" default:false`
+	Server   string              `fig:"server" default:""`
+	Topic    string              `fig:"topic" default:""`
+	Insecure bool                `fig:"ignoressl" default:false`
+	Headers  []map[string]string `fig:"headers"`
+	Template string              `fig:"template" default:""`
 }
 
 type Webhook struct {

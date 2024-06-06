@@ -33,6 +33,7 @@ func SendNftyPush(event models.Event, snapshot io.Reader) {
 	var headers []map[string]string
 	headers = append(headers, map[string]string{"Content-Type": "text/markdown"})
 	headers = append(headers, map[string]string{"X-Title": config.ConfigData.Alerts.General.Title})
+	headers = append(headers, config.ConfigData.Alerts.Nfty.Headers...)
 
 	// Set action link to the recorded clip
 	var clip string
@@ -56,7 +57,7 @@ func SendNftyPush(event models.Event, snapshot io.Reader) {
 	message = strings.ReplaceAll(message, "\n", "\\n")
 	headers = append(headers, map[string]string{"X-Message": message})
 
-	_, err := util.HTTPPost(NftyURL, config.ConfigData.Alerts.Nfty.Insecure, attachment, headers...)
+	resp, err := util.HTTPPost(NftyURL, config.ConfigData.Alerts.Nfty.Insecure, attachment, headers...)
 	if err != nil {
 		log.Warn().
 			Str("event_id", event.ID).
@@ -64,6 +65,15 @@ func SendNftyPush(event models.Event, snapshot io.Reader) {
 			Err(err).
 			Msg("Unable to send alert")
 		return
+	}
+
+	// Nfty returns HTTP 200 even if there is an error, so we need to inspect returned body
+	if strings.Contains(string(resp), "error") {
+		log.Warn().
+			Str("event_id", event.ID).
+			Str("provider", "Nfty").
+			Str("error", string(resp)).
+			Msg("Unable to send alert")
 	}
 
 	log.Info().

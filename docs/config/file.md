@@ -383,6 +383,10 @@ alerts:
     - Required if this alerting method is enabled
 - **ignoressl** (Optional - Default: `false`)
     - Set to `true` to allow self-signed certificates
+- **headers** (Optional)
+    - Send additional HTTP headers to Nfty server
+    - Header format: `Header: Value`
+    - Example: `Authorization: Basic abcd1234`
 - **template** (Optional)
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
@@ -394,6 +398,7 @@ alerts:
     server: https://nfty.your.domain.tld
     topic: frigate
     ignoressl: true
+    headers:
     template:
 ```
 
@@ -437,7 +442,7 @@ alerts:
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
     - Note: Webhook templates **must** be valid JSON
 
-``` title="Config File Snippet"
+```yaml title="Config File Snippet"
   webhook:
     enabled: false
     server: 

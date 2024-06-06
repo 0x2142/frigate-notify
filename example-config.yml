@@ -164,6 +164,10 @@ alerts:
     topic:
     # Set to true if using SSL & a self-signed certificate
     ignoressl:
+    # List of HTTP headers to send to Nfty, in format Header: Value
+    headers:
+      # Example:
+      # - Authorization: Basic abcd1234
     # Custom notification template, if desired
     template:
 

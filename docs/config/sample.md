@@ -93,6 +93,7 @@ alerts:
     server:
     topic:
     ignoressl:
+    headers:
     template:
 
   webhook:
