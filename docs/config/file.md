@@ -282,6 +282,11 @@ alerts:
 
 ### Telegram
 
+!!! note
+    There is an [issue](https://github.com/0x2142/frigate-notify/issues/54#issuecomment-2148564526) with Telegram alerts if you use URL-embedded credentials for your Frigate links, for example: `https://user:pass@frigate.domain.tld`
+
+    Telegram appears to incorrectly process these URLs, which will cause the camera & clip links  to become unclickable within Telegram.
+
 In order to use Telegram for alerts, a bot token & chat ID are required.
 
 To obtain a bot token, follow [this](https://core.telegram.org/bots#how-do-i-create-a-bot) doc to message @BotFather.
