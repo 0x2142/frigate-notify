@@ -27,7 +27,7 @@ Steps to reproduce the behavior:
 Please paste a copy of your Frigate-Notify config here, with any sensitive information removed
 ```
 
-**Frigate-Notify Config:**
+**Frigate-Notify Logs:**
 ```yaml
 Please paste a copy of your Frigate-Notify logs here. If possible, please capture the issue with debug logging enabled: https://frigate-notify.0x2142.com/latest/config/options/
 ```
