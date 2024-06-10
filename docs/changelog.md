@@ -10,6 +10,7 @@
  - Add support for sending HTTP headers with Ntfy notifications
  - Added [config file](https://frigate-notify.0x2142.com/latest/config/file/#general) option to drop events that don't have a snapshot image
  - Move "No snapshot available" message into notification templates
+ - Add support for disabling colored console logging via [config options](https://frigate-notify.0x2142.com/latest/config/options/)
 
 ## [v0.3.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.0) - Jun 03 2024
 
