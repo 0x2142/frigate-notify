@@ -30,9 +30,9 @@ func main() {
 	// Set up logging
 	_, jsonlogenv = os.LookupEnv("FN_JSONLOG")
 	if jsonlog || jsonlogenv {
-		zerolog.TimeFieldFormat = "2006/01/02 15:04:05"
+		zerolog.TimeFieldFormat = "2006/01/02 15:04:05 -0700"
 	} else {
-		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006/01/02 15:04:05"})
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006/01/02 15:04:05 -0700"})
 	}
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 
@@ -40,6 +40,8 @@ func main() {
 	_, debugenv = os.LookupEnv("FN_DEBUG")
 	if debug || debugenv {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		// Add calling module to debug logs
+		log.Logger = log.With().Caller().Logger()
 		log.Debug().Msg("Debug logging enabled")
 	}
 
