@@ -18,6 +18,7 @@ import (
 var APP_VER = "v0.3.0"
 var debug, debugenv bool
 var jsonlog, jsonlogenv bool
+var nocolor, nocolorenv bool
 var configFile string
 
 func main() {
@@ -25,6 +26,7 @@ func main() {
 	flag.StringVar(&configFile, "c", "", "Configuration file location (default \"./config.yml\")")
 	flag.BoolVar(&debug, "debug", false, "Enable debug logging")
 	flag.BoolVar(&jsonlog, "jsonlog", false, "Enable JSON logging")
+	flag.BoolVar(&nocolor, "nocolor", false, "Disable color on console logging")
 	flag.Parse()
 
 	// Set up logging
@@ -32,7 +34,8 @@ func main() {
 	if jsonlog || jsonlogenv {
 		zerolog.TimeFieldFormat = "2006/01/02 15:04:05 -0700"
 	} else {
-		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006/01/02 15:04:05 -0700"})
+		_, nocolorenv := os.LookupEnv("FN_NOCOLOR")
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006/01/02 15:04:05 -0700", NoColor: nocolorenv || nocolor})
 	}
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 
