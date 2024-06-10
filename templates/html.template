@@ -4,6 +4,7 @@ Label: {{ .Label }} ({{ .Extra.TopScorePercent }}) <br />
 {{ if ge (len .Zones ) 1 }}Zone(s): {{ .Extra.ZoneList }} <br />
 {{ end }}
 <br />
-{{ if ne .Extra.PublicURL "" }}Links: <a href="{{ .Extra.PublicURL }}/cameras/{{ .Camera }}">Camera</a> {{ if .HasClip }} | <a href="{{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4">Event Clip</a> <br />{{ end }}
-{{ else }}Links: <a href="{{ .Extra.LocalURL }}/cameras/{{ .Camera }}">Camera</a>{{ if .HasClip }} | <a href="{{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4">Event Clip</a> <br />{{ end }}
+{{ if ne .Extra.PublicURL "" }}Links: <a href="{{if ge .Extra.FrigateMajorVersion 14 }}{{ .Extra.PublicURL }}/#{{ .Camera }}{{ else }}{{ .Extra.PublicURL }}/cameras/{{ .Camera }}{{ end }}">Camera</a> {{ if .HasClip }} | <a href="{{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4">Event Clip</a> <br />{{ end }}
+{{ else }}Links: <a href="{{if ge .Extra.FrigateMajorVersion 14 }}{{ .Extra.LocalURL }}/#{{ .Camera }}{{ else }}{{ .Extra.LocalURL }}/cameras/{{ .Camera }}{{ end }}">Camera</a>{{ if .HasClip }} | <a href="{{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4">Event Clip</a> <br />{{ end }}
 {{ end }}
+{{ if not .HasSnapshot }}<br /><br />No snapshot available.{{end}}

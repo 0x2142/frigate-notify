@@ -125,12 +125,17 @@ frigate:
     - This utilizes Golang's [reference time](https://go.dev/src/time/format.go) for formatting
     - See [this](https://www.geeksforgeeks.org/time-formatting-in-golang) guide for help
     - Example below uses RFC1123 format
+- **nosnap** (Optional - Default: `allow`)
+    - Specify what to do with events that have no snapshot image
+    - By default, these events will be sent & notification message will say "No snapshot available"
+    - Set to `drop` to silently drop these events & not send notifications
 
 ```yaml title="Config File Snippet"
 alerts:  
   general:
     title: Frigate Alert
     timeformat: Mon, 02 Jan 2006 15:04:05 MST
+    nosnap: 
 ```
 
 ### Zones
@@ -277,6 +282,11 @@ alerts:
 
 ### Telegram
 
+!!! note
+    There is an [issue](https://github.com/0x2142/frigate-notify/issues/54#issuecomment-2148564526) with Telegram alerts if you use URL-embedded credentials for your Frigate links, for example: `https://user:pass@frigate.domain.tld`
+
+    Telegram appears to incorrectly process these URLs, which will cause the camera & clip links  to become unclickable within Telegram.
+
 In order to use Telegram for alerts, a bot token & chat ID are required.
 
 To obtain a bot token, follow [this](https://core.telegram.org/bots#how-do-i-create-a-bot) doc to message @BotFather.
@@ -366,29 +376,34 @@ alerts:
     template:
 ```
 
-### Nfty
+### Ntfy
 
 - **enabled** (Optional - Default: `false`)
-    - Set to `true` to enable alerting via Nfty
+    - Set to `true` to enable alerting via Ntfy
 - **server** (Required)
-    - Full URL of the desired Nfty server
+    - Full URL of the desired Ntfy server
     - Required if this alerting method is enabled
 - **topic** (Required)
     - Destination topic that will receive alert notifications
     - Required if this alerting method is enabled
 - **ignoressl** (Optional - Default: `false`)
     - Set to `true` to allow self-signed certificates
+- **headers** (Optional)
+    - Send additional HTTP headers to Ntfy server
+    - Header format: `Header: Value`
+    - Example: `Authorization: Basic abcd1234`
 - **template** (Optional)
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
 
 ```yaml title="Config File Snippet"
 alerts: 
-  nfty:
+  ntfy:
     enabled: true
-    server: https://nfty.your.domain.tld
+    server: https://ntfy.your.domain.tld
     topic: frigate
     ignoressl: true
+    headers:
     template:
 ```
 
@@ -432,7 +447,7 @@ alerts:
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
     - Note: Webhook templates **must** be valid JSON
 
-``` title="Config File Snippet"
+```yaml title="Config File Snippet"
   webhook:
     enabled: false
     server: 

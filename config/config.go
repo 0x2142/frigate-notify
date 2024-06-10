@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,6 +31,7 @@ type Frigate struct {
 	WebAPI       WebAPI              `fig:"webapi"`
 	MQTT         MQTT                `fig:"mqtt"`
 	Cameras      Cameras             `fig:"cameras"`
+	Version      int
 }
 
 type StartupCheck struct {
@@ -67,12 +69,14 @@ type Alerts struct {
 	Telegram Telegram `fig:"telegram"`
 	Pushover Pushover `fig:"pushover"`
 	Nfty     Nfty     `fig:"nfty"`
+	Ntfy     Ntfy     `fig:"ntfy"`
 	Webhook  Webhook  `fig:"webhook"`
 }
 
 type General struct {
 	Title      string `fig:"title" default:"Frigate Alert"`
-	TimeFormat string `fig:"timeformat" default: ""`
+	TimeFormat string `fig:"timeformat" default:""`
+	NoSnap     string `fig:"nosnap" default:"allow"`
 }
 
 type Zones struct {
@@ -130,12 +134,23 @@ type Pushover struct {
 	Template string `fig:"template" default:""`
 }
 
+// DEPRECATED: Misspelling of Ntfy
 type Nfty struct {
-	Enabled  bool   `fig:"enabled" default:false`
-	Server   string `fig:"server" default:""`
-	Topic    string `fig:"topic" default:""`
-	Insecure bool   `fig:"ignoressl" default:false`
-	Template string `fig:"template" default:""`
+	Enabled  bool                `fig:"enabled" default:false`
+	Server   string              `fig:"server" default:""`
+	Topic    string              `fig:"topic" default:""`
+	Insecure bool                `fig:"ignoressl" default:false`
+	Headers  []map[string]string `fig:"headers"`
+	Template string              `fig:"template" default:""`
+}
+
+type Ntfy struct {
+	Enabled  bool                `fig:"enabled" default:false`
+	Server   string              `fig:"server" default:""`
+	Topic    string              `fig:"topic" default:""`
+	Insecure bool                `fig:"ignoressl" default:false`
+	Headers  []map[string]string `fig:"headers"`
+	Template string              `fig:"template" default:""`
 }
 
 type Webhook struct {
@@ -247,6 +262,8 @@ func validateConfig() {
 	log.Info().Msgf("Successfully connected to %v", ConfigData.Frigate.Server)
 	if stats.Service.Version != "" {
 		log.Debug().Msgf("Frigate server is running version %v", stats.Service.Version)
+		// Save major version number
+		ConfigData.Frigate.Version, _ = strconv.Atoi(strings.Split(stats.Service.Version, ".")[1])
 	}
 
 	// Check Public / External URL if set
@@ -276,6 +293,13 @@ func validateConfig() {
 		if ConfigData.Frigate.MQTT.Port == 0 {
 			ConfigData.Frigate.MQTT.Port = 1883
 		}
+	}
+
+	// Check action on no snapshot available
+	if strings.ToLower(ConfigData.Alerts.General.NoSnap) != "allow" && strings.ToLower(ConfigData.Alerts.General.NoSnap) != "drop" {
+		configErrors = append(configErrors, "Option for nosnap must be 'allow' or 'drop'")
+	} else {
+		log.Debug().Msgf("Events without a snapshot: %v", strings.ToLower(ConfigData.Alerts.General.NoSnap))
 	}
 
 	// Check Zone filtering config
@@ -409,16 +433,28 @@ func validateConfig() {
 			configErrors = append(configErrors, msg)
 		}
 	}
+	// Deprecation warning
+	// TODO: Remove misspelled Ntfy config with v0.4.0 or later
 	if ConfigData.Alerts.Nfty.Enabled {
-		log.Debug().Msg("Nfty alerting enabled.")
-		if ConfigData.Alerts.Nfty.Server == "" {
-			configErrors = append(configErrors, "No Nfty server specified!")
+		log.Warn().Msg("Config for 'nfty' will be deprecated due to misspelling. Please update config to 'ntfy'")
+		// Copy data to new Ntfy struct
+		ConfigData.Alerts.Ntfy.Enabled = ConfigData.Alerts.Nfty.Enabled
+		ConfigData.Alerts.Ntfy.Server = ConfigData.Alerts.Nfty.Server
+		ConfigData.Alerts.Ntfy.Topic = ConfigData.Alerts.Nfty.Topic
+		ConfigData.Alerts.Ntfy.Insecure = ConfigData.Alerts.Nfty.Insecure
+		ConfigData.Alerts.Ntfy.Headers = ConfigData.Alerts.Nfty.Headers
+		ConfigData.Alerts.Ntfy.Template = ConfigData.Alerts.Nfty.Template
+	}
+	if ConfigData.Alerts.Ntfy.Enabled {
+		log.Debug().Msg("Ntfy alerting enabled.")
+		if ConfigData.Alerts.Ntfy.Server == "" {
+			configErrors = append(configErrors, "No Ntfy server specified!")
 		}
-		if ConfigData.Alerts.Nfty.Topic == "" {
-			configErrors = append(configErrors, "No Nfty topic specified!")
+		if ConfigData.Alerts.Ntfy.Topic == "" {
+			configErrors = append(configErrors, "No Ntfy topic specified!")
 		}
 		// Check template syntax
-		if msg := checkTemplate("Nfty", ConfigData.Alerts.Nfty.Template); msg != "" {
+		if msg := checkTemplate("Ntfy", ConfigData.Alerts.Ntfy.Template); msg != "" {
 			configErrors = append(configErrors, msg)
 		}
 	}

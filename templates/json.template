@@ -9,10 +9,10 @@
     "has_clip": "{{ .HasClip }}",
     "has_snapshot": "{{ .HasSnapshot }}",
     "links": {
-        {{ if ne .Extra.PublicURL "" }} "camera": "{{ .Extra.PublicURL }}/cameras/{{ .Camera }}",
+        {{ if ne .Extra.PublicURL "" }} "camera": {{if ge .Extra.FrigateMajorVersion 14 }}"{{ .Extra.PublicURL }}/#{{ .Camera }}",{{ else }}"{{ .Extra.PublicURL }}/cameras/{{ .Camera }}",{{ end }}
         {{ if .HasClip }} "clip": "{{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}",
         {{ if .HasSnapshot }} "snapshot": "{{ .Extra.PublicURL }}/api/events/{{ .ID }}/snapshot.jpg{{ end }}",
-        {{ else }} "camera": "{{ .Extra.LocalURL }}/cameras/{{ .Camera }}",
+        {{ else }} "camera": {{if ge .Extra.FrigateMajorVersion 14 }}"{{ .Extra.LocalURL }}/#{{ .Camera }}",{{ else }}"{{ .Extra.LocalURL }}/cameras/{{ .Camera }}",{{ end }}
         {{ if .HasClip }} "clip": "{{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}",
         {{ if .HasSnapshot }} "snapshot": "{{ .Extra.LocalURL }}/api/events/{{ .ID }}/snapshot.jpg{{ end }}",
         {{ end }}
