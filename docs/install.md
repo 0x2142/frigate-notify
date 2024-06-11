@@ -6,6 +6,8 @@ Both methods below will require a [configuration file](config/file.md) to be pro
 
 A Docker image is built with every release. Those images can be found [here](https://github.com/0x2142/frigate-notify/pkgs/container/frigate-notify).
 
+Each image is assigned a version tag upon release. Using the `latest` tag is recommended & will ensure you pull down the most recent version of the app. If needed, prior releases can be used by specifying the individual release tag, like `v0.3.0`. Additionally, there is an image built regularly from the latest development branch, which is tagged as `dev`. While the `dev` image may contain the latest fixes & features, it is not recommended for most users and may be unstable.
+
 The app can be run as a container with the bundled [docker-compose.yml](https://github.com/0x2142/frigate-notify/blob/main/docker-compose.yml) file:
 
 ```yaml

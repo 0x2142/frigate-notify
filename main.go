@@ -15,7 +15,7 @@ import (
 	"github.com/0x2142/frigate-notify/util"
 )
 
-var APP_VER = "v0.3.0"
+var APP_VER = "v0.3.1"
 var debug, debugenv bool
 var jsonlog, jsonlogenv bool
 var nocolor, nocolorenv bool
@@ -34,7 +34,7 @@ func main() {
 	if jsonlog || jsonlogenv {
 		zerolog.TimeFieldFormat = "2006/01/02 15:04:05 -0700"
 	} else {
-		_, nocolorenv := os.LookupEnv("FN_NOCOLOR")
+		_, nocolorenv = os.LookupEnv("FN_NOCOLOR")
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006/01/02 15:04:05 -0700", NoColor: nocolorenv || nocolor})
 	}
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)

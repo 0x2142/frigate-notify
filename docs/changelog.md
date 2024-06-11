@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.3.1](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.0) - Upcoming Release
+## [v0.3.1](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.1) - Jun 11 2024
 
  - Fix misspelling for Ntfy
      - Currently config will accept either `nfty` or `ntfy`, but in a future release `nfty` will be removed
