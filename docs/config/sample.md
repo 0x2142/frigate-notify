@@ -33,6 +33,7 @@ alerts:
   general:
     title:
     timeformat:
+    nosnap:
 
   zones:
     unzoned: allow
@@ -87,11 +88,12 @@ alerts:
     ttl:
     template:
 
-  nfty:
+  ntfy:
     enabled: false
     server:
     topic:
     ignoressl:
+    headers:
     template:
 
   webhook:

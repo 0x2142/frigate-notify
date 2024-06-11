@@ -3,6 +3,9 @@ Camera: {{ .Camera }}
 Label: {{ .Label }} ({{ .Extra.TopScorePercent }})  
 {{ if ge (len .Zones ) 1 }}Zone(s): {{ .Extra.ZoneList }}  
 {{ end }}
-{{ if ne .Extra.PublicURL "" }}Links: [Camera]({{ .Extra.PublicURL }}/cameras/{{ .Camera }}) {{ if .HasClip }} | [Event Clip]({{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4){{ end }}
-{{ else }}Links: [Camera]({{ .Extra.LocalURL }}/cameras/{{ .Camera }}){{ if .HasClip }} | [Event Clip]({{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4){{ end }}
+{{ if ne .Extra.PublicURL "" }}Links: [Camera]({{if ge .Extra.FrigateMajorVersion 14 }}{{ .Extra.PublicURL }}/#{{ .Camera }}{{ else }}{{ .Extra.PublicURL }}/cameras/{{ .Camera }}{{ end }}) {{ if .HasClip }} | [Event Clip]({{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4){{ end }}
+{{ else }}Links: [Camera]({{if ge .Extra.FrigateMajorVersion 14 }}{{ .Extra.LocalURL }}/#{{ .Camera }}{{ else }}{{ .Extra.LocalURL }}/cameras/{{ .Camera }}{{ end }}){{ if .HasClip }} | [Event Clip]({{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4){{ end }}
 {{ end }}
+
+{{ if not .HasSnapshot }}No snapshot available.  {{end}}
+

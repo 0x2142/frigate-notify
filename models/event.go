@@ -46,9 +46,10 @@ type Event struct {
 
 // Additional custom fields
 type ExtraFields struct {
-	FormattedTime   string
-	TopScorePercent string
-	ZoneList        string
-	LocalURL        string
-	PublicURL       string
+	FormattedTime       string
+	TopScorePercent     string
+	ZoneList            string
+	LocalURL            string
+	PublicURL           string
+	FrigateMajorVersion int
 }

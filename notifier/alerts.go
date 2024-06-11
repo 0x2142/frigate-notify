@@ -16,6 +16,24 @@ import (
 
 // SendAlert forwards alert information to all enabled alerting methods
 func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, eventid string) {
+	// Add Frigate Major version metadata
+	event.Extra.FrigateMajorVersion = config.ConfigData.Frigate.Version
+	// Drop event if no snapshot or clip is available - Event is likely being filtered on Frigate side.
+	// For example, if a camera has `required_zones` set - then there may not be any clip or snap until
+	// object moves into required zone
+	if !event.HasClip && !event.HasSnapshot {
+		log.Info().
+			Str("event_id", event.ID).
+			Msg("Event dropped - No snapshot or clip available")
+		return
+	}
+	// Drop event if no snapshot & skip_nosnap is true
+	if !event.HasSnapshot && strings.ToLower(config.ConfigData.Alerts.General.NoSnap) == "drop" {
+		log.Info().
+			Str("event_id", event.ID).
+			Msg("Event dropped - No snapshot available")
+		return
+	}
 	// Create copy of snapshot for each alerting method
 	var snap []byte
 	if snapshot != nil {
@@ -36,8 +54,8 @@ func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, event
 	if config.ConfigData.Alerts.Pushover.Enabled {
 		go SendPushoverMessage(event, bytes.NewReader(snap))
 	}
-	if config.ConfigData.Alerts.Nfty.Enabled {
-		go SendNftyPush(event, bytes.NewReader(snap))
+	if config.ConfigData.Alerts.Ntfy.Enabled {
+		go SendNtfyPush(event, bytes.NewReader(snap))
 	}
 	if config.ConfigData.Alerts.Webhook.Enabled {
 		go SendWebhook(event)

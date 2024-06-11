@@ -51,8 +51,6 @@ func SendGotifyPush(event models.Event, snapshotURL string) {
 
 	if event.HasSnapshot {
 		message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
-	} else {
-		message += "\n\nNo snapshot available."
 	}
 	payload := gotifyPayload{
 		Message:  message,
