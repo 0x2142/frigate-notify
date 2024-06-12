@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"os"
@@ -182,15 +183,25 @@ func LoadConfig(configFile string) {
 	}
 
 	// Load Config file
-	log.Debug().Msgf("Loading config file: %v", configFile)
+	log.Debug().Msgf("Attempting to load config file: %v", configFile)
 
 	err := fig.Load(&ConfigData, fig.File(filepath.Base(configFile)), fig.Dirs(filepath.Dir(configFile)), fig.UseEnv("FN"))
 	if err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Failed to load config file!")
+		if errors.Is(err, fig.ErrFileNotFound) {
+			log.Warn().Msg("Config file could not be read, attempting to load config from environment")
+			err = fig.Load(&ConfigData, fig.IgnoreFile(), fig.UseEnv("FN"))
+			if err != nil {
+				log.Fatal().
+					Err(err).
+					Msg("Failed to load config from environment!")
+			}
+		} else {
+			log.Fatal().
+				Err(err).
+				Msg("Failed to load config from file!")
+		}
 	}
-	log.Info().Msg("Config file loaded.")
+	log.Info().Msg("Config loaded.")
 
 	// Send config file to validation before completing
 	validateConfig()

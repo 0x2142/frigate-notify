@@ -1,0 +1,7 @@
+.git*
+docs
+screenshots
+example-config.yml
+docker-compose.yml
+mkdocs.yml
+README.md
