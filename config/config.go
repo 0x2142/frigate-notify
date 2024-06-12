@@ -149,7 +149,7 @@ type Ntfy struct {
 	Server   string              `fig:"server" default:""`
 	Topic    string              `fig:"topic" default:""`
 	Insecure bool                `fig:"ignoressl" default:false`
-	Headers  []map[string]string `fig:"headers"`
+	Headers  []map[string]string `fig:"headers" default:[]`
 	Template string              `fig:"template" default:""`
 }
 
@@ -238,7 +238,7 @@ func validateConfig() {
 		ConfigData.Frigate.StartupCheck.Interval = 30
 	}
 	for current_attempt < ConfigData.Frigate.StartupCheck.Attempts {
-		response, err = util.HTTPGet(statsAPI, ConfigData.Frigate.Insecure)
+		response, err = util.HTTPGet(statsAPI, ConfigData.Frigate.Insecure, ConfigData.Frigate.Headers...)
 		if err != nil {
 			log.Warn().
 				Err(err).
