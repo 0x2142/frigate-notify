@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.3.2](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.2) - Jun 13 2024
+
+ - Allow config to be provided via environment variables (Thanks [@ryan-willis](https://github.com/ryan-willis)!!)
+
 ## [v0.3.1](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.1) - Jun 11 2024
 
  - Fix misspelling for Ntfy

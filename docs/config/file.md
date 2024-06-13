@@ -2,6 +2,8 @@
 
 The following section details options available via the `config.yml` file. Config snippets are provided for each section, however it is recommended to start with a blank copy of the full [sample config](./sample.md).
 
+Config may also be provided via environment variables. Frigate-notify will load environment variables prefixed with `FN_`. Environment variables follow the same structure as the config file below, with heirarchy separated by an underscore (`_`). For example, setting the Frigate server address would be `FN_FRIGATE_SERVER`, or enabling Discord alerts would use `FN_ALERTS_DISCORD_ENABLED`.
+
 ## Frigate
 
 ### Server
@@ -111,7 +113,7 @@ frigate:
       - test_cam_02
 ```
 
-## Alerting
+## Alerts
 
 !!! note
     Any combination of alerting methods may be enabled, though you'll probably want to enable at least one! 😅
