@@ -49,6 +49,12 @@ alerts:
     block:
      - bird
 
+  sublabels:
+    allow:
+     - ABCD
+    block:
+     - EFGH
+
   discord:
     enabled: false
     webhook: 

@@ -61,17 +61,18 @@ type Cameras struct {
 }
 
 type Alerts struct {
-	General  General  `fig:"general"`
-	Zones    Zones    `fig:"zones"`
-	Labels   Labels   `fig:"labels"`
-	Discord  Discord  `fig:"discord"`
-	Gotify   Gotify   `fig:"gotify"`
-	SMTP     SMTP     `fig:"smtp"`
-	Telegram Telegram `fig:"telegram"`
-	Pushover Pushover `fig:"pushover"`
-	Nfty     Nfty     `fig:"nfty"`
-	Ntfy     Ntfy     `fig:"ntfy"`
-	Webhook  Webhook  `fig:"webhook"`
+	General   General  `fig:"general"`
+	Zones     Zones    `fig:"zones"`
+	Labels    Labels   `fig:"labels"`
+	SubLabels Labels   `fig:"sublabels"`
+	Discord   Discord  `fig:"discord"`
+	Gotify    Gotify   `fig:"gotify"`
+	SMTP      SMTP     `fig:"smtp"`
+	Telegram  Telegram `fig:"telegram"`
+	Pushover  Pushover `fig:"pushover"`
+	Nfty      Nfty     `fig:"nfty"`
+	Ntfy      Ntfy     `fig:"ntfy"`
+	Webhook   Webhook  `fig:"webhook"`
 }
 
 type General struct {
@@ -353,6 +354,24 @@ func validateConfig() {
 		}
 	} else {
 		log.Debug().Msg("No labels excluded")
+	}
+
+	// Check Subabel filtering config
+	if len(ConfigData.Alerts.SubLabels.Allow) > 0 {
+		log.Debug().Msg("Sublabels to generate alerts for:")
+		for _, c := range ConfigData.Alerts.SubLabels.Allow {
+			log.Debug().Msgf(" - %v", c)
+		}
+	} else {
+		log.Debug().Msg("All Sublabels included in alerts")
+	}
+	if len(ConfigData.Alerts.SubLabels.Block) > 0 {
+		log.Debug().Msg("Sublabels to exclude from alerting:")
+		for _, c := range ConfigData.Alerts.SubLabels.Block {
+			log.Debug().Msgf(" - %v", c)
+		}
+	} else {
+		log.Debug().Msg("No Sublabels excluded")
 	}
 
 	// Check / Load alerting configuration

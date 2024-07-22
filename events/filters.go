@@ -7,7 +7,33 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/0x2142/frigate-notify/config"
+	"github.com/0x2142/frigate-notify/models"
 )
+
+// checkEventFilters processes incoming event through configured filters to determine if it should generate a notification
+func checkEventFilters(event models.Event) bool {
+	// Check Zone filter
+	if !isAllowedZone(event.ID, event.Zones) {
+		return false
+	}
+	// Check Label filter
+	if !isAllowedLabel(event.ID, event.Label, "label") {
+		return false
+	}
+	// Check Sublabel filter
+	if len(event.SubLabel) == 0 {
+		if !isAllowedLabel(event.ID, "", "sublabel") {
+			return false
+		}
+	}
+	for _, sublabel := range event.SubLabel {
+		if !isAllowedLabel(event.ID, sublabel, "sublabel") {
+			return false
+		}
+	}
+	// Default
+	return true
+}
 
 // isAllowedZone verifies whether a zone should be allowed to generate a notification
 func isAllowedZone(id string, zones []string) bool {
@@ -49,29 +75,39 @@ func isAllowedZone(id string, zones []string) bool {
 	return false
 }
 
-// isAllowedLabel verifies whether a label should be allowed to generate a notification
-func isAllowedLabel(id string, label string) bool {
-	// Check label block list
-	if slices.Contains(config.ConfigData.Alerts.Labels.Block, label) {
+// isAllowedLabel verifies whether a label or sublabel should be allowed to generate a notification
+func isAllowedLabel(id string, label string, kind string) bool {
+	var blocked []string
+	var allowed []string
+	if kind == "label" {
+		blocked = config.ConfigData.Alerts.Labels.Block
+		allowed = config.ConfigData.Alerts.Labels.Allow
+	}
+	if kind == "sublabel" {
+		blocked = config.ConfigData.Alerts.SubLabels.Block
+		allowed = config.ConfigData.Alerts.SubLabels.Allow
+	}
+	// Check block list
+	if slices.Contains(blocked, label) {
 		log.Info().
 			Str("event_id", id).
-			Str("label", label).
-			Msg("Event dropped - Label block list.")
+			Str(kind, label).
+			Msgf("Event dropped - %s block list.", kind)
 		return false
 	}
 	// If no allow list, all events are permitted
-	if len(config.ConfigData.Alerts.Labels.Allow) == 0 {
+	if len(allowed) == 0 {
 		return true
 	}
-	// Check label allow list
-	if slices.Contains(config.ConfigData.Alerts.Labels.Allow, label) {
+	// Check allow list
+	if slices.Contains(allowed, label) {
 		return true
 	}
 
 	// Default drop event
 	log.Info().
 		Str("event_id", id).
-		Str("label", label).
-		Msg("Event dropped - Not on label allow list.")
+		Str(kind, label).
+		Msgf("Event dropped - Not on %s allow list.", kind)
 	return false
 }

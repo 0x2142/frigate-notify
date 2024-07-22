@@ -198,6 +198,28 @@ alerts:
      - bird
 ```
 
+### Subabels
+
+Filter by sublabels, just like normal [labels](#labels).
+
+- **allow** (Optional)
+    - Specify a list of sublabels to allow notifications
+    - If set, all other sublabels will be ignored
+    - If not set, all sublabels will generate notifications
+- **block** (Optional)
+    - Specify a list of sublabels to always ignore
+    - This takes precedence over the `allow` list
+
+```yaml title="Config File Snippet"
+alerts:
+  sublabels:
+    allow:
+     - ABCD
+     - EFGH
+    block:
+     - XYZ
+```
+
 ### Discord
 
 - **enabled** (Optional - Default: `false`)

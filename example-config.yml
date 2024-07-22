@@ -84,6 +84,12 @@ alerts:
     # List of labels to never generate notifications
     block:
 
+  sublabels:
+    # Filter notifications to only specific sublabels allowed here
+    allow:
+    # List of sublabels to never generate notifications
+    block:
+
   discord:
     # Set to true to enable alerting via Discord messages
     enabled: false

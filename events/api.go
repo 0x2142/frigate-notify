@@ -79,8 +79,8 @@ func CheckForEvents() {
 			Str("event_id", event.ID).
 			Msgf("Event start time: %s", eventTime)
 
-		// Check that event passes the zone & label filters
-		if !isAllowedZone(event.ID, event.Zones) || !isAllowedLabel(event.ID, event.Label) {
+		// Check that event passes configured filters
+		if !checkEventFilters(event) {
 			return
 		}
 
