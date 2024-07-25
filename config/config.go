@@ -88,8 +88,9 @@ type Zones struct {
 }
 
 type Labels struct {
-	Allow []string `fig:"allow" default:[]`
-	Block []string `fig:"block" default:[]`
+	MinScore float64  `fig:"min_score" default:0`
+	Allow    []string `fig:"allow" default:[]`
+	Block    []string `fig:"block" default:[]`
 }
 
 type Discord struct {
@@ -339,6 +340,9 @@ func validateConfig() {
 	}
 
 	// Check Label filtering config
+	if ConfigData.Alerts.Labels.MinScore > 0 {
+		log.Debug().Msgf("Label required minimum score: %v", ConfigData.Alerts.Labels.MinScore)
+	}
 	if len(ConfigData.Alerts.Labels.Allow) > 0 {
 		log.Debug().Msg("Labels to generate alerts for:")
 		for _, c := range ConfigData.Alerts.Labels.Allow {

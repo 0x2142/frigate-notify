@@ -1,6 +1,7 @@
 package frigate
 
 import (
+	"fmt"
 	"slices"
 	"strings"
 
@@ -12,6 +13,7 @@ import (
 
 // checkEventFilters processes incoming event through configured filters to determine if it should generate a notification
 func checkEventFilters(event models.Event) bool {
+
 	// Check Zone filter
 	if !isAllowedZone(event.ID, event.Zones) {
 		return false
@@ -20,15 +22,20 @@ func checkEventFilters(event models.Event) bool {
 	if !isAllowedLabel(event.ID, event.Label, "label") {
 		return false
 	}
+	// Check label score
+	if !aboveMinScore(event.ID, event.TopScore) {
+		return false
+	}
 	// Check Sublabel filter
 	if len(event.SubLabel) == 0 {
 		if !isAllowedLabel(event.ID, "", "sublabel") {
 			return false
 		}
-	}
-	for _, sublabel := range event.SubLabel {
-		if !isAllowedLabel(event.ID, sublabel, "sublabel") {
-			return false
+	} else {
+		for _, sublabel := range event.SubLabel {
+			if !isAllowedLabel(event.ID, sublabel, "sublabel") {
+				return false
+			}
 		}
 	}
 	// Default
@@ -110,4 +117,19 @@ func isAllowedLabel(id string, label string, kind string) bool {
 		Str(kind, label).
 		Msgf("Event dropped - Not on %s allow list.", kind)
 	return false
+}
+
+// aboveMinScore checks if label score is above configured minimum
+func aboveMinScore(id string, score float64) bool {
+	score = score * 100
+	fmt.Println(score)
+	if score >= config.ConfigData.Alerts.Labels.MinScore {
+		return true
+	} else {
+		log.Info().
+			Str("event_id", id).
+			Float64("score", score).
+			Msg("Event dropped - Does not meet minimum label score.")
+		return false
+	}
 }

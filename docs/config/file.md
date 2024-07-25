@@ -180,6 +180,11 @@ alerts:
 
 Similar to [zones](#zones), notifications can be filtered based on labels. By default, the app will generate notifications regardless of any labels received from Frigate. Using this config section, certain labels can be blocked from sending notifications - or an allowlist can be provided to only generate alerts from specified labels.
 
+- **min_score** (Optional - Default: `0`)
+    - Filter by minimum label score, based on Frigate `top_score` value
+    - Scores are a percent accuracy of object identification (0-100)
+    - For example, to filter objects under 80% accuracy, set `min_score: 80`
+    - By default, any score above 0 will generate an alert
 - **allow** (Optional)
     - Specify a list of labels to allow notifications
     - If set, all other labels will be ignored
@@ -191,6 +196,7 @@ Similar to [zones](#zones), notifications can be filtered based on labels. By de
 ```yaml title="Config File Snippet"
 alerts:
   labels:
+    min_score: 80
     allow:
      - person
      - dog

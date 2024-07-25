@@ -79,6 +79,8 @@ alerts:
      - test_zone_02
 
   labels:
+    # Filter events under minimum required label score (default: 0)
+    min_score:
     # Filter notifications to only specific labels allowed here
     allow:
     # List of labels to never generate notifications

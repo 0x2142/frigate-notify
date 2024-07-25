@@ -43,6 +43,7 @@ alerts:
      - test_zone_02
 
   labels:
+    min_score:
     allow:
      - person
      - dog
