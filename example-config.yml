@@ -66,6 +66,12 @@ alerts:
     # Set to `drop` to disallow this
     nosnap: allow 
 
+  # If configured, ignore events between times below
+  quiet:
+    # Start / end times in 24 hour format (ex. 4:00 or 22:30)
+    start:
+    end:
+
   zones:
     # Allow notifications for events outside a zone
     # Set to `drop` to disallow this

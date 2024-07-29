@@ -35,6 +35,10 @@ alerts:
     timeformat:
     nosnap:
 
+  quiet:
+    start:
+    end:
+
   zones:
     unzoned: allow
     allow:

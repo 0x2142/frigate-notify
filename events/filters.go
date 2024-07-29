@@ -1,9 +1,9 @@
 package frigate
 
 import (
-	"fmt"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 
@@ -13,7 +13,13 @@ import (
 
 // checkEventFilters processes incoming event through configured filters to determine if it should generate a notification
 func checkEventFilters(event models.Event) bool {
-
+	// Check quiet hours
+	if isQuietHours() {
+		log.Info().
+			Str("event_id", event.ID).
+			Msg("Event dropped - Quiet hours.")
+		return false
+	}
 	// Check Zone filter
 	if !isAllowedZone(event.ID, event.Zones) {
 		return false
@@ -40,6 +46,24 @@ func checkEventFilters(event models.Event) bool {
 	}
 	// Default
 	return true
+}
+
+// isQuietHours checks to see if current event time is within window for supressing notifications
+func isQuietHours() bool {
+	currentTime, _ := time.Parse("15:04:05", time.Now().Format("15:04:05"))
+	start, _ := time.Parse("15:04", config.ConfigData.Alerts.Quiet.Start)
+	end, _ := time.Parse("15:04", config.ConfigData.Alerts.Quiet.End)
+	// Check if quiet period is overnight
+	if end.Before(start) {
+		if currentTime.After(start) || currentTime.Before(end) {
+			return true
+		}
+	}
+	// Otherwise check if between start & end times
+	if currentTime.After(start) && currentTime.Before(end) {
+		return true
+	}
+	return false
 }
 
 // isAllowedZone verifies whether a zone should be allowed to generate a notification
@@ -122,7 +146,6 @@ func isAllowedLabel(id string, label string, kind string) bool {
 // aboveMinScore checks if label score is above configured minimum
 func aboveMinScore(id string, score float64) bool {
 	score = score * 100
-	fmt.Println(score)
 	if score >= config.ConfigData.Alerts.Labels.MinScore {
 		return true
 	} else {

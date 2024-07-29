@@ -62,6 +62,7 @@ type Cameras struct {
 
 type Alerts struct {
 	General   General  `fig:"general"`
+	Quiet     Quiet    `fig:"quiet"`
 	Zones     Zones    `fig:"zones"`
 	Labels    Labels   `fig:"labels"`
 	SubLabels Labels   `fig:"sublabels"`
@@ -79,6 +80,11 @@ type General struct {
 	Title      string `fig:"title" default:"Frigate Alert"`
 	TimeFormat string `fig:"timeformat" default:""`
 	NoSnap     string `fig:"nosnap" default:"allow"`
+}
+
+type Quiet struct {
+	Start string `fig:"start" default:""`
+	End   string `fig:"end" default:""`
 }
 
 type Zones struct {
@@ -305,6 +311,24 @@ func validateConfig() {
 		}
 		if ConfigData.Frigate.MQTT.Port == 0 {
 			ConfigData.Frigate.MQTT.Port = 1883
+		}
+	}
+
+	// Check quiet hours config
+	if ConfigData.Alerts.Quiet.Start != "" || ConfigData.Alerts.Quiet.End != "" {
+		timeformat := "15:04"
+		validstart := true
+		validend := true
+		if _, ok := time.Parse(timeformat, ConfigData.Alerts.Quiet.Start); ok != nil {
+			configErrors = append(configErrors, "Start time for quiet hours does not match format: 00:00")
+			validstart = false
+		}
+		if _, ok := time.Parse(timeformat, ConfigData.Alerts.Quiet.End); ok != nil {
+			configErrors = append(configErrors, "End time for quiet hours does not match format: 00:00")
+			validend = false
+		}
+		if validstart && validend {
+			log.Debug().Msgf("Quiet hours enabled. Start: %v, End: %v", ConfigData.Alerts.Quiet.Start, ConfigData.Alerts.Quiet.End)
 		}
 	}
 

@@ -133,11 +133,29 @@ frigate:
     - Set to `drop` to silently drop these events & not send notifications
 
 ```yaml title="Config File Snippet"
-alerts:  
+alerts:
   general:
     title: Frigate Alert
     timeformat: Mon, 02 Jan 2006 15:04:05 MST
     nosnap: 
+```
+
+### Quiet Hours
+
+Define a quiet period & supress alerts during this time.
+
+- **start** (Optional)
+    - When quiet period begins, in 24-hour format
+    - Required if `end` is configured
+- **end** (Optional)
+    - When quiet period ends, in 24-hour format
+    - Required if `start` is configured
+
+```yaml title="Config File Snippet"
+alerts:
+  quiet:
+    start: 08:00
+    end: 17:00
 ```
 
 ### Zones
@@ -204,7 +222,7 @@ alerts:
      - bird
 ```
 
-### Subabels
+### Sublabels
 
 Filter by sublabels, just like normal [labels](#labels).
 
