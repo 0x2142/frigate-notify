@@ -34,6 +34,9 @@ alerts:
     title:
     timeformat:
     nosnap:
+    snap_bbox:
+    snap_timestamp:
+    snap_crop:
 
   quiet:
     start:
