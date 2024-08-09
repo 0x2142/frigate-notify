@@ -62,8 +62,8 @@ func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, event
 	}
 }
 
-// Build notification based on template
-func renderMessage(sourceTemplate string, event models.Event) string {
+// setExtras adds additional data into the event model to be used for templates
+func setExtras(event models.Event) models.Event {
 	// Assign Frigate URL to extra event fields
 	event.Extra.LocalURL = config.ConfigData.Frigate.Server
 	event.Extra.PublicURL = config.ConfigData.Frigate.PublicURL
@@ -89,6 +89,13 @@ func renderMessage(sourceTemplate string, event models.Event) string {
 	// Calc TopScore percentage
 	event.Extra.TopScorePercent = fmt.Sprintf("%v%%", int((event.TopScore * 100)))
 
+	return event
+}
+
+// Build notification based on template
+func renderMessage(sourceTemplate string, event models.Event) string {
+	event = setExtras(event)
+
 	// Render template
 	var tmpl *template.Template
 	var err error
@@ -112,4 +119,33 @@ func renderMessage(sourceTemplate string, event models.Event) string {
 
 	return renderedTemplate.String()
 
+}
+
+// Build HTTP headers based on template
+func renderHeaders(headers []map[string]string, event models.Event) []map[string]string {
+	event = setExtras(event)
+	var newHeaders []map[string]string
+
+	for _, header := range headers {
+		for k, v := range header {
+			// Render
+			tmpl, err := template.New("custom").Parse(v)
+			if err != nil {
+				log.Warn().Err(err).Msg("Failed to render HTTP header")
+			}
+
+			var renderedTemplate bytes.Buffer
+			err = tmpl.Execute(&renderedTemplate, event)
+			if err != nil {
+				log.Fatal().
+					Err(err).
+					Msgf("Failed to render HTTP header")
+			}
+
+			v = renderedTemplate.String()
+			newHeaders = append(newHeaders, map[string]string{k: v})
+		}
+	}
+
+	return newHeaders
 }

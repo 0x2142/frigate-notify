@@ -33,7 +33,8 @@ func SendWebhook(event models.Event) {
 		message = renderMessage("json", event)
 	}
 
-	_, err = util.HTTPPost(config.ConfigData.Alerts.Webhook.Server, config.ConfigData.Alerts.Webhook.Insecure, []byte(message), config.ConfigData.Alerts.Webhook.Headers...)
+	headers := renderHeaders(config.ConfigData.Alerts.Webhook.Headers, event)
+	_, err = util.HTTPPost(config.ConfigData.Alerts.Webhook.Server, config.ConfigData.Alerts.Webhook.Insecure, []byte(message), headers...)
 	if err != nil {
 		log.Warn().
 			Str("event_id", event.ID).

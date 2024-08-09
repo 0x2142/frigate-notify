@@ -450,8 +450,10 @@ alerts:
     - Set to `true` to allow self-signed certificates
 - **headers** (Optional)
     - Send additional HTTP headers to Ntfy server
+    - Header values can utilize [template variables](./templates.md#available-variables)
     - Header format: `Header: Value`
     - Example: `Authorization: Basic abcd1234`
+    - **Note:** Notifications via Ntfy are sent with a default action button that links to the event clip. This can be overridden by defining a custom `X-Action` header here
 - **template** (Optional)
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
@@ -500,6 +502,7 @@ alerts:
     - Set to `true` to allow self-signed certificates
 - **headers** (Optional)
     - Send additional HTTP headers to webhook receiver
+    - Header values can utilize [template variables](./templates.md#available-variables)
     - Header format: `Header: Value`
     - Example: `Authorization: Basic abcd1234`
 - **template** (Optional)
