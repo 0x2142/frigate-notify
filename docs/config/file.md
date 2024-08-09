@@ -131,13 +131,25 @@ frigate:
     - Specify what to do with events that have no snapshot image
     - By default, these events will be sent & notification message will say "No snapshot available"
     - Set to `drop` to silently drop these events & not send notifications
+- **snap_bbox** (Optional - Default: `false`)
+    - Includes object bounding box on snapshot when retrieved from Frigate
+    - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
+- **snap_timestamp** (Optional - Default: `false`)
+    - Includes timestamp on snapshot when retrieved from Frigate
+    - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
+- **snap_crop** (Optional - Default: `false`)
+    - Crops snapshot when retrieved from Frigate
+    - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
 
 ```yaml title="Config File Snippet"
 alerts:
   general:
     title: Frigate Alert
     timeformat: Mon, 02 Jan 2006 15:04:05 MST
-    nosnap: 
+    nosnap:
+    snap_bbox:
+    snap_timestamp:
+    snap_crop:
 ```
 
 ### Quiet Hours
@@ -438,8 +450,10 @@ alerts:
     - Set to `true` to allow self-signed certificates
 - **headers** (Optional)
     - Send additional HTTP headers to Ntfy server
+    - Header values can utilize [template variables](./templates.md#available-variables)
     - Header format: `Header: Value`
     - Example: `Authorization: Basic abcd1234`
+    - **Note:** Notifications via Ntfy are sent with a default action button that links to the event clip. This can be overridden by defining a custom `X-Action` header here
 - **template** (Optional)
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
@@ -488,6 +502,7 @@ alerts:
     - Set to `true` to allow self-signed certificates
 - **headers** (Optional)
     - Send additional HTTP headers to webhook receiver
+    - Header values can utilize [template variables](./templates.md#available-variables)
     - Header format: `Header: Value`
     - Example: `Authorization: Basic abcd1234`
 - **template** (Optional)

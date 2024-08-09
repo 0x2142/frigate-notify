@@ -77,9 +77,12 @@ type Alerts struct {
 }
 
 type General struct {
-	Title      string `fig:"title" default:"Frigate Alert"`
-	TimeFormat string `fig:"timeformat" default:""`
-	NoSnap     string `fig:"nosnap" default:"allow"`
+	Title         string `fig:"title" default:"Frigate Alert"`
+	TimeFormat    string `fig:"timeformat" default:""`
+	NoSnap        string `fig:"nosnap" default:"allow"`
+	SnapBbox      bool   `fig:"snap_bbox" default:false`
+	SnapTimestamp bool   `fig:"snap_timestamp" default:false`
+	SnapCrop      bool   `fig:"snap_crop" default:false`
 }
 
 type Quiet struct {

@@ -20,7 +20,7 @@ alerts:
   discord:
     enabled: true
     webhook: # Webhook URL
-    template: Looks like {{ .Camera }} spotted a {{ .Label }}!! 
+    template: "Looks like {{ .Camera }} spotted a {{ .Label }}!!"
 ```
 
 Or it could also be configured as multi-line:
@@ -36,6 +36,11 @@ alerts:
 ```
 
 If the `template` configuration is missing or blank under any notification provider, then the default template will be used.
+
+!!! warning
+    If your template starts with a variable - It's recommended to wrap your single-line template in quotes (`""`), or use the multi-line method. Otherwise, you may get an error loading the config file.
+
+    So instead of `template: {{ .Camera }} alert!`, use `template: "{{ .Camera }} alert!"`
 
 ### Available Variables
 

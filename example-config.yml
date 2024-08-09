@@ -64,7 +64,14 @@ alerts:
     timeformat:
     # Allow notification of events without a snapshot
     # Set to `drop` to disallow this
-    nosnap: allow 
+    nosnap: allow
+    # Note: Following snap_ items only apply when event is in progress
+    # Set to `true` to include bounding box on detected object in snapshot
+    snap_bbox:
+    # Set to `true` to include timestamp on snapshot
+    snap_timestamp:
+    # Set to `true` to crop snapshot
+    snap_crop:
 
   # If configured, ignore events between times below
   quiet:

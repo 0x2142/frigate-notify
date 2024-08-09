@@ -43,8 +43,6 @@ func SendNtfyPush(event models.Event, snapshot io.Reader) {
 		clip = fmt.Sprintf("%s/api/events/%s/clip.mp4", config.ConfigData.Frigate.Server, event.ID)
 	}
 
-	headers = append(headers, map[string]string{"X-Actions": "view, View Clip, " + clip + ", clear=true"})
-
 	var attachment []byte
 	if event.HasSnapshot {
 		headers = append(headers, map[string]string{"X-Filename": "snapshot.jpg"})
@@ -54,6 +52,20 @@ func SendNtfyPush(event models.Event, snapshot io.Reader) {
 	// Escape newlines in message
 	message = strings.ReplaceAll(message, "\n", "\\n")
 	headers = append(headers, map[string]string{"X-Message": message})
+
+	// Check if custom action has been added, otherwise include default
+	var hasAction bool
+	for _, header := range headers {
+		if _, ok := header["X-Actions"]; ok {
+			hasAction = true
+			break
+		}
+	}
+	if !hasAction {
+		headers = append(headers, map[string]string{"X-Actions": "view, View Clip, " + clip + ", clear=true"})
+	}
+
+	headers = renderHeaders(headers, event)
 
 	resp, err := util.HTTPPost(NtfyURL, config.ConfigData.Alerts.Ntfy.Insecure, attachment, headers...)
 	if err != nil {
