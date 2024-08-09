@@ -61,23 +61,30 @@ type Cameras struct {
 }
 
 type Alerts struct {
-	General  General  `fig:"general"`
-	Zones    Zones    `fig:"zones"`
-	Labels   Labels   `fig:"labels"`
-	Discord  Discord  `fig:"discord"`
-	Gotify   Gotify   `fig:"gotify"`
-	SMTP     SMTP     `fig:"smtp"`
-	Telegram Telegram `fig:"telegram"`
-	Pushover Pushover `fig:"pushover"`
-	Nfty     Nfty     `fig:"nfty"`
-	Ntfy     Ntfy     `fig:"ntfy"`
-	Webhook  Webhook  `fig:"webhook"`
+	General   General  `fig:"general"`
+	Quiet     Quiet    `fig:"quiet"`
+	Zones     Zones    `fig:"zones"`
+	Labels    Labels   `fig:"labels"`
+	SubLabels Labels   `fig:"sublabels"`
+	Discord   Discord  `fig:"discord"`
+	Gotify    Gotify   `fig:"gotify"`
+	SMTP      SMTP     `fig:"smtp"`
+	Telegram  Telegram `fig:"telegram"`
+	Pushover  Pushover `fig:"pushover"`
+	Nfty      Nfty     `fig:"nfty"`
+	Ntfy      Ntfy     `fig:"ntfy"`
+	Webhook   Webhook  `fig:"webhook"`
 }
 
 type General struct {
 	Title      string `fig:"title" default:"Frigate Alert"`
 	TimeFormat string `fig:"timeformat" default:""`
 	NoSnap     string `fig:"nosnap" default:"allow"`
+}
+
+type Quiet struct {
+	Start string `fig:"start" default:""`
+	End   string `fig:"end" default:""`
 }
 
 type Zones struct {
@@ -87,8 +94,9 @@ type Zones struct {
 }
 
 type Labels struct {
-	Allow []string `fig:"allow" default:[]`
-	Block []string `fig:"block" default:[]`
+	MinScore float64  `fig:"min_score" default:0`
+	Allow    []string `fig:"allow" default:[]`
+	Block    []string `fig:"block" default:[]`
 }
 
 type Discord struct {
@@ -306,6 +314,24 @@ func validateConfig() {
 		}
 	}
 
+	// Check quiet hours config
+	if ConfigData.Alerts.Quiet.Start != "" || ConfigData.Alerts.Quiet.End != "" {
+		timeformat := "15:04"
+		validstart := true
+		validend := true
+		if _, ok := time.Parse(timeformat, ConfigData.Alerts.Quiet.Start); ok != nil {
+			configErrors = append(configErrors, "Start time for quiet hours does not match format: 00:00")
+			validstart = false
+		}
+		if _, ok := time.Parse(timeformat, ConfigData.Alerts.Quiet.End); ok != nil {
+			configErrors = append(configErrors, "End time for quiet hours does not match format: 00:00")
+			validend = false
+		}
+		if validstart && validend {
+			log.Debug().Msgf("Quiet hours enabled. Start: %v, End: %v", ConfigData.Alerts.Quiet.Start, ConfigData.Alerts.Quiet.End)
+		}
+	}
+
 	// Check action on no snapshot available
 	if strings.ToLower(ConfigData.Alerts.General.NoSnap) != "allow" && strings.ToLower(ConfigData.Alerts.General.NoSnap) != "drop" {
 		configErrors = append(configErrors, "Option for nosnap must be 'allow' or 'drop'")
@@ -338,6 +364,9 @@ func validateConfig() {
 	}
 
 	// Check Label filtering config
+	if ConfigData.Alerts.Labels.MinScore > 0 {
+		log.Debug().Msgf("Label required minimum score: %v", ConfigData.Alerts.Labels.MinScore)
+	}
 	if len(ConfigData.Alerts.Labels.Allow) > 0 {
 		log.Debug().Msg("Labels to generate alerts for:")
 		for _, c := range ConfigData.Alerts.Labels.Allow {
@@ -353,6 +382,24 @@ func validateConfig() {
 		}
 	} else {
 		log.Debug().Msg("No labels excluded")
+	}
+
+	// Check Subabel filtering config
+	if len(ConfigData.Alerts.SubLabels.Allow) > 0 {
+		log.Debug().Msg("Sublabels to generate alerts for:")
+		for _, c := range ConfigData.Alerts.SubLabels.Allow {
+			log.Debug().Msgf(" - %v", c)
+		}
+	} else {
+		log.Debug().Msg("All Sublabels included in alerts")
+	}
+	if len(ConfigData.Alerts.SubLabels.Block) > 0 {
+		log.Debug().Msg("Sublabels to exclude from alerting:")
+		for _, c := range ConfigData.Alerts.SubLabels.Block {
+			log.Debug().Msgf(" - %v", c)
+		}
+	} else {
+		log.Debug().Msg("No Sublabels excluded")
 	}
 
 	// Check / Load alerting configuration

@@ -133,11 +133,29 @@ frigate:
     - Set to `drop` to silently drop these events & not send notifications
 
 ```yaml title="Config File Snippet"
-alerts:  
+alerts:
   general:
     title: Frigate Alert
     timeformat: Mon, 02 Jan 2006 15:04:05 MST
     nosnap: 
+```
+
+### Quiet Hours
+
+Define a quiet period & supress alerts during this time.
+
+- **start** (Optional)
+    - When quiet period begins, in 24-hour format
+    - Required if `end` is configured
+- **end** (Optional)
+    - When quiet period ends, in 24-hour format
+    - Required if `start` is configured
+
+```yaml title="Config File Snippet"
+alerts:
+  quiet:
+    start: 08:00
+    end: 17:00
 ```
 
 ### Zones
@@ -180,6 +198,11 @@ alerts:
 
 Similar to [zones](#zones), notifications can be filtered based on labels. By default, the app will generate notifications regardless of any labels received from Frigate. Using this config section, certain labels can be blocked from sending notifications - or an allowlist can be provided to only generate alerts from specified labels.
 
+- **min_score** (Optional - Default: `0`)
+    - Filter by minimum label score, based on Frigate `top_score` value
+    - Scores are a percent accuracy of object identification (0-100)
+    - For example, to filter objects under 80% accuracy, set `min_score: 80`
+    - By default, any score above 0 will generate an alert
 - **allow** (Optional)
     - Specify a list of labels to allow notifications
     - If set, all other labels will be ignored
@@ -191,11 +214,34 @@ Similar to [zones](#zones), notifications can be filtered based on labels. By de
 ```yaml title="Config File Snippet"
 alerts:
   labels:
+    min_score: 80
     allow:
      - person
      - dog
     block:
      - bird
+```
+
+### Sublabels
+
+Filter by sublabels, just like normal [labels](#labels).
+
+- **allow** (Optional)
+    - Specify a list of sublabels to allow notifications
+    - If set, all other sublabels will be ignored
+    - If not set, all sublabels will generate notifications
+- **block** (Optional)
+    - Specify a list of sublabels to always ignore
+    - This takes precedence over the `allow` list
+
+```yaml title="Config File Snippet"
+alerts:
+  sublabels:
+    allow:
+     - ABCD
+     - EFGH
+    block:
+     - XYZ
 ```
 
 ### Discord

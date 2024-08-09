@@ -66,6 +66,12 @@ alerts:
     # Set to `drop` to disallow this
     nosnap: allow 
 
+  # If configured, ignore events between times below
+  quiet:
+    # Start / end times in 24 hour format (ex. 4:00 or 22:30)
+    start:
+    end:
+
   zones:
     # Allow notifications for events outside a zone
     # Set to `drop` to disallow this
@@ -79,9 +85,17 @@ alerts:
      - test_zone_02
 
   labels:
+    # Filter events under minimum required label score (default: 0)
+    min_score:
     # Filter notifications to only specific labels allowed here
     allow:
     # List of labels to never generate notifications
+    block:
+
+  sublabels:
+    # Filter notifications to only specific sublabels allowed here
+    allow:
+    # List of sublabels to never generate notifications
     block:
 
   discord:

@@ -35,6 +35,10 @@ alerts:
     timeformat:
     nosnap:
 
+  quiet:
+    start:
+    end:
+
   zones:
     unzoned: allow
     allow:
@@ -43,11 +47,18 @@ alerts:
      - test_zone_02
 
   labels:
+    min_score:
     allow:
      - person
      - dog
     block:
      - bird
+
+  sublabels:
+    allow:
+     - ABCD
+    block:
+     - EFGH
 
   discord:
     enabled: false

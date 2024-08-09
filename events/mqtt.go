@@ -87,8 +87,8 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 			Str("event_id", event.After.ID).
 			Msgf("Event start time: %s", eventTime)
 
-		// Check that event passes the zone & label filters
-		if !isAllowedZone(event.After.ID, event.After.CurrentZones) || !isAllowedLabel(event.After.ID, event.After.Label) {
+		// Check that event passes configured filters
+		if !checkEventFilters(event.After.Event) {
 			return
 		}
 

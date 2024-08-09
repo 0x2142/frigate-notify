@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.3.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.3) - Upcoming Release
+ - Additional filtering options for alerts:
+     - [Sublabels](https://frigate-notify.0x2142.com/latest/config/file/#sublabels)
+     - [Minimum label score](https://frigate-notify.0x2142.com/latest/config/file/#labels)
+     - [Quiet hours](https://frigate-notify.0x2142.com/latest/config/file/#quiet-hours)
+
 ## [v0.3.2](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.2) - Jun 13 2024
 
  - Allow config to be provided via environment variables (Thanks [@ryan-willis](https://github.com/ryan-willis)!!)
