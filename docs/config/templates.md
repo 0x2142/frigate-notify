@@ -63,3 +63,16 @@ The list below doesn't contain every possible variable, just a few of the most c
 | .Extra.ZoneList        | List of current zones object is in                                                                                       |
 | .Extra.LocalURL        | Frigate server URL as specified under `frigate > server`                                                                 |
 | .Extra.PublicURL       | Frigate Public URL as specified under `frigate > public_url`                                                             |
+
+### Environment variables
+
+Templates can also retrieve values from environment variables using a built-in `env` function. Environment variables used within templates must contain the `FN_` prefix.
+
+For example, storing an authentication token within an env variable:
+
+```yaml
+...
+  headers:
+    - Authorization: Basic {{ env "FN_AUTH_BASIC" }}
+...
+```

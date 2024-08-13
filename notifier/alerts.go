@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"text/template"
 	"time"
@@ -103,7 +104,7 @@ func renderMessage(sourceTemplate string, event models.Event) string {
 		var templateFile = "./templates/" + sourceTemplate + ".template"
 		tmpl = template.Must(template.ParseFiles(templateFile))
 	} else {
-		tmpl, err = template.New("custom").Parse(sourceTemplate)
+		tmpl, err = template.New("custom").Funcs(template.FuncMap{"env": includeenv}).Parse(sourceTemplate)
 		if err != nil {
 			log.Warn().Err(err).Msg("Failed to render event message")
 		}
@@ -129,7 +130,7 @@ func renderHeaders(headers []map[string]string, event models.Event) []map[string
 	for _, header := range headers {
 		for k, v := range header {
 			// Render
-			tmpl, err := template.New("custom").Parse(v)
+			tmpl, err := template.New("custom").Funcs(template.FuncMap{"env": includeenv}).Parse(v)
 			if err != nil {
 				log.Warn().Err(err).Msg("Failed to render HTTP header")
 			}
@@ -148,4 +149,22 @@ func renderHeaders(headers []map[string]string, event models.Event) []map[string
 	}
 
 	return newHeaders
+}
+
+// includeenv retrieves environment variables for use within templates
+func includeenv(env string) string {
+	if strings.HasPrefix(env, "FN_") {
+		value, ok := os.LookupEnv(env)
+		if !ok {
+			log.Warn().
+				Msgf("Could not find matching env: %v", env)
+			return ""
+		}
+		return value
+	} else {
+		log.Warn().
+			Msg("Env vars used in templates must contain FN_ prefix")
+		return ""
+
+	}
 }
