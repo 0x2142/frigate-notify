@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.3.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.3) - Upcoming Release
+## [v0.3.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.3) - Aug 14 2024
  - Additional filtering options for alerts:
      - [Sublabels](https://frigate-notify.0x2142.com/latest/config/file/#sublabels)
      - [Minimum label score](https://frigate-notify.0x2142.com/latest/config/file/#labels)
