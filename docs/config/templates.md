@@ -20,7 +20,7 @@ alerts:
   discord:
     enabled: true
     webhook: # Webhook URL
-    template: Looks like {{ .Camera }} spotted a {{ .Label }}!! 
+    template: "Looks like {{ .Camera }} spotted a {{ .Label }}!!"
 ```
 
 Or it could also be configured as multi-line:
@@ -36,6 +36,11 @@ alerts:
 ```
 
 If the `template` configuration is missing or blank under any notification provider, then the default template will be used.
+
+!!! warning
+    If your template starts with a variable - It's recommended to wrap your single-line template in quotes (`""`), or use the multi-line method. Otherwise, you may get an error loading the config file.
+
+    So instead of `template: {{ .Camera }} alert!`, use `template: "{{ .Camera }} alert!"`
 
 ### Available Variables
 
@@ -58,3 +63,16 @@ The list below doesn't contain every possible variable, just a few of the most c
 | .Extra.ZoneList        | List of current zones object is in                                                                                       |
 | .Extra.LocalURL        | Frigate server URL as specified under `frigate > server`                                                                 |
 | .Extra.PublicURL       | Frigate Public URL as specified under `frigate > public_url`                                                             |
+
+### Environment variables
+
+Templates can also retrieve values from environment variables using a built-in `env` function. Environment variables used within templates must contain the `FN_` prefix.
+
+For example, storing an authentication token within an env variable:
+
+```yaml
+...
+  headers:
+    - Authorization: Basic {{ env "FN_AUTH_BASIC" }}
+...
+```

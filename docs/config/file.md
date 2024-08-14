@@ -131,13 +131,43 @@ frigate:
     - Specify what to do with events that have no snapshot image
     - By default, these events will be sent & notification message will say "No snapshot available"
     - Set to `drop` to silently drop these events & not send notifications
+- **snap_bbox** (Optional - Default: `false`)
+    - Includes object bounding box on snapshot when retrieved from Frigate
+    - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
+- **snap_timestamp** (Optional - Default: `false`)
+    - Includes timestamp on snapshot when retrieved from Frigate
+    - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
+- **snap_crop** (Optional - Default: `false`)
+    - Crops snapshot when retrieved from Frigate
+    - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
 
 ```yaml title="Config File Snippet"
-alerts:  
+alerts:
   general:
     title: Frigate Alert
     timeformat: Mon, 02 Jan 2006 15:04:05 MST
-    nosnap: 
+    nosnap:
+    snap_bbox:
+    snap_timestamp:
+    snap_crop:
+```
+
+### Quiet Hours
+
+Define a quiet period & supress alerts during this time.
+
+- **start** (Optional)
+    - When quiet period begins, in 24-hour format
+    - Required if `end` is configured
+- **end** (Optional)
+    - When quiet period ends, in 24-hour format
+    - Required if `start` is configured
+
+```yaml title="Config File Snippet"
+alerts:
+  quiet:
+    start: 08:00
+    end: 17:00
 ```
 
 ### Zones
@@ -180,6 +210,11 @@ alerts:
 
 Similar to [zones](#zones), notifications can be filtered based on labels. By default, the app will generate notifications regardless of any labels received from Frigate. Using this config section, certain labels can be blocked from sending notifications - or an allowlist can be provided to only generate alerts from specified labels.
 
+- **min_score** (Optional - Default: `0`)
+    - Filter by minimum label score, based on Frigate `top_score` value
+    - Scores are a percent accuracy of object identification (0-100)
+    - For example, to filter objects under 80% accuracy, set `min_score: 80`
+    - By default, any score above 0 will generate an alert
 - **allow** (Optional)
     - Specify a list of labels to allow notifications
     - If set, all other labels will be ignored
@@ -191,11 +226,34 @@ Similar to [zones](#zones), notifications can be filtered based on labels. By de
 ```yaml title="Config File Snippet"
 alerts:
   labels:
+    min_score: 80
     allow:
      - person
      - dog
     block:
      - bird
+```
+
+### Sublabels
+
+Filter by sublabels, just like normal [labels](#labels).
+
+- **allow** (Optional)
+    - Specify a list of sublabels to allow notifications
+    - If set, all other sublabels will be ignored
+    - If not set, all sublabels will generate notifications
+- **block** (Optional)
+    - Specify a list of sublabels to always ignore
+    - This takes precedence over the `allow` list
+
+```yaml title="Config File Snippet"
+alerts:
+  sublabels:
+    allow:
+     - ABCD
+     - EFGH
+    block:
+     - XYZ
 ```
 
 ### Discord
@@ -392,8 +450,10 @@ alerts:
     - Set to `true` to allow self-signed certificates
 - **headers** (Optional)
     - Send additional HTTP headers to Ntfy server
+    - Header values can utilize [template variables](./templates.md#available-variables)
     - Header format: `Header: Value`
     - Example: `Authorization: Basic abcd1234`
+    - **Note:** Notifications via Ntfy are sent with a default action button that links to the event clip. This can be overridden by defining a custom `X-Action` header here
 - **template** (Optional)
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
@@ -442,6 +502,7 @@ alerts:
     - Set to `true` to allow self-signed certificates
 - **headers** (Optional)
     - Send additional HTTP headers to webhook receiver
+    - Header values can utilize [template variables](./templates.md#available-variables)
     - Header format: `Header: Value`
     - Example: `Authorization: Basic abcd1234`
 - **template** (Optional)

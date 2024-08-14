@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 // HTTPGet is a simple HTTP client function to return page body
@@ -86,10 +88,34 @@ func HTTPPost(url string, insecure bool, payload []byte, headers ...map[string]s
 	}
 
 	// Send HTTP POST
-	response, err := client.Do(req)
+	var response *http.Response
+	retry := 1
+	for retry <= 6 {
+		response, err = client.Do(req)
+		if err == nil {
+			break
+		} else {
+			if retry == 6 {
+				log.Warn().
+					Int("attempt", retry).
+					Int("max_tries", 6).
+					Err(err).
+					Msg("HTTP Request failed, retries exceeded")
+				break
+			}
+			log.Warn().
+				Int("attempt", retry).
+				Int("max_tries", 6).
+				Err(err).
+				Msg("HTTP Request failed, retrying in 10 seconds...")
+			retry += 1
+			time.Sleep(1 * time.Second)
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
+
 	defer response.Body.Close()
 
 	// Read response body

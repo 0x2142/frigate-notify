@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -79,8 +80,8 @@ func CheckForEvents() {
 			Str("event_id", event.ID).
 			Msgf("Event start time: %s", eventTime)
 
-		// Check that event passes the zone & label filters
-		if !isAllowedZone(event.ID, event.Zones) || !isAllowedLabel(event.ID, event.Label) {
+		// Check that event passes configured filters
+		if !checkEventFilters(event) {
 			return
 		}
 
@@ -100,7 +101,20 @@ func CheckForEvents() {
 
 // GetSnapshot downloads a snapshot from Frigate
 func GetSnapshot(snapshotURL, eventID string) io.Reader {
-	response, err := util.HTTPGet(snapshotURL, config.ConfigData.Frigate.Insecure, config.ConfigData.Frigate.Headers...)
+	// Add optional snapshot modifiers
+	url, _ := url.Parse(snapshotURL)
+	q := url.Query()
+	if config.ConfigData.Alerts.General.SnapBbox {
+		q.Add("bbox", "1")
+	}
+	if config.ConfigData.Alerts.General.SnapTimestamp {
+		q.Add("timestamp", "1")
+	}
+	if config.ConfigData.Alerts.General.SnapCrop {
+		q.Add("crop", "1")
+	}
+	url.RawQuery = q.Encode()
+	response, err := util.HTTPGet(url.String(), config.ConfigData.Frigate.Insecure, config.ConfigData.Frigate.Headers...)
 	if err != nil {
 		log.Warn().
 			Str("event_id", eventID).

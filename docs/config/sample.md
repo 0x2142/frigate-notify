@@ -34,6 +34,13 @@ alerts:
     title:
     timeformat:
     nosnap:
+    snap_bbox:
+    snap_timestamp:
+    snap_crop:
+
+  quiet:
+    start:
+    end:
 
   zones:
     unzoned: allow
@@ -43,11 +50,18 @@ alerts:
      - test_zone_02
 
   labels:
+    min_score:
     allow:
      - person
      - dog
     block:
      - bird
+
+  sublabels:
+    allow:
+     - ABCD
+    block:
+     - EFGH
 
   discord:
     enabled: false
