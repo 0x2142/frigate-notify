@@ -21,7 +21,7 @@ func checkEventFilters(event models.Event) bool {
 		return false
 	}
 	// Check Zone filter
-	if !isAllowedZone(event.ID, event.Zones) {
+	if !isAllowedZone(event.ID, event.CurrentZones) {
 		return false
 	}
 	// Check Label filter

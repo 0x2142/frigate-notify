@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.3.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.4) - Aug 15 2024
+ - Fixed issue where `unzoned: drop` config would drop all notifications
+
 ## [v0.3.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.3) - Aug 14 2024
  - Additional filtering options for alerts:
      - [Sublabels](https://frigate-notify.0x2142.com/latest/config/file/#sublabels)
