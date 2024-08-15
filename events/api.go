@@ -81,6 +81,7 @@ func CheckForEvents() {
 			Msgf("Event start time: %s", eventTime)
 
 		// Check that event passes configured filters
+		event.CurrentZones = event.Zones
 		if !checkEventFilters(event) {
 			return
 		}
