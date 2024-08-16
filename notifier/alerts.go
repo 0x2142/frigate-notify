@@ -2,6 +2,7 @@ package notifier
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"io"
 	"os"
@@ -14,6 +15,8 @@ import (
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
 )
+
+var TemplateFiles embed.FS
 
 // SendAlert forwards alert information to all enabled alerting methods
 func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, eventid string) {
@@ -101,8 +104,7 @@ func renderMessage(sourceTemplate string, event models.Event) string {
 	var tmpl *template.Template
 	var err error
 	if sourceTemplate == "markdown" || sourceTemplate == "plaintext" || sourceTemplate == "html" || sourceTemplate == "json" {
-		var templateFile = "./templates/" + sourceTemplate + ".template"
-		tmpl = template.Must(template.ParseFiles(templateFile))
+		tmpl = template.Must(template.ParseFS(TemplateFiles, "templates/"+sourceTemplate+".template"))
 	} else {
 		tmpl, err = template.New("custom").Funcs(template.FuncMap{"env": includeenv}).Parse(sourceTemplate)
 		if err != nil {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"os"
 	"os/signal"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/0x2142/frigate-notify/config"
 	frigate "github.com/0x2142/frigate-notify/events"
+	"github.com/0x2142/frigate-notify/notifier"
 	"github.com/0x2142/frigate-notify/util"
 )
 
@@ -20,6 +22,9 @@ var debug, debugenv bool
 var jsonlog, jsonlogenv bool
 var nocolor, nocolorenv bool
 var configFile string
+
+//go:embed templates/*
+var NotifTemplates embed.FS
 
 func main() {
 	// Parse flags
@@ -53,6 +58,8 @@ func main() {
 
 	// Load & validate config
 	config.LoadConfig(configFile)
+
+	notifier.TemplateFiles = NotifTemplates
 
 	// Set up monitor
 	if config.ConfigData.Monitor.Enabled {
