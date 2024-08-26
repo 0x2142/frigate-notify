@@ -123,8 +123,10 @@ type SMTP struct {
 	TLS       bool   `fig:"tls" default:false`
 	User      string `fig:"user" default:""`
 	Password  string `fig:"password" default:""`
+	From      string `fig:"from" default:""`
 	Recipient string `fig:"recipient" default:""`
 	Template  string `fig:"template" default:""`
+	Insecure  bool   `fig:"ignoressl" default:false`
 }
 
 type Telegram struct {
@@ -447,6 +449,10 @@ func validateConfig() {
 		}
 		if ConfigData.Alerts.SMTP.Port == 0 {
 			ConfigData.Alerts.SMTP.Port = 25
+		}
+		// Copy `user` to `from` if `from` not explicitly configured
+		if ConfigData.Alerts.SMTP.From == "" && ConfigData.Alerts.SMTP.User != "" {
+			ConfigData.Alerts.SMTP.From = ConfigData.Alerts.SMTP.User
 		}
 		// Check template syntax
 		if msg := checkTemplate("SMTP", ConfigData.Alerts.SMTP.Template); msg != "" {

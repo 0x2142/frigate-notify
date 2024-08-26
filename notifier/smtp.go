@@ -1,6 +1,7 @@
 package notifier
 
 import (
+	"crypto/tls"
 	"io"
 	"strings"
 	"time"
@@ -29,7 +30,7 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 
 	// Set up email alert
 	m := mail.NewMsg()
-	m.From(config.ConfigData.Alerts.SMTP.User)
+	m.From(config.ConfigData.Alerts.SMTP.From)
 	m.To(ParseSMTPRecipients()...)
 	m.Subject(config.ConfigData.Alerts.General.Title)
 	// Attach snapshot if one exists
@@ -53,6 +54,10 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 	// Mandatory TLS is enabled by default, so disable TLS if config flag is set
 	if !config.ConfigData.Alerts.SMTP.TLS {
 		c.SetTLSPolicy(mail.NoTLS)
+	}
+	// Disable certificate verification if needed
+	if config.ConfigData.Alerts.SMTP.Insecure {
+		c.SetTLSConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 
 	if err != nil {

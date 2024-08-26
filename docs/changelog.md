@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.3.5](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.5) - Upcoming Release
+ - Fixed issue where built-in alert templates were not being included in binary releases
+ - Added `from` & `ignoressl` config items to `smtp` notifier
+
 ## [v0.3.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.4) - Aug 15 2024
  - Fixed issue where `unzoned: drop` config would drop all notifications
 

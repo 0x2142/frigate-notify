@@ -320,12 +320,17 @@ alerts:
 - **password** (Optional)
     - Password of SMTP user
     - Required if `user` is set
+- **from** (Optional)
+    - Set sender address for outgoing messages
+    - If left blank but authentication is configured, then `user` will be used
 - **recipient** (Required)
     - Comma-separated list of email recipients
     - Required if this alerting method is enabled
 - **template** (Optional)
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
+- **ignoressl** (Optional - Default: `false`)
+    - Set to `true` to allow self-signed certificates
 
 ```yaml title="Config File Snippet"
 alerts:  
@@ -334,10 +339,12 @@ alerts:
     server: smtp.your.domain.tld
     port: 587
     tls: true
+    from: test_user@your.domain.tld
     user: test_user@your.domain.tld
     password: test_pass
     recipient: nvr_group@your.domain.tld, someone_else@your.domain.tld
     template:
+    ignoressl:
 ```
 
 ### Telegram
