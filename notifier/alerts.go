@@ -108,17 +108,18 @@ func renderMessage(sourceTemplate string, event models.Event) string {
 
 }
 
-// Build HTTP headers based on template
-func renderHeaders(headers []map[string]string, event models.Event) []map[string]string {
+// Build HTTP headers or params based on template
+func renderHTTPKV(list []map[string]string, event models.Event, kvtype string) []map[string]string {
 	event = setExtras(event)
-	var newHeaders []map[string]string
 
-	for _, header := range headers {
-		for k, v := range header {
+	var renderedList []map[string]string
+
+	for _, item := range list {
+		for k, v := range item {
 			// Render
 			tmpl, err := template.New("custom").Funcs(template.FuncMap{"env": includeenv}).Parse(v)
 			if err != nil {
-				log.Warn().Err(err).Msg("Failed to render HTTP header")
+				log.Warn().Err(err).Msgf("Failed to render HTTP %s", kvtype)
 			}
 
 			var renderedTemplate bytes.Buffer
@@ -126,15 +127,15 @@ func renderHeaders(headers []map[string]string, event models.Event) []map[string
 			if err != nil {
 				log.Fatal().
 					Err(err).
-					Msgf("Failed to render HTTP header")
+					Msgf("Failed to render HTTP %s", kvtype)
 			}
 
 			v = renderedTemplate.String()
-			newHeaders = append(newHeaders, map[string]string{k: v})
+			renderedList = append(renderedList, map[string]string{k: v})
 		}
 	}
 
-	return newHeaders
+	return renderedList
 }
 
 // includeenv retrieves environment variables for use within templates

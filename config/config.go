@@ -171,6 +171,8 @@ type Webhook struct {
 	Enabled  bool                   `fig:"enabled" default:false`
 	Server   string                 `fig:"server" default:""`
 	Insecure bool                   `fig:"ignoressl" default:false`
+	Method   string                 `fig:"method" default:"POST"`
+	Params   []map[string]string    `fix:"params"`
 	Headers  []map[string]string    `fig:"headers"`
 	Template map[string]interface{} `fig:"template"`
 }
@@ -262,7 +264,7 @@ func validateConfig() {
 		ConfigData.Frigate.StartupCheck.Interval = 30
 	}
 	for current_attempt < ConfigData.Frigate.StartupCheck.Attempts {
-		response, err = util.HTTPGet(statsAPI, ConfigData.Frigate.Insecure, ConfigData.Frigate.Headers...)
+		response, err = util.HTTPGet(statsAPI, ConfigData.Frigate.Insecure, "", ConfigData.Frigate.Headers...)
 		if err != nil {
 			log.Warn().
 				Err(err).

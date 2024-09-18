@@ -4,16 +4,40 @@ import (
 	"bytes"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/rs/zerolog/log"
 )
 
+// buildParams creates an escaped param string from a slice
+func BuildHTTPParams(params ...map[string]string) string {
+	var paramList string
+	if len(params) > 0 {
+		paramList = "?"
+		for _, h := range params {
+			for k, v := range h {
+				k = url.QueryEscape(k)
+				v = url.QueryEscape(v)
+				paramList = fmt.Sprintf("%s&%s=%s", paramList, k, v)
+			}
+
+		}
+	}
+
+	return paramList
+}
+
 // HTTPGet is a simple HTTP client function to return page body
-func HTTPGet(url string, insecure bool, headers ...map[string]string) ([]byte, error) {
+func HTTPGet(url string, insecure bool, params string, headers ...map[string]string) ([]byte, error) {
+	// Append HTTP params if any
+	if len(params) > 0 {
+		url = url + params
+	}
 
 	// New HTTP Client
 	client := http.Client{Timeout: 10 * time.Second}
@@ -61,7 +85,12 @@ func HTTPGet(url string, insecure bool, headers ...map[string]string) ([]byte, e
 
 // HTTPPost performs an HTTP POST to the target URL
 // and includes auth parameters, ignoring certificates, etc
-func HTTPPost(url string, insecure bool, payload []byte, headers ...map[string]string) ([]byte, error) {
+func HTTPPost(url string, insecure bool, payload []byte, params string, headers ...map[string]string) ([]byte, error) {
+	// Append HTTP params if any
+	if len(params) > 0 {
+		url = url + params
+	}
+
 	// New HTTP Client
 	client := http.Client{Timeout: 10 * time.Second}
 

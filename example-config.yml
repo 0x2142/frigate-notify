@@ -204,6 +204,12 @@ alerts:
     server:
     # Set to true to allow self-signed certificates
     ignoressl:
+    # HTTP Method to send notifications, supports GET or POST (Default: POST)
+    method:
+    # Optional list of HTTP parameters to append to URL
+    params:
+      # Example:
+      # - token: abcd1234
     # List of HTTP headers to send to webhook receiver, in format Header: Value
     headers:
       # Example:

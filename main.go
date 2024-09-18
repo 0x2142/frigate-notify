@@ -66,7 +66,7 @@ func main() {
 		log.Debug().Msg("App monitoring enabled.")
 		go func() {
 			for {
-				_, err := util.HTTPGet(config.ConfigData.Monitor.URL, config.ConfigData.Monitor.Insecure)
+				_, err := util.HTTPGet(config.ConfigData.Monitor.URL, config.ConfigData.Monitor.Insecure, "")
 				if err != nil {
 					log.Warn().
 						Err(err).

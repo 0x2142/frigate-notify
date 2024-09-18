@@ -73,7 +73,7 @@ func SendGotifyPush(event models.Event, snapshotURL string) {
 	gotifyURL := fmt.Sprintf("%s/message?token=%s&", config.ConfigData.Alerts.Gotify.Server, config.ConfigData.Alerts.Gotify.Token)
 
 	header := map[string]string{"Content-Type": "application/json"}
-	response, err := util.HTTPPost(gotifyURL, config.ConfigData.Alerts.Gotify.Insecure, data, header)
+	response, err := util.HTTPPost(gotifyURL, config.ConfigData.Alerts.Gotify.Insecure, data, "", header)
 	if err != nil {
 		log.Warn().
 			Str("event_id", event.ID).
