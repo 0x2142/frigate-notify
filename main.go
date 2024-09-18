@@ -17,7 +17,7 @@ import (
 	"github.com/0x2142/frigate-notify/util"
 )
 
-var APP_VER = "v0.3.4"
+var APP_VER = "v0.3.5-dev"
 var debug, debugenv bool
 var jsonlog, jsonlogenv bool
 var nocolor, nocolorenv bool
@@ -88,6 +88,10 @@ func main() {
 	}
 	// Connect MQTT
 	if config.ConfigData.Frigate.MQTT.Enabled {
+		// Set up event cache
+		frigate.InitZoneCache()
+		defer frigate.CloseZoneCache()
+
 		log.Debug().Msg("Connecting to MQTT Server...")
 		frigate.SubscribeMQTT()
 		log.Info().Msg("App running. Press Ctrl-C to quit.")

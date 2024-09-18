@@ -2,6 +2,7 @@
 
 ## [v0.3.5](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.5) - Upcoming Release
  - Fixed issue where built-in alert templates were not being included in binary releases
+ - Fixed issue where a notification may not be sent if previous event update from Frigate did not contain a snapshot
  - Added `from` & `ignoressl` config items to `smtp` notifier
 
 ## [v0.3.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.4) - Aug 15 2024
