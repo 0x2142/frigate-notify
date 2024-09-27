@@ -42,6 +42,15 @@ func setZoneAlerted(event models.Event) {
 	zoneCache.Set(event.ID, alreadyAlerted)
 }
 
+// Query cache by event ID
+func getCachebyID(id string) []string {
+	cacheData, ok := zoneCache.Get(id)
+	if !ok {
+		return nil
+	}
+	return cacheData
+}
+
 // Query cache to see if zone already generated alert
 func zoneAlreadyAlerted(event models.Event) bool {
 	// Check if event already in cache & if so, get contents

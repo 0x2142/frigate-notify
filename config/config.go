@@ -83,6 +83,7 @@ type General struct {
 	SnapBbox      bool   `fig:"snap_bbox" default:false`
 	SnapTimestamp bool   `fig:"snap_timestamp" default:false`
 	SnapCrop      bool   `fig:"snap_crop" default:false`
+	NotifyOnce    bool   `fig:"notify_once" default:false`
 }
 
 type Quiet struct {
@@ -345,6 +346,9 @@ func validateConfig() {
 	} else {
 		log.Debug().Msgf("Events without a snapshot: %v", strings.ToLower(ConfigData.Alerts.General.NoSnap))
 	}
+
+	// Notify_Once
+	log.Debug().Msgf("Notify only once per event: %v", ConfigData.Alerts.General.NotifyOnce)
 
 	// Check Zone filtering config
 	if strings.ToLower(ConfigData.Alerts.Zones.Unzoned) != "allow" && strings.ToLower(ConfigData.Alerts.Zones.Unzoned) != "drop" {

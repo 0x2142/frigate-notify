@@ -140,6 +140,9 @@ frigate:
 - **snap_crop** (Optional - Default: `false`)
     - Crops snapshot when retrieved from Frigate
     - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
+- **notify_once** (Optional - Default: `false`)
+    - By default, each Frigate event may generate several notifications as the object changes zones, etc
+    - Set this to `true` to only notify once per event
 
 ```yaml title="Config File Snippet"
 alerts:
@@ -150,6 +153,7 @@ alerts:
     snap_bbox:
     snap_timestamp:
     snap_crop:
+    notify_once:
 ```
 
 ### Quiet Hours

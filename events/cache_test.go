@@ -31,6 +31,26 @@ func TestSetZoneAlerted(t *testing.T) {
 	}
 }
 
+func TestGetCachebyID(t *testing.T) {
+	// Setup
+	InitZoneCache()
+	defer CloseZoneCache()
+	event := models.Event{ID: "test-event-id", CurrentZones: []string{"test_zone"}}
+	setZoneAlerted(event)
+
+	// Check event in cache
+	result := getCachebyID(event.ID)
+	if result == nil {
+		t.Errorf("Expected: ['test_zone'], Got: %v", result)
+	}
+
+	// Check non-existent event
+	result = getCachebyID("1234")
+	if result != nil {
+		t.Errorf("Expected: nil, Got: %v", result)
+	}
+}
+
 func TestZoneAlreadyAlerted(t *testing.T) {
 	// Setup
 	InitZoneCache()

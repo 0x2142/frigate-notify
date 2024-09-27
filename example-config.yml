@@ -72,6 +72,10 @@ alerts:
     snap_timestamp:
     # Set to `true` to crop snapshot
     snap_crop:
+    # By default, each Frigate event may generate several notifications as the object changes zones, etc
+    # Set this to `true` to only notify once per event
+    notify_once:
+
 
   # If configured, ignore events between times below
   quiet:
