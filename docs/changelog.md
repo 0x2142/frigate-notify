@@ -6,6 +6,7 @@
  - Added `from` & `ignoressl` config items to `smtp` notifier
  - Added ability to send webhook notifications via HTTP GET requests
  - Added support for URL parameters with webhook notifications
+ - Added option to only generate a [single notification](https://frigate-notify.0x2142.com/latest/config/file/#general) per Frigate event
 
 ## [v0.3.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.4) - Aug 15 2024
  - Fixed issue where `unzoned: drop` config would drop all notifications

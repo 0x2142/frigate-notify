@@ -22,6 +22,16 @@ func checkEventFilters(event models.Event) bool {
 			Msg("Event dropped - No snapshot or clip available")
 		return false
 	}
+	// Check if notify_once is set & we already notified on this event
+	if config.ConfigData.Alerts.General.NotifyOnce {
+		// Check if cache already contains event ID
+		if getCachebyID(event.ID) != nil {
+			log.Info().
+				Str("event_id", event.ID).
+				Msg("Event dropped - Already notified & notify_once is set")
+			return false
+		}
+	}
 	// Drop event if no snapshot & skip_nosnap is true
 	if !event.HasSnapshot && strings.ToLower(config.ConfigData.Alerts.General.NoSnap) == "drop" {
 		log.Info().

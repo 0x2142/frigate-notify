@@ -37,6 +37,7 @@ alerts:
     snap_bbox:
     snap_timestamp:
     snap_crop:
+    notify_once:
 
   quiet:
     start:
