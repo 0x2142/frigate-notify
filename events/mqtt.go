@@ -92,21 +92,8 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 			return
 		}
 
-		// Skip update events where zone didn't change
-		// Compares current detected zone to previous list of zones entered
-		zoneChanged := false
-		for _, zone := range event.After.CurrentZones {
-			if !slices.Contains(event.Before.EnteredZones, zone) {
-				zoneChanged = true
-				log.Debug().
-					Str("event_id", event.After.ID).
-					Str("camera", event.After.Camera).
-					Str("label", event.After.Label).
-					Str("zones", strings.Join(event.After.CurrentZones, ",")).
-					Msg("Object entered new zone")
-			}
-		}
-		if event.Type == "update" && !zoneChanged {
+		// Check if already notified on zones
+		if zoneAlreadyAlerted(event.After.Event) {
 			log.Info().
 				Str("event_id", event.After.ID).
 				Str("camera", event.After.Camera).
@@ -114,6 +101,13 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 				Str("zones", strings.Join(event.After.CurrentZones, ",")).
 				Msg("Event dropped - Already notified on this zone")
 			return
+		} else {
+			log.Debug().
+				Str("event_id", event.After.ID).
+				Str("camera", event.After.Camera).
+				Str("label", event.After.Label).
+				Str("zones", strings.Join(event.After.CurrentZones, ",")).
+				Msg("Object entered new zone")
 		}
 
 		// If snapshot was collected, pull down image to send with alert
@@ -126,6 +120,15 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 
 		// Send alert with snapshot
 		notifier.SendAlert(event.After.Event, snapshotURL, snapshot, event.After.ID)
+	}
+
+	// Clear event cache entry when event ends
+	if event.Type == "end" {
+		log.Debug().
+			Str("event_id", event.After.ID).
+			Msg("Event ended")
+		delZoneAlerted(event.After.Event)
+		return
 	}
 }
 

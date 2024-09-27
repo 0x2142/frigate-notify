@@ -2,6 +2,7 @@ package notifier
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"io"
 	"os"
@@ -15,26 +16,12 @@ import (
 	"github.com/0x2142/frigate-notify/models"
 )
 
+var TemplateFiles embed.FS
+
 // SendAlert forwards alert information to all enabled alerting methods
 func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, eventid string) {
 	// Add Frigate Major version metadata
 	event.Extra.FrigateMajorVersion = config.ConfigData.Frigate.Version
-	// Drop event if no snapshot or clip is available - Event is likely being filtered on Frigate side.
-	// For example, if a camera has `required_zones` set - then there may not be any clip or snap until
-	// object moves into required zone
-	if !event.HasClip && !event.HasSnapshot {
-		log.Info().
-			Str("event_id", event.ID).
-			Msg("Event dropped - No snapshot or clip available")
-		return
-	}
-	// Drop event if no snapshot & skip_nosnap is true
-	if !event.HasSnapshot && strings.ToLower(config.ConfigData.Alerts.General.NoSnap) == "drop" {
-		log.Info().
-			Str("event_id", event.ID).
-			Msg("Event dropped - No snapshot available")
-		return
-	}
 	// Create copy of snapshot for each alerting method
 	var snap []byte
 	if snapshot != nil {
@@ -101,8 +88,7 @@ func renderMessage(sourceTemplate string, event models.Event) string {
 	var tmpl *template.Template
 	var err error
 	if sourceTemplate == "markdown" || sourceTemplate == "plaintext" || sourceTemplate == "html" || sourceTemplate == "json" {
-		var templateFile = "./templates/" + sourceTemplate + ".template"
-		tmpl = template.Must(template.ParseFiles(templateFile))
+		tmpl = template.Must(template.ParseFS(TemplateFiles, "templates/"+sourceTemplate+".template"))
 	} else {
 		tmpl, err = template.New("custom").Funcs(template.FuncMap{"env": includeenv}).Parse(sourceTemplate)
 		if err != nil {
@@ -122,17 +108,18 @@ func renderMessage(sourceTemplate string, event models.Event) string {
 
 }
 
-// Build HTTP headers based on template
-func renderHeaders(headers []map[string]string, event models.Event) []map[string]string {
+// Build HTTP headers or params based on template
+func renderHTTPKV(list []map[string]string, event models.Event, kvtype string) []map[string]string {
 	event = setExtras(event)
-	var newHeaders []map[string]string
 
-	for _, header := range headers {
-		for k, v := range header {
+	var renderedList []map[string]string
+
+	for _, item := range list {
+		for k, v := range item {
 			// Render
 			tmpl, err := template.New("custom").Funcs(template.FuncMap{"env": includeenv}).Parse(v)
 			if err != nil {
-				log.Warn().Err(err).Msg("Failed to render HTTP header")
+				log.Warn().Err(err).Msgf("Failed to render HTTP %s", kvtype)
 			}
 
 			var renderedTemplate bytes.Buffer
@@ -140,15 +127,15 @@ func renderHeaders(headers []map[string]string, event models.Event) []map[string
 			if err != nil {
 				log.Fatal().
 					Err(err).
-					Msgf("Failed to render HTTP header")
+					Msgf("Failed to render HTTP %s", kvtype)
 			}
 
 			v = renderedTemplate.String()
-			newHeaders = append(newHeaders, map[string]string{k: v})
+			renderedList = append(renderedList, map[string]string{k: v})
 		}
 	}
 
-	return newHeaders
+	return renderedList
 }
 
 // includeenv retrieves environment variables for use within templates

@@ -65,9 +65,9 @@ func SendNtfyPush(event models.Event, snapshot io.Reader) {
 		headers = append(headers, map[string]string{"X-Actions": "view, View Clip, " + clip + ", clear=true"})
 	}
 
-	headers = renderHeaders(headers, event)
+	headers = renderHTTPKV(headers, event, "headers")
 
-	resp, err := util.HTTPPost(NtfyURL, config.ConfigData.Alerts.Ntfy.Insecure, attachment, headers...)
+	resp, err := util.HTTPPost(NtfyURL, config.ConfigData.Alerts.Ntfy.Insecure, attachment, "", headers...)
 	if err != nil {
 		log.Warn().
 			Str("event_id", event.ID).

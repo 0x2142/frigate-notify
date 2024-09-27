@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"os"
 	"os/signal"
@@ -12,14 +13,18 @@ import (
 
 	"github.com/0x2142/frigate-notify/config"
 	frigate "github.com/0x2142/frigate-notify/events"
+	"github.com/0x2142/frigate-notify/notifier"
 	"github.com/0x2142/frigate-notify/util"
 )
 
-var APP_VER = "v0.3.4"
+var APP_VER = "v0.3.5-dev"
 var debug, debugenv bool
 var jsonlog, jsonlogenv bool
 var nocolor, nocolorenv bool
 var configFile string
+
+//go:embed templates/*
+var NotifTemplates embed.FS
 
 func main() {
 	// Parse flags
@@ -54,12 +59,14 @@ func main() {
 	// Load & validate config
 	config.LoadConfig(configFile)
 
+	notifier.TemplateFiles = NotifTemplates
+
 	// Set up monitor
 	if config.ConfigData.Monitor.Enabled {
 		log.Debug().Msg("App monitoring enabled.")
 		go func() {
 			for {
-				_, err := util.HTTPGet(config.ConfigData.Monitor.URL, config.ConfigData.Monitor.Insecure)
+				_, err := util.HTTPGet(config.ConfigData.Monitor.URL, config.ConfigData.Monitor.Insecure, "")
 				if err != nil {
 					log.Warn().
 						Err(err).
@@ -81,6 +88,10 @@ func main() {
 	}
 	// Connect MQTT
 	if config.ConfigData.Frigate.MQTT.Enabled {
+		// Set up event cache
+		frigate.InitZoneCache()
+		defer frigate.CloseZoneCache()
+
 		log.Debug().Msg("Connecting to MQTT Server...")
 		frigate.SubscribeMQTT()
 		log.Info().Msg("App running. Press Ctrl-C to quit.")

@@ -123,8 +123,10 @@ type SMTP struct {
 	TLS       bool   `fig:"tls" default:false`
 	User      string `fig:"user" default:""`
 	Password  string `fig:"password" default:""`
+	From      string `fig:"from" default:""`
 	Recipient string `fig:"recipient" default:""`
 	Template  string `fig:"template" default:""`
+	Insecure  bool   `fig:"ignoressl" default:false`
 }
 
 type Telegram struct {
@@ -169,6 +171,8 @@ type Webhook struct {
 	Enabled  bool                   `fig:"enabled" default:false`
 	Server   string                 `fig:"server" default:""`
 	Insecure bool                   `fig:"ignoressl" default:false`
+	Method   string                 `fig:"method" default:"POST"`
+	Params   []map[string]string    `fix:"params"`
 	Headers  []map[string]string    `fig:"headers"`
 	Template map[string]interface{} `fig:"template"`
 }
@@ -260,7 +264,7 @@ func validateConfig() {
 		ConfigData.Frigate.StartupCheck.Interval = 30
 	}
 	for current_attempt < ConfigData.Frigate.StartupCheck.Attempts {
-		response, err = util.HTTPGet(statsAPI, ConfigData.Frigate.Insecure, ConfigData.Frigate.Headers...)
+		response, err = util.HTTPGet(statsAPI, ConfigData.Frigate.Insecure, "", ConfigData.Frigate.Headers...)
 		if err != nil {
 			log.Warn().
 				Err(err).
@@ -447,6 +451,10 @@ func validateConfig() {
 		}
 		if ConfigData.Alerts.SMTP.Port == 0 {
 			ConfigData.Alerts.SMTP.Port = 25
+		}
+		// Copy `user` to `from` if `from` not explicitly configured
+		if ConfigData.Alerts.SMTP.From == "" && ConfigData.Alerts.SMTP.User != "" {
+			ConfigData.Alerts.SMTP.From = ConfigData.Alerts.SMTP.User
 		}
 		// Check template syntax
 		if msg := checkTemplate("SMTP", ConfigData.Alerts.SMTP.Template); msg != "" {

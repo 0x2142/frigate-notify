@@ -320,12 +320,17 @@ alerts:
 - **password** (Optional)
     - Password of SMTP user
     - Required if `user` is set
+- **from** (Optional)
+    - Set sender address for outgoing messages
+    - If left blank but authentication is configured, then `user` will be used
 - **recipient** (Required)
     - Comma-separated list of email recipients
     - Required if this alerting method is enabled
 - **template** (Optional)
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
+- **ignoressl** (Optional - Default: `false`)
+    - Set to `true` to allow self-signed certificates
 
 ```yaml title="Config File Snippet"
 alerts:  
@@ -334,10 +339,12 @@ alerts:
     server: smtp.your.domain.tld
     port: 587
     tls: true
+    from: test_user@your.domain.tld
     user: test_user@your.domain.tld
     password: test_pass
     recipient: nvr_group@your.domain.tld, someone_else@your.domain.tld
     template:
+    ignoressl:
 ```
 
 ### Telegram
@@ -500,6 +507,14 @@ alerts:
     - Required if this alerting method is enabled
 - **ignoressl** (Optional - Default: `false`)
     - Set to `true` to allow self-signed certificates
+- **method** (Optional - Default: `POST`)
+    - Set HTTP method for webhook notifications
+    - Supports `GET` and `POST`
+- **params** (Optional)
+    - Set optional HTTP params that will be appended to URL
+    - Params can utilize [template variables](./templates.md#available-variables)
+    - Format: `param: value`
+    - Example: `token: abcd1234`
 - **headers** (Optional)
     - Send additional HTTP headers to webhook receiver
     - Header values can utilize [template variables](./templates.md#available-variables)
@@ -507,6 +522,7 @@ alerts:
     - Example: `Authorization: Basic abcd1234`
 - **template** (Optional)
     - Optionally specify a custom notification template
+    - Only applies when `method` is `POST`
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
     - Note: Webhook templates **must** be valid JSON
 
@@ -515,6 +531,8 @@ alerts:
     enabled: false
     server: 
     ignoressl:
+    method:
+    params:
     headers:
     template:
 ```

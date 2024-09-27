@@ -114,6 +114,8 @@ alerts:
     enabled: false
     server: 
     ignoressl:
+    method:
+    params:
     headers:
     template:
 

@@ -39,7 +39,7 @@ func CheckForEvents() {
 	log.Debug().Msg("Checking for new events...")
 
 	// Query events
-	response, err := util.HTTPGet(url, config.ConfigData.Frigate.Insecure, config.ConfigData.Frigate.Headers...)
+	response, err := util.HTTPGet(url, config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -115,7 +115,7 @@ func GetSnapshot(snapshotURL, eventID string) io.Reader {
 		q.Add("crop", "1")
 	}
 	url.RawQuery = q.Encode()
-	response, err := util.HTTPGet(url.String(), config.ConfigData.Frigate.Insecure, config.ConfigData.Frigate.Headers...)
+	response, err := util.HTTPGet(url.String(), config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
 	if err != nil {
 		log.Warn().
 			Str("event_id", eventID).
