@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Static Badge](https://img.shields.io/badge/Project-Documentation-blue)](https://frigate-notify.0x2142.com) [![GitHub Repo stars](https://img.shields.io/github/stars/0x2142/frigate-notify)]() [![GitHub release (with filter)](https://img.shields.io/github/v/release/0x2142/frigate-notify)](https://github.com/0x2142/frigate-notify/releases) [![Static Badge](https://img.shields.io/badge/Docker-latest-blue)](https://github.com/0x2142/frigate-notify/pkgs/container/frigate-notify)
+[![Static Badge](https://img.shields.io/badge/Documentation-blue)](https://frigate-notify.0x2142.com) &nbsp;&nbsp; [![GitHub Repo stars](https://img.shields.io/github/stars/0x2142/frigate-notify)]() &nbsp;&nbsp; [![GitHub release (with filter)](https://img.shields.io/github/v/release/0x2142/frigate-notify)](https://github.com/0x2142/frigate-notify/releases) &nbsp;&nbsp; [![Static Badge](https://img.shields.io/badge/Docker-latest-blue)](https://github.com/0x2142/frigate-notify/pkgs/container/frigate-notify) &nbsp;&nbsp; [![BuyMeACoffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-blue?style=flat&logo=buy-me-a-coffee&logoColor=white)](https://www.buymeacoffee.com/0x2142)
 
 </div>
 
@@ -14,11 +14,13 @@ Currently Frigate only supports notifications through Home Assistant, which I'm 
 
 ## Features
 
-**Event Polling**
+### Event Polling
+
 - MQTT
 - Direct via Frigate API
 
-**Notification Methods**
+### Notification Methods
+
 - Discord
 - Gotify
 - SMTP
@@ -27,9 +29,9 @@ Currently Frigate only supports notifications through Home Assistant, which I'm 
 - Ntfy
 - Generic Webhook
 
-**Other**
-- Aliveness monitor via HTTP GET (for use with tools like [HealthChecks](https://github.com/healthchecks/healthchecks) or [Uptime Kuma](https://github.com/louislam/uptime-kuma))
+### Other
 
+- Aliveness monitor via HTTP GET (for use with tools like [HealthChecks](https://github.com/healthchecks/healthchecks) or [Uptime Kuma](https://github.com/louislam/uptime-kuma))
 
 ## Installation
 
@@ -43,21 +45,7 @@ The sample config contains inline descriptions for each field. For additional de
 
 ## Screenshots
 
-**Discord**
-
-![Discord](/screenshots/discord.png)
-
-**Gotify**
-
-![Gotify](/screenshots/gotify.png)
-
-**SMTP**
-
-![SMTP](/screenshots/smtp.png)
-
-**Telegram**
-
-![Telegram](/screenshots/telegram.png)
+For example screenshots of app notifications, see [here](https://github.com/0x2142/frigate-notify/tree/main/screenshots)
 
 ## Changelog
 
