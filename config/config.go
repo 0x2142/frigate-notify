@@ -18,9 +18,9 @@ import (
 )
 
 type Config struct {
-	Frigate Frigate `fig:"frigate"`
-	Alerts  Alerts  `fig:"alerts"`
-	Monitor Monitor `fig:"monitor"`
+	Frigate *Frigate `fig:"frigate" validate:"required"`
+	Alerts  *Alerts  `fig:"alerts" validate:"required"`
+	Monitor Monitor  `fig:"monitor"`
 }
 
 type Frigate struct {
@@ -32,7 +32,7 @@ type Frigate struct {
 	WebAPI       WebAPI              `fig:"webapi"`
 	MQTT         MQTT                `fig:"mqtt"`
 	Cameras      Cameras             `fig:"cameras"`
-	Version      int
+	Version      int                 // Internal use only
 }
 
 type StartupCheck struct {
@@ -250,7 +250,7 @@ func validateConfig() {
 
 	// Check if Frigate server URL contains protocol, assume HTTP if not specified
 	if !strings.Contains(ConfigData.Frigate.Server, "http://") && !strings.Contains(ConfigData.Frigate.Server, "https://") {
-		log.Warn().Msg("No protocol specified on Frigate Server. Assuming http://. If this is incorrect, please adjust the config file.")
+		log.Warn().Msgf("No protocol specified on Frigate server URL, so we'll try http://%s. If this is incorrect, please adjust the config file.", ConfigData.Frigate.Server)
 		ConfigData.Frigate.Server = fmt.Sprintf("http://%s", ConfigData.Frigate.Server)
 	}
 
@@ -414,7 +414,9 @@ func validateConfig() {
 	}
 
 	// Check / Load alerting configuration
+	var alertingEnabled bool
 	if ConfigData.Alerts.Discord.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("Discord alerting enabled.")
 		if ConfigData.Alerts.Discord.Webhook == "" {
 			configErrors = append(configErrors, "No Discord webhook specified!")
@@ -425,6 +427,7 @@ func validateConfig() {
 		}
 	}
 	if ConfigData.Alerts.Gotify.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("Gotify alerting enabled.")
 		// Check if Gotify server URL contains protocol, assume HTTP if not specified
 		if !strings.Contains(ConfigData.Alerts.Gotify.Server, "http://") && !strings.Contains(ConfigData.Alerts.Gotify.Server, "https://") {
@@ -443,6 +446,7 @@ func validateConfig() {
 		}
 	}
 	if ConfigData.Alerts.SMTP.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("SMTP alerting enabled.")
 		if ConfigData.Alerts.SMTP.Server == "" {
 			configErrors = append(configErrors, "No SMTP server specified!")
@@ -466,6 +470,7 @@ func validateConfig() {
 		}
 	}
 	if ConfigData.Alerts.Telegram.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("Telegram alerting enabled.")
 		if ConfigData.Alerts.Telegram.ChatID == 0 {
 			configErrors = append(configErrors, "No Telegram Chat ID specified!")
@@ -479,6 +484,7 @@ func validateConfig() {
 		}
 	}
 	if ConfigData.Alerts.Pushover.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("Pushover alerting enabled.")
 		if ConfigData.Alerts.Pushover.Token == "" {
 			configErrors = append(configErrors, "No Pushover API token specified!")
@@ -509,6 +515,7 @@ func validateConfig() {
 	// Deprecation warning
 	// TODO: Remove misspelled Ntfy config with v0.4.0 or later
 	if ConfigData.Alerts.Nfty.Enabled {
+		alertingEnabled = true
 		log.Warn().Msg("Config for 'nfty' will be deprecated due to misspelling. Please update config to 'ntfy'")
 		// Copy data to new Ntfy struct
 		ConfigData.Alerts.Ntfy.Enabled = ConfigData.Alerts.Nfty.Enabled
@@ -519,6 +526,7 @@ func validateConfig() {
 		ConfigData.Alerts.Ntfy.Template = ConfigData.Alerts.Nfty.Template
 	}
 	if ConfigData.Alerts.Ntfy.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("Ntfy alerting enabled.")
 		if ConfigData.Alerts.Ntfy.Server == "" {
 			configErrors = append(configErrors, "No Ntfy server specified!")
@@ -532,10 +540,15 @@ func validateConfig() {
 		}
 	}
 	if ConfigData.Alerts.Webhook.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("Webhook alerting enabled.")
 		if ConfigData.Alerts.Webhook.Server == "" {
 			configErrors = append(configErrors, "No Webhook server specified!")
 		}
+	}
+
+	if !alertingEnabled {
+		configErrors = append(configErrors, "No alerting methods have been configured. Please check config file syntax!")
 	}
 
 	// Validate monitoring config
