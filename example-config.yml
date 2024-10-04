@@ -58,6 +58,7 @@ alerts:
   # General config applies to all alert methods below
   general:
     # Title for any alert messages (Default: Frigate Alert)
+    # Supports template variables
     title:
     # Optionally modify default time format in notifications
     # Use Golang's reference time format, or see docs for more info

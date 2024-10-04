@@ -122,6 +122,7 @@ frigate:
 
 - **title** (Optional - Default: `Frigate Alert`)
     - Title of alert messages that are generated (Email subject, etc)
+    - Title value can utilize [template variables](./templates.md#available-variables)
 - **timeformat** (Optional - Default: `2006-01-02 15:04:05 -0700 MST`)
     - Optionally set a custom date/time format for notifications
     - This utilizes Golang's [reference time](https://go.dev/src/time/format.go) for formatting

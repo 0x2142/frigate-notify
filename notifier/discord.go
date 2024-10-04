@@ -40,7 +40,8 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader) {
 	}
 	defer client.Close(context.TODO())
 
-	title := fmt.Sprintf("**%v**\n\n", config.ConfigData.Alerts.General.Title)
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
+	title = fmt.Sprintf("**%v**\n\n", title)
 	message = title + message
 
 	// Send alert & attach snapshot if one was saved
