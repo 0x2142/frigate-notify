@@ -15,7 +15,6 @@ import (
 	"github.com/0x2142/frigate-notify/models"
 	"github.com/0x2142/frigate-notify/notifier"
 	"github.com/0x2142/frigate-notify/util"
-	"golang.org/x/exp/slices"
 )
 
 const eventsURI = "/api/events"
@@ -59,15 +58,6 @@ func CheckForEvents() {
 		// Update last event check time with most recent timestamp
 		if event.StartTime > LastEventTime {
 			LastEventTime = event.StartTime
-		}
-
-		// Skip excluded cameras
-		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.Camera) {
-			log.Debug().
-				Str("event_id", event.ID).
-				Str("camera", event.Camera).
-				Msg("Skipping event from excluded camera")
-			continue
 		}
 
 		log.Info().

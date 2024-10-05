@@ -42,7 +42,11 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader) {
 		photo := tgbotapi.NewPhoto(config.ConfigData.Alerts.Telegram.ChatID, tgbotapi.FileReader{Name: "Snapshot", Reader: snapshot})
 		photo.Caption = message
 		photo.ParseMode = "HTML"
-		if _, err := bot.Send(photo); err != nil {
+		response, err := bot.Send(photo)
+		log.Trace().
+			Interface("content", response).
+			Msg("Send Telegram Alert")
+		if err != nil {
 			log.Warn().
 				Str("event_id", event.ID).
 				Str("provider", "Telegram").
@@ -54,7 +58,11 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader) {
 		// Send plain text message if no snapshot available
 		msg := tgbotapi.NewMessage(config.ConfigData.Alerts.Telegram.ChatID, message)
 		msg.ParseMode = "HTML"
-		if _, err := bot.Send(msg); err != nil {
+		response, err := bot.Send(msg)
+		log.Trace().
+			Interface("content", response).
+			Msg("Send Telegram Alert")
+		if err != nil {
 			log.Warn().
 				Str("event_id", event.ID).
 				Str("provider", "Telegram").

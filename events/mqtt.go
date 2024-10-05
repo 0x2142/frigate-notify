@@ -13,14 +13,14 @@ import (
 	"github.com/0x2142/frigate-notify/models"
 	"github.com/0x2142/frigate-notify/notifier"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"golang.org/x/exp/slices"
 )
 
 // SubscribeMQTT establishes subscription to MQTT server & listens for messages
 func SubscribeMQTT() {
 	// MQTT client configuration
+	mqttServer := fmt.Sprintf("tcp://%s:%d", config.ConfigData.Frigate.MQTT.Server, config.ConfigData.Frigate.MQTT.Port)
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", config.ConfigData.Frigate.MQTT.Server, config.ConfigData.Frigate.MQTT.Port))
+	opts.AddBroker(mqttServer)
 	opts.SetClientID(config.ConfigData.Frigate.MQTT.ClientID)
 	opts.SetAutoReconnect(true)
 	opts.SetConnectionLostHandler(connectionLostHandler)
@@ -29,6 +29,15 @@ func SubscribeMQTT() {
 		opts.SetUsername(config.ConfigData.Frigate.MQTT.Username)
 		opts.SetPassword(config.ConfigData.Frigate.MQTT.Password)
 	}
+
+	log.Trace().
+		Str("server", mqttServer).
+		Str("client_id", config.ConfigData.Frigate.MQTT.ClientID).
+		Str("username", config.ConfigData.Frigate.MQTT.Username).
+		Str("password", "--secret removed--").
+		Str("topic", config.ConfigData.Frigate.MQTT.TopicPrefix+"/events").
+		Bool("auto_reconnect", true).
+		Msg("Init MQTT connection")
 
 	var subscribed = false
 	var retry = 0
@@ -56,6 +65,10 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 	var event models.MQTTEvent
 	json.Unmarshal(msg.Payload(), &event)
 
+	log.Trace().
+		RawJSON("payload", msg.Payload()).
+		Msg("MQTT event received")
+
 	if event.Type == "new" || event.Type == "update" {
 		if event.Type == "new" {
 			log.Info().
@@ -65,14 +78,6 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 			log.Info().
 				Str("event_id", event.After.ID).
 				Msg("Event update received")
-		}
-		// Skip excluded cameras
-		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.After.Camera) {
-			log.Info().
-				Str("event_id", event.After.ID).
-				Str("camera", event.After.Camera).
-				Msg("Event dropped - Camera Excluded")
-			return
 		}
 
 		// Convert to human-readable timestamp
