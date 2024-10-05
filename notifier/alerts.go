@@ -19,7 +19,7 @@ import (
 var TemplateFiles embed.FS
 
 // SendAlert forwards alert information to all enabled alerting methods
-func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, eventid string) {
+func SendAlert(event models.Event, snapshot io.Reader, eventid string) {
 	// Add Frigate Major version metadata
 	event.Extra.FrigateMajorVersion = config.ConfigData.Frigate.Version
 	// Create copy of snapshot for each alerting method
@@ -31,7 +31,7 @@ func SendAlert(event models.Event, snapshotURL string, snapshot io.Reader, event
 		go SendDiscordMessage(event, bytes.NewReader(snap))
 	}
 	if config.ConfigData.Alerts.Gotify.Enabled {
-		go SendGotifyPush(event, snapshotURL)
+		go SendGotifyPush(event)
 	}
 	if config.ConfigData.Alerts.SMTP.Enabled {
 		go SendSMTP(event, bytes.NewReader(snap))
