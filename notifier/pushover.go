@@ -32,9 +32,10 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 	recipient := pushover.NewRecipient(config.ConfigData.Alerts.Pushover.Userkey)
 
 	// Create new message
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
 	notif := &pushover.Message{
 		Message:  message,
-		Title:    config.ConfigData.Alerts.General.Title,
+		Title:    title,
 		Priority: config.ConfigData.Alerts.Pushover.Priority,
 		HTML:     true,
 		TTL:      time.Duration(config.ConfigData.Alerts.Pushover.TTL) * time.Second,

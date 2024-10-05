@@ -32,7 +32,8 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 	m := mail.NewMsg()
 	m.From(config.ConfigData.Alerts.SMTP.From)
 	m.To(ParseSMTPRecipients()...)
-	m.Subject(config.ConfigData.Alerts.General.Title)
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
+	m.Subject(title)
 	// Attach snapshot if one exists
 	if event.HasSnapshot {
 		m.AttachReader("snapshot.jpg", snapshot)

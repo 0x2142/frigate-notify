@@ -52,9 +52,10 @@ func SendGotifyPush(event models.Event, snapshotURL string) {
 	if event.HasSnapshot {
 		message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
 	}
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
 	payload := gotifyPayload{
 		Message:  message,
-		Title:    config.ConfigData.Alerts.General.Title,
+		Title:    title,
 		Priority: 5,
 	}
 	payload.Extras.ClientDisplay.ContentType = "text/markdown"

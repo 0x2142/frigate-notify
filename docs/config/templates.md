@@ -1,8 +1,10 @@
 # Templates
 
+Frigate-Notify allows for certain configuration values to be customized using [Golang text templates](https://pkg.go.dev/text/template). Templates are currently supported on alert titles, alert messages, and HTTP headers.
+
 ## Alert Templates
 
-Frigate-Notify allows for notification messages to be customized using [Golang text templates](https://pkg.go.dev/text/template). Custom templates can be defined by configuring the `template` section of any notification provider.
+Custom message templates can be defined by configuring the `template` section of any notification provider.
 
 By default, Frigate-Notify includes a few templates that it uses for building notification messages: [HTML](https://github.com/0x2142/frigate-notify/blob/main/templates/html.template), [Plaintext](https://github.com/0x2142/frigate-notify/blob/main/templates/plaintext.template), [Markdown](https://github.com/0x2142/frigate-notify/blob/main/templates/markdown.template), and [JSON](https://github.com/0x2142/frigate-notify/blob/main/templates/json.template). All of these are the same message contents, but formatted differently for different notification providers. As you define your own custom templates, it may be helpful to reference these.
 
@@ -42,7 +44,44 @@ If the `template` configuration is missing or blank under any notification provi
 
     So instead of `template: {{ .Camera }} alert!`, use `template: "{{ .Camera }} alert!"`
 
-### Available Variables
+## Title Template
+
+Template variables can also be used to set the alert title or subject line.
+
+As an example, the following `title` template includes the camera & label information. If the camera `front_door` detected a `dog`, then the notification title would be set to: `Frigate - front_door detected dog`
+
+```yaml title="Config File Snippet"
+...
+alerts:  
+  general:
+    title: Frigate - {{ .Camera }} detected {{ .Label }}
+...
+```
+
+## Header Templates
+
+For alert methods that support sending custom HTTP headers, these headers can also be defined using variables using the same syntax as above. This can allow for some interesting custom behaviors. In addition, headers can load data from [environment variables](#environment-variables) for populating sensitive information like Authorization headers.
+
+As an example, below is an example of altering Ntfy notifications based on the event characteristics:
+
+```yaml title="Config File Snippet"
+...
+    headers:
+      - Authorization: Basic {{ env.Getenv "FN_NTFY_AUTH_BASIC" }}
+      - X-Priority: "{{ if ge (len .Zones ) 1 }} 4{{ else }} 3{{ end }}"
+      - X-Tags: "{{ if ge (len .Zones ) 1 }} rotating_light, {{ end }}walking"
+...
+```
+
+The above headers include an Authorization token which is collected from environment variables. They also modify the Ntfy notification priority & tags depending on whether the detected object is within a zone or not.
+
+Let's take a look at how this looks using the sample notification screenshots below. Before the person enters a zone, a Ntfy notification is sent with the default priority (3) & a walking person emoji. However, once that person enters into a zone, the notification is changed to a high priority (4) and includes a `rotating_light` emoji to draw attention to the alert.
+
+| Before object enters zone                         | After object enters zone                          |
+|:-------------------------------------------------:|:-------------------------------------------------:|
+| ![](../img/http_header_template_ntfy_no_zone.png) | ![](../img/http_header_template_ntfy_in_zone.png) |
+
+## Available Variables
 
 The list below doesn't contain every possible variable, just a few of the most common. Most come from the event payload received from Frigate, but a few extras have been added to help make building templates easier.
 
@@ -64,7 +103,7 @@ The list below doesn't contain every possible variable, just a few of the most c
 | .Extra.LocalURL        | Frigate server URL as specified under `frigate > server`                                                                 |
 | .Extra.PublicURL       | Frigate Public URL as specified under `frigate > public_url`                                                             |
 
-### Environment variables
+## Environment variables
 
 Templates can also retrieve values from environment variables using a built-in `env` function. Environment variables used within templates must contain the `FN_` prefix.
 
