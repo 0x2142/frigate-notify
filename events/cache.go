@@ -34,17 +34,30 @@ func CloseZoneCache() {
 func setZoneAlerted(event models.Event) {
 	// Get current list of zones by event ID, if it exists
 	alreadyAlerted, _ := zoneCache.Get(event.ID)
+	log.Trace().
+		Strs("cache", alreadyAlerted).
+		Str("event_id", event.ID).
+		Msg("Current cache contents")
 	alreadyAlerted = append(alreadyAlerted, event.CurrentZones...)
 	// Remove duplicates
 	slices.Sort(alreadyAlerted)
 	alreadyAlerted = slices.Compact(alreadyAlerted)
 	// Update cache with new list
 	zoneCache.Set(event.ID, alreadyAlerted)
+	log.Trace().
+		Strs("cache", alreadyAlerted).
+		Str("event_id", event.ID).
+		Msg("New cache contents")
 }
 
 // Query cache by event ID
 func getCachebyID(id string) []string {
 	cacheData, ok := zoneCache.Get(id)
+	log.Trace().
+		Bool("in_cache", ok).
+		Strs("cache", cacheData).
+		Str("event_id", id).
+		Msgf("Get event from cache")
 	if !ok {
 		return nil
 	}
@@ -55,6 +68,11 @@ func getCachebyID(id string) []string {
 func zoneAlreadyAlerted(event models.Event) bool {
 	// Check if event already in cache & if so, get contents
 	alreadyAlerted, ok := zoneCache.Get(event.ID)
+	log.Trace().
+		Bool("in_cache", ok).
+		Strs("cache", alreadyAlerted).
+		Str("event_id", event.ID).
+		Msgf("Get event from cache")
 	// If event not found, create cache entry & add zones
 	if !ok {
 		log.Debug().

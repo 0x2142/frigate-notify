@@ -5,6 +5,7 @@ import (
 	"flag"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 	_ "time/tzdata"
 
@@ -22,6 +23,7 @@ var debug, debugenv bool
 var jsonlog, jsonlogenv bool
 var nocolor, nocolorenv bool
 var configFile string
+var logLevel string
 
 //go:embed templates/*
 var NotifTemplates embed.FS
@@ -29,7 +31,8 @@ var NotifTemplates embed.FS
 func main() {
 	// Parse flags
 	flag.StringVar(&configFile, "c", "", "Configuration file location (default \"./config.yml\")")
-	flag.BoolVar(&debug, "debug", false, "Enable debug logging")
+	flag.BoolVar(&debug, "debug", false, "Enable debug logging (Overrides loglevel, if also set)")
+	flag.StringVar(&logLevel, "loglevel", "info", "Set logging level")
 	flag.BoolVar(&jsonlog, "jsonlog", false, "Enable JSON logging")
 	flag.BoolVar(&nocolor, "nocolor", false, "Disable color on console logging")
 	flag.Parse()
@@ -42,7 +45,26 @@ func main() {
 		_, nocolorenv = os.LookupEnv("FN_NOCOLOR")
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006/01/02 15:04:05 -0700", NoColor: nocolorenv || nocolor})
 	}
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+
+	// Apply custom log level, if set
+	switch logLevel, _ = os.LookupEnv("FN_LOGLEVEL"); strings.ToLower(logLevel) {
+	case "panic":
+		zerolog.SetGlobalLevel(zerolog.PanicLevel)
+	case "fatal":
+		zerolog.SetGlobalLevel(zerolog.FatalLevel)
+	case "error":
+		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
+	case "warn":
+		zerolog.SetGlobalLevel(zerolog.WarnLevel)
+	case "debug":
+		log.Debug().Msg("Debug logging enabled")
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	case "trace":
+		log.Trace().Msg("Trace logging enabled")
+		zerolog.SetGlobalLevel(zerolog.TraceLevel)
+	default:
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	}
 
 	// Enable debug logging if set
 	_, debugenv = os.LookupEnv("FN_DEBUG")
@@ -78,9 +100,12 @@ func main() {
 		}()
 	}
 
+	// Set up event cache
+	frigate.InitZoneCache()
+
 	// Loop & watch for events
 	if config.ConfigData.Frigate.WebAPI.Enabled {
-		log.Info().Msg("App running. Press Ctrl-C to quit.")
+		log.Info().Msg("App ready!")
 		for {
 			frigate.CheckForEvents()
 			time.Sleep(time.Duration(config.ConfigData.Frigate.WebAPI.Interval) * time.Second)
@@ -88,13 +113,11 @@ func main() {
 	}
 	// Connect MQTT
 	if config.ConfigData.Frigate.MQTT.Enabled {
-		// Set up event cache
-		frigate.InitZoneCache()
 		defer frigate.CloseZoneCache()
 
 		log.Debug().Msg("Connecting to MQTT Server...")
 		frigate.SubscribeMQTT()
-		log.Info().Msg("App running. Press Ctrl-C to quit.")
+		log.Info().Msg("App ready!")
 		sig := make(chan os.Signal, 1)
 		signal.Notify(sig, os.Interrupt)
 		<-sig

@@ -69,6 +69,18 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 			Msg("Unable to send alert")
 	}
 
+	log.Trace().
+		Strs("sender", m.GetFromString()).
+		Strs("recipients", m.GetToString()).
+		Str("subject", title).
+		Interface("payload", message).
+		Str("server", config.ConfigData.Alerts.SMTP.Server).
+		Int("port", config.ConfigData.Alerts.SMTP.Port).
+		Bool("tls", config.ConfigData.Alerts.SMTP.TLS).
+		Str("username", config.ConfigData.Alerts.SMTP.User).
+		Str("password", "--secret removed--").
+		Msg("Send SMTP Alert")
+
 	// Send message
 	if err := c.DialAndSend(m); err != nil {
 		log.Warn().

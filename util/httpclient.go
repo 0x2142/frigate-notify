@@ -3,12 +3,14 @@ package util
 import (
 	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -63,7 +65,20 @@ func HTTPGet(url string, insecure bool, params string, headers ...map[string]str
 		}
 	}
 
+	// Remove authorization header value for logging
+	for i, h := range headers {
+		for k := range h {
+			if strings.ToLower(k) == "authorization" {
+				headers[i][k] = "--secret removed--"
+			}
+		}
+	}
 	// Send HTTP GET
+	log.Trace().
+		Str("url", url).
+		Interface("headers", headers).
+		Bool("insecure", insecure).
+		Msg("HTTP GET")
 	response, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -74,6 +89,19 @@ func HTTPGet(url string, insecure bool, params string, headers ...map[string]str
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	// Skip logging contents of snapshot image
+	if strings.Contains(url, "snapshot.jpg") {
+		log.Trace().
+			Int64("content_length", response.ContentLength).
+			Int("status_code", response.StatusCode).
+			Msg("HTTP Response")
+	} else {
+		log.Trace().
+			RawJSON("body", body).
+			Int("status_code", response.StatusCode).
+			Msg("HTTP Response")
 	}
 
 	if response.StatusCode != 200 {
@@ -116,7 +144,32 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 		}
 	}
 
+	// Remove authorization header value for logging
+	for i, h := range headers {
+		for k := range h {
+			if strings.ToLower(k) == "authorization" {
+				headers[i][k] = "--secret removed--"
+			}
+		}
+	}
+
 	// Send HTTP POST
+	if json.Valid(payload) {
+		log.Trace().
+			Str("url", url).
+			Interface("headers", headers).
+			RawJSON("body", payload).
+			Bool("insecure", insecure).
+			Msg("HTTP POST")
+	} else {
+		log.Trace().
+			Str("url", url).
+			Interface("headers", headers).
+			Interface("body", payload).
+			Bool("insecure", insecure).
+			Msg("HTTP POST")
+	}
+
 	var response *http.Response
 	retry := 1
 	for retry <= 6 {
@@ -152,6 +205,11 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 	if err != nil {
 		return nil, err
 	}
+
+	log.Trace().
+		RawJSON("body", body).
+		Int("status_code", response.StatusCode).
+		Msg("HTTP Response")
 
 	return body, nil
 }
