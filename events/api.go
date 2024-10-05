@@ -85,7 +85,7 @@ func CheckForEvents() {
 		}
 
 		// Send alert with snapshot
-		notifier.SendAlert(event, snapshotURL, snapshot, event.ID)
+		notifier.SendAlert(event, snapshot, event.ID)
 	}
 
 }

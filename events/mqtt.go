@@ -124,7 +124,7 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 		}
 
 		// Send alert with snapshot
-		notifier.SendAlert(event.After.Event, snapshotURL, snapshot, event.After.ID)
+		notifier.SendAlert(event.After.Event, snapshot, event.After.ID)
 	}
 
 	// Clear event cache entry when event ends
