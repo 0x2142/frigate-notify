@@ -15,7 +15,6 @@ import (
 	"github.com/0x2142/frigate-notify/models"
 	"github.com/0x2142/frigate-notify/notifier"
 	"github.com/0x2142/frigate-notify/util"
-	"golang.org/x/exp/slices"
 )
 
 const eventsURI = "/api/events"
@@ -39,7 +38,7 @@ func CheckForEvents() {
 	log.Debug().Msg("Checking for new events...")
 
 	// Query events
-	response, err := util.HTTPGet(url, config.ConfigData.Frigate.Insecure, config.ConfigData.Frigate.Headers...)
+	response, err := util.HTTPGet(url, config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -59,15 +58,6 @@ func CheckForEvents() {
 		// Update last event check time with most recent timestamp
 		if event.StartTime > LastEventTime {
 			LastEventTime = event.StartTime
-		}
-
-		// Skip excluded cameras
-		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.Camera) {
-			log.Debug().
-				Str("event_id", event.ID).
-				Str("camera", event.Camera).
-				Msg("Skipping event from excluded camera")
-			continue
 		}
 
 		log.Info().
@@ -95,7 +85,7 @@ func CheckForEvents() {
 		}
 
 		// Send alert with snapshot
-		notifier.SendAlert(event, snapshotURL, snapshot, event.ID)
+		notifier.SendAlert(event, snapshot, event.ID)
 	}
 
 }
@@ -115,7 +105,7 @@ func GetSnapshot(snapshotURL, eventID string) io.Reader {
 		q.Add("crop", "1")
 	}
 	url.RawQuery = q.Encode()
-	response, err := util.HTTPGet(url.String(), config.ConfigData.Frigate.Insecure, config.ConfigData.Frigate.Headers...)
+	response, err := util.HTTPGet(url.String(), config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
 	if err != nil {
 		log.Warn().
 			Str("event_id", eventID).

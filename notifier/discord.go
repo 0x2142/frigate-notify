@@ -40,18 +40,28 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader) {
 	}
 	defer client.Close(context.TODO())
 
-	title := fmt.Sprintf("**%v**\n\n", config.ConfigData.Alerts.General.Title)
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
+	title = fmt.Sprintf("**%v**\n\n", title)
 	message = title + message
 
 	// Send alert & attach snapshot if one was saved
+	var msg *discord.Message
 	if event.HasSnapshot {
 		image := discord.NewFile("snapshot.jpg", "", snapshot)
 		embed := discord.NewEmbedBuilder().SetDescription(message).SetTitle(title).SetImage("attachment://snapshot.jpg").SetColor(5793266).Build()
-		_, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetEmbeds(embed).SetFiles(image).Build())
+		msg, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetEmbeds(embed).SetFiles(image).Build())
+		log.Trace().
+			Str("event_id", event.ID).
+			Interface("payload", msg).
+			Msg("Send Discord Alert")
+
 	} else {
 		embed := discord.NewEmbedBuilder().SetDescription(message).SetTitle(title).SetColor(5793266).Build()
-		_, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetEmbeds(embed).Build())
-
+		msg, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetEmbeds(embed).Build())
+		log.Trace().
+			Str("event_id", event.ID).
+			Interface("payload", msg).
+			Msg("Send Discord Alert")
 	}
 	if err != nil {
 		log.Warn().

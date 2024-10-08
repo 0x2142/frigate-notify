@@ -18,9 +18,9 @@ import (
 )
 
 type Config struct {
-	Frigate Frigate `fig:"frigate"`
-	Alerts  Alerts  `fig:"alerts"`
-	Monitor Monitor `fig:"monitor"`
+	Frigate *Frigate `fig:"frigate" validate:"required"`
+	Alerts  *Alerts  `fig:"alerts" validate:"required"`
+	Monitor Monitor  `fig:"monitor"`
 }
 
 type Frigate struct {
@@ -32,7 +32,7 @@ type Frigate struct {
 	WebAPI       WebAPI              `fig:"webapi"`
 	MQTT         MQTT                `fig:"mqtt"`
 	Cameras      Cameras             `fig:"cameras"`
-	Version      int
+	Version      int                 // Internal use only
 }
 
 type StartupCheck struct {
@@ -83,6 +83,7 @@ type General struct {
 	SnapBbox      bool   `fig:"snap_bbox" default:false`
 	SnapTimestamp bool   `fig:"snap_timestamp" default:false`
 	SnapCrop      bool   `fig:"snap_crop" default:false`
+	NotifyOnce    bool   `fig:"notify_once" default:false`
 }
 
 type Quiet struct {
@@ -123,8 +124,10 @@ type SMTP struct {
 	TLS       bool   `fig:"tls" default:false`
 	User      string `fig:"user" default:""`
 	Password  string `fig:"password" default:""`
+	From      string `fig:"from" default:""`
 	Recipient string `fig:"recipient" default:""`
 	Template  string `fig:"template" default:""`
+	Insecure  bool   `fig:"ignoressl" default:false`
 }
 
 type Telegram struct {
@@ -169,6 +172,8 @@ type Webhook struct {
 	Enabled  bool                   `fig:"enabled" default:false`
 	Server   string                 `fig:"server" default:""`
 	Insecure bool                   `fig:"ignoressl" default:false`
+	Method   string                 `fig:"method" default:"POST"`
+	Params   []map[string]string    `fix:"params"`
 	Headers  []map[string]string    `fig:"headers"`
 	Template map[string]interface{} `fig:"template"`
 }
@@ -245,7 +250,7 @@ func validateConfig() {
 
 	// Check if Frigate server URL contains protocol, assume HTTP if not specified
 	if !strings.Contains(ConfigData.Frigate.Server, "http://") && !strings.Contains(ConfigData.Frigate.Server, "https://") {
-		log.Warn().Msg("No protocol specified on Frigate Server. Assuming http://. If this is incorrect, please adjust the config file.")
+		log.Warn().Msgf("No protocol specified on Frigate server URL, so we'll try http://%s. If this is incorrect, please adjust the config file.", ConfigData.Frigate.Server)
 		ConfigData.Frigate.Server = fmt.Sprintf("http://%s", ConfigData.Frigate.Server)
 	}
 
@@ -260,7 +265,7 @@ func validateConfig() {
 		ConfigData.Frigate.StartupCheck.Interval = 30
 	}
 	for current_attempt < ConfigData.Frigate.StartupCheck.Attempts {
-		response, err = util.HTTPGet(statsAPI, ConfigData.Frigate.Insecure, ConfigData.Frigate.Headers...)
+		response, err = util.HTTPGet(statsAPI, ConfigData.Frigate.Insecure, "", ConfigData.Frigate.Headers...)
 		if err != nil {
 			log.Warn().
 				Err(err).
@@ -342,6 +347,9 @@ func validateConfig() {
 		log.Debug().Msgf("Events without a snapshot: %v", strings.ToLower(ConfigData.Alerts.General.NoSnap))
 	}
 
+	// Notify_Once
+	log.Debug().Msgf("Notify only once per event: %v", ConfigData.Alerts.General.NotifyOnce)
+
 	// Check Zone filtering config
 	if strings.ToLower(ConfigData.Alerts.Zones.Unzoned) != "allow" && strings.ToLower(ConfigData.Alerts.Zones.Unzoned) != "drop" {
 		configErrors = append(configErrors, "Option for unzoned events must be 'allow' or 'drop'")
@@ -406,7 +414,9 @@ func validateConfig() {
 	}
 
 	// Check / Load alerting configuration
+	var alertingEnabled bool
 	if ConfigData.Alerts.Discord.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("Discord alerting enabled.")
 		if ConfigData.Alerts.Discord.Webhook == "" {
 			configErrors = append(configErrors, "No Discord webhook specified!")
@@ -417,6 +427,7 @@ func validateConfig() {
 		}
 	}
 	if ConfigData.Alerts.Gotify.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("Gotify alerting enabled.")
 		// Check if Gotify server URL contains protocol, assume HTTP if not specified
 		if !strings.Contains(ConfigData.Alerts.Gotify.Server, "http://") && !strings.Contains(ConfigData.Alerts.Gotify.Server, "https://") {
@@ -435,6 +446,7 @@ func validateConfig() {
 		}
 	}
 	if ConfigData.Alerts.SMTP.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("SMTP alerting enabled.")
 		if ConfigData.Alerts.SMTP.Server == "" {
 			configErrors = append(configErrors, "No SMTP server specified!")
@@ -448,12 +460,17 @@ func validateConfig() {
 		if ConfigData.Alerts.SMTP.Port == 0 {
 			ConfigData.Alerts.SMTP.Port = 25
 		}
+		// Copy `user` to `from` if `from` not explicitly configured
+		if ConfigData.Alerts.SMTP.From == "" && ConfigData.Alerts.SMTP.User != "" {
+			ConfigData.Alerts.SMTP.From = ConfigData.Alerts.SMTP.User
+		}
 		// Check template syntax
 		if msg := checkTemplate("SMTP", ConfigData.Alerts.SMTP.Template); msg != "" {
 			configErrors = append(configErrors, msg)
 		}
 	}
 	if ConfigData.Alerts.Telegram.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("Telegram alerting enabled.")
 		if ConfigData.Alerts.Telegram.ChatID == 0 {
 			configErrors = append(configErrors, "No Telegram Chat ID specified!")
@@ -467,6 +484,7 @@ func validateConfig() {
 		}
 	}
 	if ConfigData.Alerts.Pushover.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("Pushover alerting enabled.")
 		if ConfigData.Alerts.Pushover.Token == "" {
 			configErrors = append(configErrors, "No Pushover API token specified!")
@@ -497,6 +515,7 @@ func validateConfig() {
 	// Deprecation warning
 	// TODO: Remove misspelled Ntfy config with v0.4.0 or later
 	if ConfigData.Alerts.Nfty.Enabled {
+		alertingEnabled = true
 		log.Warn().Msg("Config for 'nfty' will be deprecated due to misspelling. Please update config to 'ntfy'")
 		// Copy data to new Ntfy struct
 		ConfigData.Alerts.Ntfy.Enabled = ConfigData.Alerts.Nfty.Enabled
@@ -507,6 +526,7 @@ func validateConfig() {
 		ConfigData.Alerts.Ntfy.Template = ConfigData.Alerts.Nfty.Template
 	}
 	if ConfigData.Alerts.Ntfy.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("Ntfy alerting enabled.")
 		if ConfigData.Alerts.Ntfy.Server == "" {
 			configErrors = append(configErrors, "No Ntfy server specified!")
@@ -520,10 +540,15 @@ func validateConfig() {
 		}
 	}
 	if ConfigData.Alerts.Webhook.Enabled {
+		alertingEnabled = true
 		log.Debug().Msg("Webhook alerting enabled.")
 		if ConfigData.Alerts.Webhook.Server == "" {
 			configErrors = append(configErrors, "No Webhook server specified!")
 		}
+	}
+
+	if !alertingEnabled {
+		configErrors = append(configErrors, "No alerting methods have been configured. Please check config file syntax!")
 	}
 
 	// Validate monitoring config

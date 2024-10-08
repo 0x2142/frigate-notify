@@ -1,6 +1,8 @@
 package notifier
 
 import (
+	"strings"
+
 	"github.com/disgoorg/json"
 	"github.com/rs/zerolog/log"
 
@@ -33,8 +35,16 @@ func SendWebhook(event models.Event) {
 		message = renderMessage("json", event)
 	}
 
-	headers := renderHeaders(config.ConfigData.Alerts.Webhook.Headers, event)
-	_, err = util.HTTPPost(config.ConfigData.Alerts.Webhook.Server, config.ConfigData.Alerts.Webhook.Insecure, []byte(message), headers...)
+	headers := renderHTTPKV(config.ConfigData.Alerts.Webhook.Headers, event, "headers")
+	params := renderHTTPKV(config.ConfigData.Alerts.Webhook.Params, event, "params")
+	paramString := util.BuildHTTPParams(params...)
+	if strings.ToUpper(config.ConfigData.Alerts.Webhook.Method) == "GET" {
+		_, err = util.HTTPGet(config.ConfigData.Alerts.Webhook.Server, config.ConfigData.Alerts.Webhook.Insecure, paramString, headers...)
+
+	} else {
+		_, err = util.HTTPPost(config.ConfigData.Alerts.Webhook.Server, config.ConfigData.Alerts.Webhook.Insecure, []byte(message), paramString, headers...)
+	}
+
 	if err != nil {
 		log.Warn().
 			Str("event_id", event.ID).

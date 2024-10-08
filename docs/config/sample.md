@@ -37,6 +37,7 @@ alerts:
     snap_bbox:
     snap_timestamp:
     snap_crop:
+    notify_once:
 
   quiet:
     start:
@@ -114,6 +115,8 @@ alerts:
     enabled: false
     server: 
     ignoressl:
+    method:
+    params:
     headers:
     template:
 

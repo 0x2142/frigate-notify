@@ -30,9 +30,10 @@ func SendNtfyPush(event models.Event, snapshot io.Reader) {
 	NtfyURL := fmt.Sprintf("%s/%s", config.ConfigData.Alerts.Ntfy.Server, config.ConfigData.Alerts.Ntfy.Topic)
 
 	// Set headers
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
 	var headers []map[string]string
 	headers = append(headers, map[string]string{"Content-Type": "text/markdown"})
-	headers = append(headers, map[string]string{"X-Title": config.ConfigData.Alerts.General.Title})
+	headers = append(headers, map[string]string{"X-Title": title})
 	headers = append(headers, config.ConfigData.Alerts.Ntfy.Headers...)
 
 	// Set action link to the recorded clip
@@ -65,9 +66,9 @@ func SendNtfyPush(event models.Event, snapshot io.Reader) {
 		headers = append(headers, map[string]string{"X-Actions": "view, View Clip, " + clip + ", clear=true"})
 	}
 
-	headers = renderHeaders(headers, event)
+	headers = renderHTTPKV(headers, event, "headers")
 
-	resp, err := util.HTTPPost(NtfyURL, config.ConfigData.Alerts.Ntfy.Insecure, attachment, headers...)
+	resp, err := util.HTTPPost(NtfyURL, config.ConfigData.Alerts.Ntfy.Insecure, attachment, "", headers...)
 	if err != nil {
 		log.Warn().
 			Str("event_id", event.ID).

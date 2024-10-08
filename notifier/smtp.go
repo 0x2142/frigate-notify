@@ -1,6 +1,7 @@
 package notifier
 
 import (
+	"crypto/tls"
 	"io"
 	"strings"
 	"time"
@@ -29,9 +30,10 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 
 	// Set up email alert
 	m := mail.NewMsg()
-	m.From(config.ConfigData.Alerts.SMTP.User)
+	m.From(config.ConfigData.Alerts.SMTP.From)
 	m.To(ParseSMTPRecipients()...)
-	m.Subject(config.ConfigData.Alerts.General.Title)
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
+	m.Subject(title)
 	// Attach snapshot if one exists
 	if event.HasSnapshot {
 		m.AttachReader("snapshot.jpg", snapshot)
@@ -54,6 +56,10 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 	if !config.ConfigData.Alerts.SMTP.TLS {
 		c.SetTLSPolicy(mail.NoTLS)
 	}
+	// Disable certificate verification if needed
+	if config.ConfigData.Alerts.SMTP.Insecure {
+		c.SetTLSConfig(&tls.Config{InsecureSkipVerify: true})
+	}
 
 	if err != nil {
 		log.Warn().
@@ -62,6 +68,18 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 			Err(err).
 			Msg("Unable to send alert")
 	}
+
+	log.Trace().
+		Strs("sender", m.GetFromString()).
+		Strs("recipients", m.GetToString()).
+		Str("subject", title).
+		Interface("payload", message).
+		Str("server", config.ConfigData.Alerts.SMTP.Server).
+		Int("port", config.ConfigData.Alerts.SMTP.Port).
+		Bool("tls", config.ConfigData.Alerts.SMTP.TLS).
+		Str("username", config.ConfigData.Alerts.SMTP.User).
+		Str("password", "--secret removed--").
+		Msg("Send SMTP Alert")
 
 	// Send message
 	if err := c.DialAndSend(m); err != nil {

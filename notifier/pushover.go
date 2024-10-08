@@ -32,9 +32,10 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 	recipient := pushover.NewRecipient(config.ConfigData.Alerts.Pushover.Userkey)
 
 	// Create new message
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
 	notif := &pushover.Message{
 		Message:  message,
-		Title:    config.ConfigData.Alerts.General.Title,
+		Title:    title,
 		Priority: config.ConfigData.Alerts.Pushover.Priority,
 		HTML:     true,
 		TTL:      time.Duration(config.ConfigData.Alerts.Pushover.TTL) * time.Second,
@@ -52,10 +53,19 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 		notif.DeviceName = devices
 	}
 
+	log.Trace().
+		Interface("payload", notif).
+		Interface("recipient", "--secret removed--").
+		Msg("Send Pushover alert")
+
 	// Send notification
 	if event.HasSnapshot {
 		notif.AddAttachment(snapshot)
-		if _, err := push.SendMessage(notif, recipient); err != nil {
+		response, err := push.SendMessage(notif, recipient)
+		log.Trace().
+			Interface("payload", response).
+			Msg("Pushover response")
+		if err != nil {
 			log.Warn().
 				Str("event_id", event.ID).
 				Str("provider", "Pushover").
@@ -63,7 +73,11 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 			return
 		}
 	} else {
-		if _, err := push.SendMessage(notif, recipient); err != nil {
+		response, err := push.SendMessage(notif, recipient)
+		log.Trace().
+			Interface("payload", response).
+			Msg("Pushover response")
+		if err != nil {
 			log.Warn().
 				Str("event_id", event.ID).
 				Str("provider", "Pushover").

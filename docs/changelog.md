@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.3.5](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.5) - Oct 08 2024
+ - Fixed issue where built-in alert templates were not being included in binary releases
+ - Fixed issue where a notification may not be sent if previous event update from Frigate did not contain a snapshot
+ - Fixed issue where Gotify snapshot was not using `public_url` if configured
+ - Added `from` & `ignoressl` config items to `smtp` notifier
+ - Added ability to send `webhook` notifications via HTTP GET requests
+ - Added support for URL parameters with `webhook` notifications
+ - Added option to only generate a [single notification](https://frigate-notify.0x2142.com/latest/config/file/#general) per Frigate event
+ - Allow use of [template variables](https://frigate-notify.0x2142.com/latest/config/templates/#title-template) within alert `title` config
+ - New options to set specific [log level](https://frigate-notify.0x2142.com/latest/config/options/) & additional `trace` level logs for troubleshooting
+ - Minor enhancements to config file validation
+
 ## [v0.3.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.4) - Aug 15 2024
  - Fixed issue where `unzoned: drop` config would drop all notifications
 

@@ -13,6 +13,40 @@ import (
 
 // checkEventFilters processes incoming event through configured filters to determine if it should generate a notification
 func checkEventFilters(event models.Event) bool {
+	// Skip excluded cameras
+	if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.Camera) {
+		log.Info().
+			Str("event_id", event.ID).
+			Str("camera", event.Camera).
+			Msg("Event dropped - Camera Excluded")
+		return false
+	}
+	// Drop event if no snapshot or clip is available - Event is likely being filtered on Frigate side.
+	// For example, if a camera has `required_zones` set - then there may not be any clip or snap until
+	// object moves into required zone
+	if !event.HasClip && !event.HasSnapshot {
+		log.Info().
+			Str("event_id", event.ID).
+			Msg("Event dropped - No snapshot or clip available")
+		return false
+	}
+	// Check if notify_once is set & we already notified on this event
+	if config.ConfigData.Alerts.General.NotifyOnce {
+		// Check if cache already contains event ID
+		if getCachebyID(event.ID) != nil {
+			log.Info().
+				Str("event_id", event.ID).
+				Msg("Event dropped - Already notified & notify_once is set")
+			return false
+		}
+	}
+	// Drop event if no snapshot & skip_nosnap is true
+	if !event.HasSnapshot && strings.ToLower(config.ConfigData.Alerts.General.NoSnap) == "drop" {
+		log.Info().
+			Str("event_id", event.ID).
+			Msg("Event dropped - No snapshot available")
+		return false
+	}
 	// Check quiet hours
 	if isQuietHours() {
 		log.Info().
@@ -53,6 +87,11 @@ func isQuietHours() bool {
 	currentTime, _ := time.Parse("15:04:05", time.Now().Format("15:04:05"))
 	start, _ := time.Parse("15:04", config.ConfigData.Alerts.Quiet.Start)
 	end, _ := time.Parse("15:04", config.ConfigData.Alerts.Quiet.End)
+	log.Trace().
+		Time("current_time", currentTime).
+		Time("quiet_start", start).
+		Time("quiet_end", end).
+		Msg("Check quiet hours")
 	// Check if quiet period is overnight
 	if end.Before(start) {
 		if currentTime.After(start) || currentTime.Before(end) {
@@ -68,6 +107,13 @@ func isQuietHours() bool {
 
 // isAllowedZone verifies whether a zone should be allowed to generate a notification
 func isAllowedZone(id string, zones []string) bool {
+	log.Trace().
+		Str("event_id", id).
+		Strs("zones", zones).
+		Str("allow_unzoned", config.ConfigData.Alerts.Zones.Unzoned).
+		Strs("blocked", config.ConfigData.Alerts.Zones.Block).
+		Strs("allowed", config.ConfigData.Alerts.Zones.Allow).
+		Msg("Check allowed zone")
 	// By default, send events without a zone unless specified otherwise
 	if strings.ToLower(config.ConfigData.Alerts.Zones.Unzoned) == "drop" && len(zones) == 0 {
 		log.Info().
@@ -113,10 +159,22 @@ func isAllowedLabel(id string, label string, kind string) bool {
 	if kind == "label" {
 		blocked = config.ConfigData.Alerts.Labels.Block
 		allowed = config.ConfigData.Alerts.Labels.Allow
+		log.Trace().
+			Str("event_id", id).
+			Str("label", label).
+			Strs("blocked", blocked).
+			Strs("allowed", allowed).
+			Msg("Check allowed label")
 	}
 	if kind == "sublabel" {
 		blocked = config.ConfigData.Alerts.SubLabels.Block
 		allowed = config.ConfigData.Alerts.SubLabels.Allow
+		log.Trace().
+			Str("event_id", id).
+			Str("label", label).
+			Strs("blocked", blocked).
+			Strs("allowed", allowed).
+			Msg("Check allowed sublabel")
 	}
 	// Check block list
 	if slices.Contains(blocked, label) {
@@ -146,6 +204,11 @@ func isAllowedLabel(id string, label string, kind string) bool {
 // aboveMinScore checks if label score is above configured minimum
 func aboveMinScore(id string, score float64) bool {
 	score = score * 100
+	log.Trace().
+		Str("event_id", id).
+		Float64("event_score", score).
+		Float64("min_score", score).
+		Msg("Check minimum score")
 	if score >= config.ConfigData.Alerts.Labels.MinScore {
 		return true
 	} else {

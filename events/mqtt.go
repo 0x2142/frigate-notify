@@ -13,14 +13,14 @@ import (
 	"github.com/0x2142/frigate-notify/models"
 	"github.com/0x2142/frigate-notify/notifier"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"golang.org/x/exp/slices"
 )
 
 // SubscribeMQTT establishes subscription to MQTT server & listens for messages
 func SubscribeMQTT() {
 	// MQTT client configuration
+	mqttServer := fmt.Sprintf("tcp://%s:%d", config.ConfigData.Frigate.MQTT.Server, config.ConfigData.Frigate.MQTT.Port)
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", config.ConfigData.Frigate.MQTT.Server, config.ConfigData.Frigate.MQTT.Port))
+	opts.AddBroker(mqttServer)
 	opts.SetClientID(config.ConfigData.Frigate.MQTT.ClientID)
 	opts.SetAutoReconnect(true)
 	opts.SetConnectionLostHandler(connectionLostHandler)
@@ -29,6 +29,15 @@ func SubscribeMQTT() {
 		opts.SetUsername(config.ConfigData.Frigate.MQTT.Username)
 		opts.SetPassword(config.ConfigData.Frigate.MQTT.Password)
 	}
+
+	log.Trace().
+		Str("server", mqttServer).
+		Str("client_id", config.ConfigData.Frigate.MQTT.ClientID).
+		Str("username", config.ConfigData.Frigate.MQTT.Username).
+		Str("password", "--secret removed--").
+		Str("topic", config.ConfigData.Frigate.MQTT.TopicPrefix+"/events").
+		Bool("auto_reconnect", true).
+		Msg("Init MQTT connection")
 
 	var subscribed = false
 	var retry = 0
@@ -56,6 +65,10 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 	var event models.MQTTEvent
 	json.Unmarshal(msg.Payload(), &event)
 
+	log.Trace().
+		RawJSON("payload", msg.Payload()).
+		Msg("MQTT event received")
+
 	if event.Type == "new" || event.Type == "update" {
 		if event.Type == "new" {
 			log.Info().
@@ -65,14 +78,6 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 			log.Info().
 				Str("event_id", event.After.ID).
 				Msg("Event update received")
-		}
-		// Skip excluded cameras
-		if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.After.Camera) {
-			log.Info().
-				Str("event_id", event.After.ID).
-				Str("camera", event.After.Camera).
-				Msg("Event dropped - Camera Excluded")
-			return
 		}
 
 		// Convert to human-readable timestamp
@@ -92,21 +97,8 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 			return
 		}
 
-		// Skip update events where zone didn't change
-		// Compares current detected zone to previous list of zones entered
-		zoneChanged := false
-		for _, zone := range event.After.CurrentZones {
-			if !slices.Contains(event.Before.EnteredZones, zone) {
-				zoneChanged = true
-				log.Debug().
-					Str("event_id", event.After.ID).
-					Str("camera", event.After.Camera).
-					Str("label", event.After.Label).
-					Str("zones", strings.Join(event.After.CurrentZones, ",")).
-					Msg("Object entered new zone")
-			}
-		}
-		if event.Type == "update" && !zoneChanged {
+		// Check if already notified on zones
+		if zoneAlreadyAlerted(event.After.Event) {
 			log.Info().
 				Str("event_id", event.After.ID).
 				Str("camera", event.After.Camera).
@@ -114,6 +106,13 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 				Str("zones", strings.Join(event.After.CurrentZones, ",")).
 				Msg("Event dropped - Already notified on this zone")
 			return
+		} else {
+			log.Debug().
+				Str("event_id", event.After.ID).
+				Str("camera", event.After.Camera).
+				Str("label", event.After.Label).
+				Str("zones", strings.Join(event.After.CurrentZones, ",")).
+				Msg("Object entered new zone")
 		}
 
 		// If snapshot was collected, pull down image to send with alert
@@ -125,7 +124,16 @@ func processEvent(client mqtt.Client, msg mqtt.Message) {
 		}
 
 		// Send alert with snapshot
-		notifier.SendAlert(event.After.Event, snapshotURL, snapshot, event.After.ID)
+		notifier.SendAlert(event.After.Event, snapshot, event.After.ID)
+	}
+
+	// Clear event cache entry when event ends
+	if event.Type == "end" {
+		log.Debug().
+			Str("event_id", event.After.ID).
+			Msg("Event ended")
+		delZoneAlerted(event.After.Event)
+		return
 	}
 }
 

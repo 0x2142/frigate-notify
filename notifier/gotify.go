@@ -34,8 +34,17 @@ type gotifyPayload struct {
 	} `json:"extras,omitempty"`
 }
 
+const eventsURI = "/api/events"
+const snapshotURI = "/snapshot.jpg"
+
 // SendGotifyPush forwards alert messages to Gotify push notification server
-func SendGotifyPush(event models.Event, snapshotURL string) {
+func SendGotifyPush(event models.Event) {
+	var snapshotURL string
+	if config.ConfigData.Frigate.PublicURL != "" {
+		snapshotURL = config.ConfigData.Frigate.PublicURL + eventsURI + "/" + event.ID + snapshotURI
+	} else {
+		snapshotURL = config.ConfigData.Frigate.Server + eventsURI + "/" + event.ID + snapshotURI
+	}
 	// Build notification
 	var message string
 	if config.ConfigData.Alerts.Gotify.Template != "" {
@@ -52,9 +61,10 @@ func SendGotifyPush(event models.Event, snapshotURL string) {
 	if event.HasSnapshot {
 		message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
 	}
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
 	payload := gotifyPayload{
 		Message:  message,
-		Title:    config.ConfigData.Alerts.General.Title,
+		Title:    title,
 		Priority: 5,
 	}
 	payload.Extras.ClientDisplay.ContentType = "text/markdown"
@@ -73,7 +83,7 @@ func SendGotifyPush(event models.Event, snapshotURL string) {
 	gotifyURL := fmt.Sprintf("%s/message?token=%s&", config.ConfigData.Alerts.Gotify.Server, config.ConfigData.Alerts.Gotify.Token)
 
 	header := map[string]string{"Content-Type": "application/json"}
-	response, err := util.HTTPPost(gotifyURL, config.ConfigData.Alerts.Gotify.Insecure, data, header)
+	response, err := util.HTTPPost(gotifyURL, config.ConfigData.Alerts.Gotify.Insecure, data, "", header)
 	if err != nil {
 		log.Warn().
 			Str("event_id", event.ID).
