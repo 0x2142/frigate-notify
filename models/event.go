@@ -52,4 +52,6 @@ type ExtraFields struct {
 	LocalURL            string
 	PublicURL           string
 	FrigateMajorVersion int
+	EventLink           string
+	ReviewLink          string
 }

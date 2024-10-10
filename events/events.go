@@ -1,0 +1,95 @@
+package frigate
+
+import (
+	"encoding/json"
+	"io"
+	"strings"
+	"time"
+
+	"github.com/0x2142/frigate-notify/config"
+	"github.com/0x2142/frigate-notify/models"
+	"github.com/0x2142/frigate-notify/notifier"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/rs/zerolog/log"
+)
+
+// processEvent handles incoming /events MQTT messages & pulls out relevant info for alerting
+func processEvent(client mqtt.Client, msg mqtt.Message) {
+	// Parse incoming MQTT message
+	var event models.MQTTEvent
+	json.Unmarshal(msg.Payload(), &event)
+
+	log.Trace().
+		RawJSON("payload", msg.Payload()).
+		Msg("MQTT event received")
+
+	if event.Type == "new" || event.Type == "update" {
+		if event.Type == "new" {
+			log.Info().
+				Str("event_id", event.After.ID).
+				Msg("New event received")
+		} else if event.Type == "update" {
+			log.Info().
+				Str("event_id", event.After.ID).
+				Msg("Event update received")
+		}
+
+		// Convert to human-readable timestamp
+		eventTime := time.Unix(int64(event.After.StartTime), 0)
+		log.Info().
+			Str("event_id", event.After.ID).
+			Str("camera", event.After.Camera).
+			Str("label", event.After.Label).
+			Str("zones", strings.Join(event.After.CurrentZones, ",")).
+			Msg("Event Detected")
+		log.Debug().
+			Str("event_id", event.After.ID).
+			Msgf("Event start time: %s", eventTime)
+
+		// Check that event passes configured filters
+		if !checkEventFilters(event.After.Event) {
+			return
+		}
+
+		// Check if already notified on zones
+		if zoneAlreadyAlerted(event.After.Event) {
+			log.Info().
+				Str("event_id", event.After.ID).
+				Str("camera", event.After.Camera).
+				Str("label", event.After.Label).
+				Str("zones", strings.Join(event.After.CurrentZones, ",")).
+				Msg("Event dropped - Already notified on this zone")
+			return
+		} else {
+			log.Debug().
+				Str("event_id", event.After.ID).
+				Str("camera", event.After.Camera).
+				Str("label", event.After.Label).
+				Str("zones", strings.Join(event.After.CurrentZones, ",")).
+				Msg("Object entered new zone")
+		}
+
+		// If snapshot was collected, pull down image to send with alert
+		var snapshot io.Reader
+		var snapshotURL string
+		if event.After.HasSnapshot {
+			snapshotURL = config.ConfigData.Frigate.Server + eventsURI + "/" + event.After.ID + snapshotURI
+			snapshot = GetSnapshot(snapshotURL, event.After.ID)
+		}
+
+		// Set Event link
+		event.After.Extra.EventLink = config.ConfigData.Frigate.PublicURL + eventsURI + "/" + event.After.ID + "/clip.mp4"
+
+		// Send alert with snapshot
+		notifier.SendAlert(event.After.Event, snapshot, event.After.ID)
+	}
+
+	// Clear event cache entry when event ends
+	if event.Type == "end" {
+		log.Debug().
+			Str("event_id", event.After.ID).
+			Msg("Event ended")
+		delZoneAlerted(event.After.Event)
+		return
+	}
+}

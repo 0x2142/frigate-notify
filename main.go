@@ -18,7 +18,7 @@ import (
 	"github.com/0x2142/frigate-notify/util"
 )
 
-var APP_VER = "v0.3.5"
+var APP_VER = "v0.4.0-dev"
 var debug, debugenv bool
 var jsonlog, jsonlogenv bool
 var nocolor, nocolorenv bool
@@ -32,7 +32,7 @@ func main() {
 	// Parse flags
 	flag.StringVar(&configFile, "c", "", "Configuration file location (default \"./config.yml\")")
 	flag.BoolVar(&debug, "debug", false, "Enable debug logging (Overrides loglevel, if also set)")
-	flag.StringVar(&logLevel, "loglevel", "info", "Set logging level")
+	flag.StringVar(&logLevel, "loglevel", "", "Set logging level")
 	flag.BoolVar(&jsonlog, "jsonlog", false, "Enable JSON logging")
 	flag.BoolVar(&nocolor, "nocolor", false, "Disable color on console logging")
 	flag.Parse()
@@ -47,7 +47,10 @@ func main() {
 	}
 
 	// Apply custom log level, if set
-	switch logLevel, _ = os.LookupEnv("FN_LOGLEVEL"); strings.ToLower(logLevel) {
+	if logLevel == "" {
+		logLevel, _ = os.LookupEnv("FN_LOGLEVEL")
+	}
+	switch strings.ToLower(logLevel) {
 	case "panic":
 		zerolog.SetGlobalLevel(zerolog.PanicLevel)
 	case "fatal":
@@ -59,9 +62,11 @@ func main() {
 	case "debug":
 		log.Debug().Msg("Debug logging enabled")
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		log.Logger = log.With().Caller().Logger()
 	case "trace":
 		log.Trace().Msg("Trace logging enabled")
 		zerolog.SetGlobalLevel(zerolog.TraceLevel)
+		log.Logger = log.With().Caller().Logger()
 	default:
 		zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	}
