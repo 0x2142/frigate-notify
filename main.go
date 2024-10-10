@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/0x2142/frigate-notify/config"
-	frigate "github.com/0x2142/frigate-notify/events"
+	"github.com/0x2142/frigate-notify/events"
 	"github.com/0x2142/frigate-notify/notifier"
 	"github.com/0x2142/frigate-notify/util"
 )
@@ -106,22 +106,22 @@ func main() {
 	}
 
 	// Set up event cache
-	frigate.InitZoneCache()
+	events.InitZoneCache()
 
 	// Loop & watch for events
 	if config.ConfigData.Frigate.WebAPI.Enabled {
 		log.Info().Msg("App ready!")
 		for {
-			frigate.CheckForEvents()
+			events.CheckAPIForEvents()
 			time.Sleep(time.Duration(config.ConfigData.Frigate.WebAPI.Interval) * time.Second)
 		}
 	}
 	// Connect MQTT
 	if config.ConfigData.Frigate.MQTT.Enabled {
-		defer frigate.CloseZoneCache()
+		defer events.CloseZoneCache()
 
 		log.Debug().Msg("Connecting to MQTT Server...")
-		frigate.SubscribeMQTT()
+		events.SubscribeMQTT()
 		log.Info().Msg("App ready!")
 		sig := make(chan os.Signal, 1)
 		signal.Notify(sig, os.Interrupt)

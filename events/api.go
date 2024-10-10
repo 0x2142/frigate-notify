@@ -1,4 +1,4 @@
-package frigate
+package events
 
 import (
 	"bytes"
@@ -23,8 +23,8 @@ const snapshotURI = "/snapshot.jpg"
 // LastEventTime tracks the timestamp of the last event seen
 var LastEventTime float64 = float64(time.Now().Unix())
 
-// CheckForEvents queries for all detection events since last alert time
-func CheckForEvents() {
+// CheckAPIForEvents queries for all detection events since last alert time
+func CheckAPIForEvents() {
 	var params string
 	if config.ConfigData.Frigate.WebAPI.TestMode {
 		// For testing, pull 1 event immediately

@@ -1,4 +1,4 @@
-package frigate
+package events
 
 import (
 	"slices"
