@@ -4,6 +4,21 @@ The following section details options available via the `config.yml` file. Confi
 
 Config may also be provided via environment variables. Frigate-notify will load environment variables prefixed with `FN_`. Environment variables follow the same structure as the config file below, with heirarchy separated by an underscore (`_`). For example, setting the Frigate server address would be `FN_FRIGATE_SERVER`, or enabling Discord alerts would use `FN_ALERTS_DISCORD_ENABLED`.
 
+## App
+
+- **mode** (Optional - Default: `events`)
+    - Specify whether to notifications are based on Frigate [Events or Reviews](https://docs.frigate.video/configuration/review/#review-items-vs-events)
+    - `events` will notify on every detected object from Frigate
+    - `reviews` will only notify on Frigate **Alerts** (Requires Frigate 0.14+)
+        - When in `reviews` mode, toggle `notify_detections` under the `alerts` config section to also notify on **Detections**
+        - See also [Alerts vs Detections](https://docs.frigate.video/configuration/review/#alerts-and-detections)
+    - For more information on reviews vs events, see 
+
+```yaml title="Config File Snippet"
+app:
+  mode: events
+```
+
 ## Frigate
 
 ### Server
@@ -144,6 +159,10 @@ frigate:
 - **notify_once** (Optional - Default: `false`)
     - By default, each Frigate event may generate several notifications as the object changes zones, etc
     - Set this to `true` to only notify once per event
+- **notify_detections** (Optional - Default: `false`)
+    - Only used when app `mode` is `reviews`
+    - By default, notifications will only be sent on Frigate alerts
+    - Set to `true` to also enable on detections
 
 ```yaml title="Config File Snippet"
 alerts:
@@ -155,6 +174,7 @@ alerts:
     snap_timestamp:
     snap_crop:
     notify_once:
+    notify_detections:
 ```
 
 ### Quiet Hours

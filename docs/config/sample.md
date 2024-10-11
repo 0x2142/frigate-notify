@@ -3,6 +3,9 @@
 A full config file template has been provided below:
 
 ```yaml
+app:
+  mode:
+
 frigate:
   server: 
   ignoressl:
@@ -38,6 +41,7 @@ alerts:
     snap_timestamp:
     snap_crop:
     notify_once:
+    notify_detections:
 
   quiet:
     start:
