@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"strings"
 	"text/template"
@@ -14,19 +15,32 @@ import (
 
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
+	"github.com/0x2142/frigate-notify/util"
 )
 
 var TemplateFiles embed.FS
 
 // SendAlert forwards alert information to all enabled alerting methods
-func SendAlert(event models.Event, snapshot io.Reader, eventid string) {
+func SendAlert(event models.Event) {
+	// Collect snapshot, if available
+	var snapshot io.Reader
+	if event.HasSnapshot {
+		snapshot = GetSnapshot(event.ID)
+	}
+
+	// Set Event link
+	event.Extra.EventLink = config.ConfigData.Frigate.PublicURL + "/api/events/" + event.ID + "/clip.mp4"
+
 	// Add Frigate Major version metadata
 	event.Extra.FrigateMajorVersion = config.ConfigData.Frigate.Version
+
 	// Create copy of snapshot for each alerting method
 	var snap []byte
 	if snapshot != nil {
 		snap, _ = io.ReadAll(snapshot)
 	}
+
+	// Send Alerts
 	if config.ConfigData.Alerts.Discord.Enabled {
 		go SendDiscordMessage(event, bytes.NewReader(snap))
 	}
@@ -48,6 +62,33 @@ func SendAlert(event models.Event, snapshot io.Reader, eventid string) {
 	if config.ConfigData.Alerts.Webhook.Enabled {
 		go SendWebhook(event)
 	}
+}
+
+// GetSnapshot downloads a snapshot from Frigate
+func GetSnapshot(eventID string) io.Reader {
+	// Add optional snapshot modifiers
+	url, _ := url.Parse(config.ConfigData.Frigate.Server + "/api/events/" + eventID + "/snapshot.jpg")
+	q := url.Query()
+	if config.ConfigData.Alerts.General.SnapBbox {
+		q.Add("bbox", "1")
+	}
+	if config.ConfigData.Alerts.General.SnapTimestamp {
+		q.Add("timestamp", "1")
+	}
+	if config.ConfigData.Alerts.General.SnapCrop {
+		q.Add("crop", "1")
+	}
+	url.RawQuery = q.Encode()
+	response, err := util.HTTPGet(url.String(), config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
+	if err != nil {
+		log.Warn().
+			Str("event_id", eventID).
+			Err(err).
+			Msgf("Could not access snaphot")
+		return nil
+	}
+
+	return bytes.NewReader(response)
 }
 
 // setExtras adds additional data into the event model to be used for templates

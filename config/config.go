@@ -18,9 +18,14 @@ import (
 )
 
 type Config struct {
+	App     App      `fig:"app"`
 	Frigate *Frigate `fig:"frigate" validate:"required"`
 	Alerts  *Alerts  `fig:"alerts" validate:"required"`
 	Monitor Monitor  `fig:"monitor"`
+}
+
+type App struct {
+	Mode string `fig:"mode" default:"events"`
 }
 
 type Frigate struct {
@@ -77,13 +82,14 @@ type Alerts struct {
 }
 
 type General struct {
-	Title         string `fig:"title" default:"Frigate Alert"`
-	TimeFormat    string `fig:"timeformat" default:""`
-	NoSnap        string `fig:"nosnap" default:"allow"`
-	SnapBbox      bool   `fig:"snap_bbox" default:false`
-	SnapTimestamp bool   `fig:"snap_timestamp" default:false`
-	SnapCrop      bool   `fig:"snap_crop" default:false`
-	NotifyOnce    bool   `fig:"notify_once" default:false`
+	Title            string `fig:"title" default:"Frigate Alert"`
+	TimeFormat       string `fig:"timeformat" default:""`
+	NoSnap           string `fig:"nosnap" default:"allow"`
+	SnapBbox         bool   `fig:"snap_bbox" default:false`
+	SnapTimestamp    bool   `fig:"snap_timestamp" default:false`
+	SnapCrop         bool   `fig:"snap_crop" default:false`
+	NotifyOnce       bool   `fig:"notify_once" default:false`
+	NotifyDetections bool   `fig:"notify_detections" default:false`
 }
 
 type Quiet struct {
@@ -230,6 +236,12 @@ func validateConfig() {
 	var err error
 	log.Debug().Msg("Validating config file...")
 
+	// Check app mode
+	if strings.ToLower(ConfigData.App.Mode) != "events" && strings.ToLower(ConfigData.App.Mode) != "reviews" {
+		configErrors = append(configErrors, "MQTT mode must be 'events' or 'reviews'")
+	}
+	log.Debug().Msgf("App Mode: %v", ConfigData.App.Mode)
+
 	if (ConfigData.Frigate.WebAPI.Enabled && ConfigData.Frigate.MQTT.Enabled) || (!ConfigData.Frigate.WebAPI.Enabled && !ConfigData.Frigate.MQTT.Enabled) {
 		configErrors = append(configErrors, "Please configure only one polling method: Frigate Web API or MQTT")
 	}
@@ -298,6 +310,9 @@ func validateConfig() {
 		if !strings.Contains(ConfigData.Frigate.PublicURL, "http://") && !strings.Contains(ConfigData.Frigate.PublicURL, "https://") {
 			configErrors = append(configErrors, "Public URL must include http:// or https://")
 		}
+	} else {
+		// If Public URL not explicitly set, use local Frigate URL
+		ConfigData.Frigate.PublicURL = ConfigData.Frigate.Server
 	}
 
 	// Check for camera exclusions
@@ -349,6 +364,9 @@ func validateConfig() {
 
 	// Notify_Once
 	log.Debug().Msgf("Notify only once per event: %v", ConfigData.Alerts.General.NotifyOnce)
+
+	// Notify_Detections
+	log.Debug().Msgf("Notify on Detections: %v", ConfigData.Alerts.General.NotifyDetections)
 
 	// Check Zone filtering config
 	if strings.ToLower(ConfigData.Alerts.Zones.Unzoned) != "allow" && strings.ToLower(ConfigData.Alerts.Zones.Unzoned) != "drop" {

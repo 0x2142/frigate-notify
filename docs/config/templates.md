@@ -102,6 +102,8 @@ The list below doesn't contain every possible variable, just a few of the most c
 | .Extra.ZoneList        | List of current zones object is in                                                                                       |
 | .Extra.LocalURL        | Frigate server URL as specified under `frigate > server`                                                                 |
 | .Extra.PublicURL       | Frigate Public URL as specified under `frigate > public_url`                                                             |
+| .Extra.EventLink       | Link directly to an event clip |
+| .Extra.ReviewLink      | Link directly to a review item, if MQTT `mode` is `reviews` |
 
 ## Environment variables
 

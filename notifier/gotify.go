@@ -34,16 +34,13 @@ type gotifyPayload struct {
 	} `json:"extras,omitempty"`
 }
 
-const eventsURI = "/api/events"
-const snapshotURI = "/snapshot.jpg"
-
 // SendGotifyPush forwards alert messages to Gotify push notification server
 func SendGotifyPush(event models.Event) {
 	var snapshotURL string
 	if config.ConfigData.Frigate.PublicURL != "" {
-		snapshotURL = config.ConfigData.Frigate.PublicURL + eventsURI + "/" + event.ID + snapshotURI
+		snapshotURL = config.ConfigData.Frigate.PublicURL + "/api/events/" + event.ID + "/snapshot.jpg"
 	} else {
-		snapshotURL = config.ConfigData.Frigate.Server + eventsURI + "/" + event.ID + snapshotURI
+		snapshotURL = config.ConfigData.Frigate.Server + "/api/events/" + event.ID + "/snapshot.jpg"
 	}
 	// Build notification
 	var message string
