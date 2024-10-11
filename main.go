@@ -112,7 +112,7 @@ func main() {
 	if config.ConfigData.Frigate.WebAPI.Enabled {
 		log.Info().Msg("App ready!")
 		for {
-			events.CheckAPIForEvents()
+			events.QueryAPI()
 			time.Sleep(time.Duration(config.ConfigData.Frigate.WebAPI.Interval) * time.Second)
 		}
 	}

@@ -18,9 +18,14 @@ import (
 )
 
 type Config struct {
+	App     App      `fig:"app"`
 	Frigate *Frigate `fig:"frigate" validate:"required"`
 	Alerts  *Alerts  `fig:"alerts" validate:"required"`
 	Monitor Monitor  `fig:"monitor"`
+}
+
+type App struct {
+	Mode string `fig:"mode" default:"events"`
 }
 
 type Frigate struct {
@@ -48,7 +53,6 @@ type WebAPI struct {
 
 type MQTT struct {
 	Enabled     bool   `fig:"enabled" default:false`
-	Mode        string `fig:"mode" default:"events"`
 	Server      string `fig:"server" default:""`
 	Port        int    `fig:"port" default:1883`
 	ClientID    string `fig:"clientid" default:"frigate-notify"`
@@ -232,15 +236,14 @@ func validateConfig() {
 	var err error
 	log.Debug().Msg("Validating config file...")
 
+	// Check app mode
+	if strings.ToLower(ConfigData.App.Mode) != "events" && strings.ToLower(ConfigData.App.Mode) != "reviews" {
+		configErrors = append(configErrors, "MQTT mode must be 'events' or 'reviews'")
+	}
+	log.Debug().Msgf("App Mode: %v", ConfigData.App.Mode)
+
 	if (ConfigData.Frigate.WebAPI.Enabled && ConfigData.Frigate.MQTT.Enabled) || (!ConfigData.Frigate.WebAPI.Enabled && !ConfigData.Frigate.MQTT.Enabled) {
 		configErrors = append(configErrors, "Please configure only one polling method: Frigate Web API or MQTT")
-	}
-
-	if ConfigData.Frigate.MQTT.Enabled {
-		if strings.ToLower(ConfigData.Frigate.MQTT.Mode) != "events" && strings.ToLower(ConfigData.Frigate.MQTT.Mode) != "reviews" {
-			configErrors = append(configErrors, "MQTT mode must be 'events' or 'reviews'")
-		}
-		log.Debug().Msgf("MQTT Mode: %v", ConfigData.Frigate.MQTT.Mode)
 	}
 
 	// Set default web API interval if not specified

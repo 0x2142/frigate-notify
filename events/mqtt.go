@@ -1,6 +1,7 @@
 package events
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/0x2142/frigate-notify/config"
+	"github.com/0x2142/frigate-notify/models"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
@@ -15,7 +17,7 @@ var mqtt_topic string
 
 // SubscribeMQTT establishes subscription to MQTT server & listens for messages
 func SubscribeMQTT() {
-	mqtt_topic = fmt.Sprintf("%s/%s", config.ConfigData.Frigate.MQTT.TopicPrefix, strings.ToLower(config.ConfigData.Frigate.MQTT.Mode))
+	mqtt_topic = fmt.Sprintf("%s/%s", config.ConfigData.Frigate.MQTT.TopicPrefix, strings.ToLower(config.ConfigData.App.Mode))
 	// MQTT client configuration
 	mqttServer := fmt.Sprintf("tcp://%s:%d", config.ConfigData.Frigate.MQTT.Server, config.ConfigData.Frigate.MQTT.Port)
 	opts := mqtt.NewClientOptions()
@@ -68,17 +70,66 @@ func connectionLostHandler(c mqtt.Client, err error) {
 // connectHandler logs message on MQTT connection
 func connectHandler(client mqtt.Client) {
 	log.Info().Msg("Connected to MQTT.")
-	if strings.ToLower(config.ConfigData.Frigate.MQTT.Mode) == "events" {
-		if subscription := client.Subscribe(mqtt_topic, 0, processEvent); subscription.Wait() && subscription.Error() != nil {
-			log.Error().Msgf("Failed to subscribe to topic: %s", mqtt_topic)
-			time.Sleep(10 * time.Second)
-		}
+	if subscription := client.Subscribe(mqtt_topic, 0, handleMQTTMsg); subscription.Wait() && subscription.Error() != nil {
+		log.Error().Msgf("Failed to subscribe to topic: %s", mqtt_topic)
+		time.Sleep(10 * time.Second)
 	}
-	if strings.ToLower(config.ConfigData.Frigate.MQTT.Mode) == "reviews" {
-		if subscription := client.Subscribe(mqtt_topic, 0, processReview); subscription.Wait() && subscription.Error() != nil {
-			log.Error().Msgf("Failed to subscribe to topic: %s", mqtt_topic)
-			time.Sleep(10 * time.Second)
-		}
-	}
+
 	log.Info().Msgf("Subscribed to MQTT topic: %s", mqtt_topic)
+}
+
+// handleMQTTMsg processes incoming MQTT messages depending on topic
+func handleMQTTMsg(client mqtt.Client, msg mqtt.Message) {
+	topic := strings.Split(msg.Topic(), "/")[1]
+
+	log.Trace().
+		RawJSON("payload", msg.Payload()).
+		Msg("New MQTT message received")
+
+	switch topic {
+	case "reviews":
+		var review models.MQTTReview
+		json.Unmarshal(msg.Payload(), &review)
+
+		switch review.Type {
+		case "new":
+			log.Debug().
+				Str("review_id", review.After.ID).
+				Msg("New review received")
+			processReview(review.After.Review)
+		case "end":
+			log.Debug().
+				Str("review_id", review.After.ID).
+				Msg("Review ended")
+			for _, detection := range review.After.Data.Detections {
+				delZoneAlerted(models.Event{
+					ID:           detection,
+					Camera:       review.After.Camera,
+					CurrentZones: review.After.Data.Zones,
+				})
+			}
+		}
+	case "events":
+		var event models.MQTTEvent
+		json.Unmarshal(msg.Payload(), &event)
+
+		switch event.Type {
+		case "new":
+			log.Info().
+				Str("event_id", event.After.ID).
+				Msg("New event received")
+			processEvent(event.After.Event)
+		case "update":
+			log.Info().
+				Str("event_id", event.After.ID).
+				Msg("Event update received")
+			processEvent(event.After.Event)
+		case "end":
+			log.Debug().
+				Str("event_id", event.After.ID).
+				Msg("Event ended")
+			delZoneAlerted(event.After.Event)
+		}
+
+	}
 }
