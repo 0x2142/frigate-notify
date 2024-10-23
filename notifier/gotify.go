@@ -45,20 +45,15 @@ func SendGotifyPush(event models.Event) {
 	// Build notification
 	var message string
 	if config.ConfigData.Alerts.Gotify.Template != "" {
-		message = renderMessage(config.ConfigData.Alerts.Gotify.Template, event)
-		log.Debug().
-			Str("event_id", event.ID).
-			Str("provider", "Gotify").
-			Str("rendered_template", message).
-			Msg("Custom message template used")
+		message = renderMessage(config.ConfigData.Alerts.Gotify.Template, event, "message", "Gotify")
 	} else {
-		message = renderMessage("markdown", event)
+		message = renderMessage("markdown", event, "message", "Gotify")
 	}
 
 	if event.HasSnapshot {
 		message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
 	}
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "Gotify")
 	payload := gotifyPayload{
 		Message:  message,
 		Title:    title,

@@ -122,7 +122,7 @@ func setExtras(event models.Event) models.Event {
 }
 
 // Build notification based on template
-func renderMessage(sourceTemplate string, event models.Event) string {
+func renderMessage(sourceTemplate string, event models.Event, mtype string, provider string) string {
 	event = setExtras(event)
 
 	// Render template
@@ -145,12 +145,18 @@ func renderMessage(sourceTemplate string, event models.Event) string {
 			Msgf("Failed to render event message")
 	}
 
+	log.Debug().
+		Str("event_id", event.ID).
+		Str("provider", provider).
+		Str("rendered_template", renderedTemplate.String()).
+		Msgf("Rendered %s template", mtype)
+
 	return renderedTemplate.String()
 
 }
 
 // Build HTTP headers or params based on template
-func renderHTTPKV(list []map[string]string, event models.Event, kvtype string) []map[string]string {
+func renderHTTPKV(list []map[string]string, event models.Event, kvtype string, provider string) []map[string]string {
 	event = setExtras(event)
 
 	var renderedList []map[string]string
@@ -175,6 +181,12 @@ func renderHTTPKV(list []map[string]string, event models.Event, kvtype string) [
 			renderedList = append(renderedList, map[string]string{k: v})
 		}
 	}
+
+	log.Debug().
+		Str("event_id", event.ID).
+		Str("provider", provider).
+		Interface("rendered_template", renderedList).
+		Msgf("Rendered HTTP %s template", kvtype)
 
 	return renderedList
 }

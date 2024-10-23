@@ -19,14 +19,9 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader) {
 	var message string
 	// Build notification
 	if config.ConfigData.Alerts.Discord.Template != "" {
-		message = renderMessage(config.ConfigData.Alerts.Discord.Template, event)
-		log.Debug().
-			Str("event_id", event.ID).
-			Str("provider", "Discord").
-			Str("rendered_template", message).
-			Msg("Custom message template used")
+		message = renderMessage(config.ConfigData.Alerts.Discord.Template, event, "message", "Discord")
 	} else {
-		message = renderMessage("markdown", event)
+		message = renderMessage("markdown", event, "message", "Discord")
 	}
 
 	// Connect to Discord
@@ -40,7 +35,7 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader) {
 	}
 	defer client.Close(context.TODO())
 
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "Discord")
 	title = fmt.Sprintf("**%v**\n\n", title)
 	message = title + message
 

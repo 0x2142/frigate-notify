@@ -17,20 +17,15 @@ func SendNtfyPush(event models.Event, snapshot io.Reader) {
 	// Build notification
 	var message string
 	if config.ConfigData.Alerts.Ntfy.Template != "" {
-		message = renderMessage(config.ConfigData.Alerts.Ntfy.Template, event)
-		log.Debug().
-			Str("event_id", event.ID).
-			Str("provider", "Ntfy").
-			Str("rendered_template", message).
-			Msg("Custom message template used")
+		message = renderMessage(config.ConfigData.Alerts.Ntfy.Template, event, "message", "Ntfy")
 	} else {
-		message = renderMessage("plaintext", event)
+		message = renderMessage("plaintext", event, "message", "Ntfy")
 	}
 
 	NtfyURL := fmt.Sprintf("%s/%s", config.ConfigData.Alerts.Ntfy.Server, config.ConfigData.Alerts.Ntfy.Topic)
 
 	// Set headers
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "Ntfy")
 	var headers []map[string]string
 	headers = append(headers, map[string]string{"Content-Type": "text/markdown"})
 	headers = append(headers, map[string]string{"X-Title": title})
@@ -62,7 +57,7 @@ func SendNtfyPush(event models.Event, snapshot io.Reader) {
 		}
 	}
 
-	headers = renderHTTPKV(headers, event, "headers")
+	headers = renderHTTPKV(headers, event, "headers", "Ntfy")
 
 	resp, err := util.HTTPPost(NtfyURL, config.ConfigData.Alerts.Ntfy.Insecure, attachment, "", headers...)
 	if err != nil {
