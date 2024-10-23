@@ -16,14 +16,9 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader) {
 	// Build notification
 	var message string
 	if config.ConfigData.Alerts.Telegram.Template != "" {
-		message = renderMessage(config.ConfigData.Alerts.Telegram.Template, event)
-		log.Debug().
-			Str("event_id", event.ID).
-			Str("provider", "Telegram").
-			Str("rendered_template", message).
-			Msg("Custom message template used")
+		message = renderMessage(config.ConfigData.Alerts.Telegram.Template, event, "message", "Telegram")
 	} else {
-		message = renderMessage("html", event)
+		message = renderMessage("html", event, "message", "Telegram")
 		message = strings.ReplaceAll(message, "<br />", "")
 	}
 

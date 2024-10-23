@@ -17,14 +17,9 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 	// Build notification
 	var message string
 	if config.ConfigData.Alerts.Pushover.Template != "" {
-		message = renderMessage(config.ConfigData.Alerts.Pushover.Template, event)
-		log.Debug().
-			Str("event_id", event.ID).
-			Str("provider", "Pushover").
-			Str("rendered_template", message).
-			Msg("Custom message template used")
+		message = renderMessage(config.ConfigData.Alerts.Pushover.Template, event, "message", "Pushover")
 	} else {
-		message = renderMessage("html", event)
+		message = renderMessage("html", event, "message", "Pushover")
 		message = strings.ReplaceAll(message, "<br />", "")
 	}
 
@@ -32,11 +27,12 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 	recipient := pushover.NewRecipient(config.ConfigData.Alerts.Pushover.Userkey)
 
 	// Create new message
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "Pushover")
 	notif := &pushover.Message{
 		Message:  message,
 		Title:    title,
 		Priority: config.ConfigData.Alerts.Pushover.Priority,
+		Sound:    config.ConfigData.Alerts.Pushover.Sound,
 		HTML:     true,
 		TTL:      time.Duration(config.ConfigData.Alerts.Pushover.TTL) * time.Second,
 	}

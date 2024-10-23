@@ -438,6 +438,9 @@ alerts:
 - **devices** (Optional)
     - Optionally specify list of devices to send notifications to
     - If left empty, all devices will receive the notification
+- **sound** (Optional)
+    - Specify custom sound for notifications from this app
+    - For available values, see the [Pushover Docs](https://pushover.net/api#sounds)
 - **priority** (Optional)
     - Optionally set message priority
     - Valid priorities are -2, -1, 0, 1, 2
@@ -461,6 +464,7 @@ alerts:
     token: aaaaaaaaaaaaaaaaaaaaaa
     userkey: bbbbbbbbbbbbbbbbbbbbbb
     devices: device1,device2
+    sound:
     priority: 0
     retry:
     expire:

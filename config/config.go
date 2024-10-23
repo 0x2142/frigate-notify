@@ -148,6 +148,7 @@ type Pushover struct {
 	Token    string `fig:"token" default:""`
 	Userkey  string `fig:"userkey" default:""`
 	Devices  string `fig:"devices" default:""`
+	Sound    string `fig:"sound" default:""`
 	Priority int    `fig:"priority" default:0`
 	Retry    int    `fig:"retry" default:0`
 	Expire   int    `fig:"expire" default:0`
@@ -303,6 +304,9 @@ func validateConfig() {
 		log.Debug().Msgf("Frigate server is running version %v", stats.Service.Version)
 		// Save major version number
 		ConfigData.Frigate.Version, _ = strconv.Atoi(strings.Split(stats.Service.Version, ".")[1])
+	}
+	if ConfigData.Frigate.Version < 14 && strings.ToLower(ConfigData.App.Mode) == "reviews" {
+		configErrors = append(configErrors, "Frigate must be version 0.14 or higher to use 'reviews' mode. Please use 'events' mode or update Frigate.")
 	}
 
 	// Check Public / External URL if set

@@ -97,6 +97,11 @@ func handleMQTTMsg(client mqtt.Client, msg mqtt.Message) {
 				Str("review_id", review.After.ID).
 				Msg("New review received")
 			processReview(review.After.Review)
+		case "update":
+			log.Debug().
+				Str("review_id", review.After.ID).
+				Msg("Review update received")
+			processReview(review.After.Review)
 		case "end":
 			log.Debug().
 				Str("review_id", review.After.ID).

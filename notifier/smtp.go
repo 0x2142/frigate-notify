@@ -18,21 +18,16 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 	// Build notification
 	var message string
 	if config.ConfigData.Alerts.SMTP.Template != "" {
-		message = renderMessage(config.ConfigData.Alerts.SMTP.Template, event)
-		log.Debug().
-			Str("event_id", event.ID).
-			Str("provider", "SMTP").
-			Str("rendered_template", message).
-			Msg("Custom message template used")
+		message = renderMessage(config.ConfigData.Alerts.SMTP.Template, event, "message", "SMTP")
 	} else {
-		message = renderMessage("html", event)
+		message = renderMessage("html", event, "message", "SMTP")
 	}
 
 	// Set up email alert
 	m := mail.NewMsg()
 	m.From(config.ConfigData.Alerts.SMTP.From)
 	m.To(ParseSMTPRecipients()...)
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "SMTP")
 	m.Subject(title)
 	// Attach snapshot if one exists
 	if event.HasSnapshot {

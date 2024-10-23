@@ -25,18 +25,13 @@ func SendWebhook(event models.Event) {
 		return
 	}
 	if string(payload) != "null" {
-		message = renderMessage(string(payload), event)
-		log.Debug().
-			Str("event_id", event.ID).
-			Str("provider", "Webhook").
-			Str("rendered_template", message).
-			Msg("Custom message template used")
+		message = renderMessage(string(payload), event, "message", "Webhook")
 	} else {
-		message = renderMessage("json", event)
+		message = renderMessage("json", event, "message", "Webhook")
 	}
 
-	headers := renderHTTPKV(config.ConfigData.Alerts.Webhook.Headers, event, "headers")
-	params := renderHTTPKV(config.ConfigData.Alerts.Webhook.Params, event, "params")
+	headers := renderHTTPKV(config.ConfigData.Alerts.Webhook.Headers, event, "headers", "Webhook")
+	params := renderHTTPKV(config.ConfigData.Alerts.Webhook.Params, event, "params", "Webhook")
 	paramString := util.BuildHTTPParams(params...)
 	if strings.ToUpper(config.ConfigData.Alerts.Webhook.Method) == "GET" {
 		_, err = util.HTTPGet(config.ConfigData.Alerts.Webhook.Server, config.ConfigData.Alerts.Webhook.Insecure, paramString, headers...)
