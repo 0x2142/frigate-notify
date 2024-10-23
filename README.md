@@ -1,4 +1,4 @@
-# Frigate-notify
+# Frigate-Notify
 
 <div align="center">
 
@@ -8,9 +8,7 @@
 
 ## About
 
-This project is designed to generate event notifications from a standalone [Frigate](https://github.com/blakeblackshear/frigate) NVR instance.
-
-Currently Frigate only supports notifications through Home Assistant, which I'm not using right now. So I set out to build a simple notification app that would work with a standalone Frigate server.
+Frigate-Notify is a simple app designed to send notifications from [Frigate](https://github.com/blakeblackshear/frigate) NVR to your favorite platforms. Intended to be used with standalone Frigate installations - Home Assistant not required, MQTT is optional but recommended.
 
 ## Features
 
