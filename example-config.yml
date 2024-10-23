@@ -182,6 +182,9 @@ alerts:
     userkey:
     # Optional list of target devices by name, separated by comma
     devices:
+    # Specify custom sound for notifications from this app
+    # For available values, see: https://pushover.net/api#sounds
+    sound:
     # Optional message priority, default is 0
     priority:
     # If priority is 2, retry & expiration must be set

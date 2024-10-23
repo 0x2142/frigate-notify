@@ -101,6 +101,7 @@ alerts:
     token:
     userkey:
     devices:
+    sound:
     priority:
     retry:
     expire:

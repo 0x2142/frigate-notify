@@ -37,6 +37,7 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 		Message:  message,
 		Title:    title,
 		Priority: config.ConfigData.Alerts.Pushover.Priority,
+		Sound:    config.ConfigData.Alerts.Pushover.Sound,
 		HTML:     true,
 		TTL:      time.Duration(config.ConfigData.Alerts.Pushover.TTL) * time.Second,
 	}

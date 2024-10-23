@@ -148,6 +148,7 @@ type Pushover struct {
 	Token    string `fig:"token" default:""`
 	Userkey  string `fig:"userkey" default:""`
 	Devices  string `fig:"devices" default:""`
+	Sound    string `fig:"sound" default:""`
 	Priority int    `fig:"priority" default:0`
 	Retry    int    `fig:"retry" default:0`
 	Expire   int    `fig:"expire" default:0`
