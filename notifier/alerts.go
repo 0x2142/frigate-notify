@@ -110,11 +110,6 @@ func setExtras(event models.Event) models.Event {
 		event.Extra.FormattedTime = eventTime.Format(config.ConfigData.Alerts.General.TimeFormat)
 	}
 
-	// For Web API query, top-level top_score value is no longer used
-	// So need to replace it with data.top_score value
-	if event.TopScore == 0 {
-		event.TopScore = event.Data.TopScore
-	}
 	// Calc TopScore percentage
 	event.Extra.TopScorePercent = fmt.Sprintf("%v%%", int((event.TopScore * 100)))
 

@@ -5,7 +5,7 @@ import (
 )
 
 func TestValidateAppMode(t *testing.T) {
-	config := Config{App: &App{}, Frigate: &Frigate{}}
+	config := Config{Frigate: &Frigate{}}
 
 	// Check good config
 	config.App.Mode = "reviews"

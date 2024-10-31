@@ -87,6 +87,12 @@ func checkFilters(event models.Event) bool {
 		return false
 	}
 
+	// For Web API query, top-level top_score value is no longer used
+	// So need to replace it with data.top_score value
+	if event.TopScore == 0 {
+		event.TopScore = event.Data.TopScore
+	}
+
 	// Check label score
 	if !aboveMinScore(event.ID, event.TopScore) {
 		return false
@@ -230,13 +236,14 @@ func isAllowedLabel(id string, label string, kind string) bool {
 
 // aboveMinScore checks if label score is above configured minimum
 func aboveMinScore(id string, score float64) bool {
+	minScore := config.ConfigData.Alerts.Labels.MinScore
 	score = score * 100
 	log.Trace().
 		Str("event_id", id).
 		Float64("event_score", score).
-		Float64("min_score", score).
+		Float64("min_score", minScore).
 		Msg("Check minimum score")
-	if score >= config.ConfigData.Alerts.Labels.MinScore {
+	if score >= minScore {
 		return true
 	} else {
 		log.Info().

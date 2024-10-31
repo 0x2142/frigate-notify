@@ -11,7 +11,7 @@ import (
 )
 
 type Config struct {
-	App     *App     `fig:"app"`
+	App     App      `fig:"app"`
 	Frigate *Frigate `fig:"frigate" validate:"required"`
 	Alerts  *Alerts  `fig:"alerts" validate:"required"`
 	Monitor *Monitor `fig:"monitor"`

@@ -125,8 +125,9 @@ func (c Config) validate() []string {
 	return validationErrors
 }
 
-func (c Config) validateAppMode() []string {
+func (c *Config) validateAppMode() []string {
 	var appErrors []string
+	fmt.Println(c.App)
 	if strings.ToLower(c.App.Mode) != "events" && strings.ToLower(c.App.Mode) != "reviews" {
 		appErrors = append(appErrors, "MQTT mode must be 'events' or 'reviews'")
 	}
