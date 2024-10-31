@@ -55,15 +55,22 @@ func processReview(review models.Review) {
 		var detection models.Event
 		json.Unmarshal(response, &detection)
 
-		// Store first detection for this review, alerts will be based on this event's data
-		if firstDetection.ID == "" {
-			firstDetection = detection
+		// For events collected via API, top-level top_score value is no longer used
+		// So need to replace it with data.top_score value
+		if detection.TopScore == 0 {
+			detection.TopScore = detection.Data.TopScore
 		}
+
 		// Check that event passes configured filters
 		detection.CurrentZones = detection.Zones
 		if !checkFilters(detection) {
 			reviewFiltered = true
 			break
+		}
+
+		// Store first detection for this review, alerts will be based on this event's data
+		if firstDetection.ID == "" {
+			firstDetection = detection
 		}
 	}
 	// If any detection would be filtered, skip notifying on this review
