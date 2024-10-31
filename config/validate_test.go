@@ -393,7 +393,7 @@ func TestValidateAlertingEnabled(t *testing.T) {
 }
 
 func TestValidateppMonitoring(t *testing.T) {
-	config := Config{Monitor: &Monitor{}}
+	config := Config{}
 
 	// Test valid config
 	config.Monitor.URL = "https://something.test"
