@@ -209,7 +209,6 @@ func LoadConfig(configFile string) {
 	log.Info().Msg("Config loaded.")
 
 	// Send config file to validation before completing
-	//validateConfig()
 	validationErrors := ConfigData.validate()
 	if len(validationErrors) > 0 {
 		fmt.Println()
