@@ -87,12 +87,6 @@ func checkFilters(event models.Event) bool {
 		return false
 	}
 
-	// For Web API query, top-level top_score value is no longer used
-	// So need to replace it with data.top_score value
-	if event.TopScore == 0 {
-		event.TopScore = event.Data.TopScore
-	}
-
 	// Check label score
 	if !aboveMinScore(event.ID, event.TopScore) {
 		return false

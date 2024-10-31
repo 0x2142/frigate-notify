@@ -11,6 +11,12 @@ import (
 
 // processEvent handles preparing event for alerting
 func processEvent(event models.Event) {
+	// For events collected via API, top-level top_score value is no longer used
+	// So need to replace it with data.top_score value
+	if event.TopScore == 0 {
+		event.TopScore = event.Data.TopScore
+	}
+
 	// Convert to human-readable timestamp
 	eventTime := time.Unix(int64(event.StartTime), 0)
 	log.Info().
