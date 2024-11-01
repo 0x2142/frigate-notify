@@ -41,6 +41,7 @@ func RunAPIServer() error {
 
 func registerRoutes(api huma.API) {
 
+	// GET /version
 	huma.Register(api, huma.Operation{
 		OperationID: "get-version",
 		Method:      http.MethodGet,
@@ -50,6 +51,7 @@ func registerRoutes(api huma.API) {
 		Tags:        []string{"App"},
 	}, GetVersion)
 
+	// GET /status
 	huma.Register(api, huma.Operation{
 		OperationID: "get-status",
 		Method:      http.MethodGet,
@@ -58,5 +60,15 @@ func registerRoutes(api huma.API) {
 		Description: "Retrieve health and status of Frigate-Notify",
 		Tags:        []string{"App"},
 	}, GetStatus)
+
+	// GET /config
+	huma.Register(api, huma.Operation{
+		OperationID: "get-config",
+		Method:      http.MethodGet,
+		Path:        API_PREFIX + "/config",
+		Summary:     "Config",
+		Description: "Retrieve current running configuration",
+		Tags:        []string{"App"},
+	}, GetConfig)
 
 }
