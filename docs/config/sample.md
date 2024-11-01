@@ -5,7 +5,11 @@ A full config file template has been provided below:
 ```yaml
 app:
   mode:
-
+  api:
+    enabled:
+    port:
+    prefix:
+    
 frigate:
   server: 
   ignoressl:

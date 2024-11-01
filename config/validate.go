@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -13,7 +14,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (c Config) validate() []string {
+func (c *Config) validate() []string {
 	var validationErrors []string
 	log.Debug().Msg("Validating config file...")
 
@@ -25,6 +26,13 @@ func (c Config) validate() []string {
 	// Validate App Mode
 	if results := c.validateAppMode(); len(results) > 0 {
 		validationErrors = append(validationErrors, results...)
+	}
+
+	// Validate API settings
+	if c.App.API.Enabled {
+		if results := c.validateAPI(); len(results) > 0 {
+			validationErrors = append(validationErrors, results...)
+		}
 	}
 
 	// Validate Frigate polling method
@@ -130,14 +138,34 @@ func (c *Config) validateAppMode() []string {
 	if strings.ToLower(c.App.Mode) != "events" && strings.ToLower(c.App.Mode) != "reviews" {
 		appErrors = append(appErrors, "MQTT mode must be 'events' or 'reviews'")
 	}
-	if c.Frigate.Version < 14 && strings.ToLower(c.App.Mode) == "reviews" {
+	if Internal.FrigateVersion < 14 && strings.ToLower(c.App.Mode) == "reviews" {
 		appErrors = append(appErrors, "Frigate must be version 0.14 or higher to use 'reviews' mode. Please use 'events' mode or update Frigate.")
 	}
 	log.Debug().Msgf("App mode: %v", c.App.Mode)
 	return appErrors
 }
 
-func (c Config) validateFrigatePolling() []string {
+func (c *Config) validateAPI() []string {
+	var apiErrors []string
+
+	// Set default port if needed
+	if c.App.API.Port == 0 {
+		c.App.API.Port = 8000
+	}
+
+	if c.App.API.Port <= 0 || c.App.API.Port > 65535 {
+		apiErrors = append(apiErrors, "Invalid API port")
+	}
+
+	if match, _ := regexp.MatchString("^/[A-Za-z0-9]+$", c.App.API.Prefix); !match {
+		apiErrors = append(apiErrors, "API prefix must be in format: /example")
+
+	}
+
+	return apiErrors
+}
+
+func (c *Config) validateFrigatePolling() []string {
 	var pollingErrors []string
 	webapi := c.Frigate.WebAPI.Enabled
 	mqtt := c.Frigate.MQTT.Enabled
@@ -169,7 +197,7 @@ func (c Config) validateFrigatePolling() []string {
 	return pollingErrors
 }
 
-func (c Config) validateFrigateConnectivity() []string {
+func (c *Config) validateFrigateConnectivity() []string {
 	var response []byte
 	var err error
 	var connectivityErrors []string
@@ -213,6 +241,7 @@ func (c Config) validateFrigateConnectivity() []string {
 	for current_attempt < max_attempts {
 		response, err = util.HTTPGet(statsAPI, c.Frigate.Insecure, "", c.Frigate.Headers...)
 		if err != nil {
+			Internal.Status.Frigate.API = "unreachable"
 			log.Warn().
 				Err(err).
 				Int("attempt", current_attempt).
@@ -226,6 +255,7 @@ func (c Config) validateFrigateConnectivity() []string {
 		}
 	}
 	if current_attempt == max_attempts {
+		Internal.Status.Frigate.API = "unreachable"
 		log.Fatal().
 			Err(err).
 			Msgf("Max attempts reached - Cannot reach Frigate server at %v", url)
@@ -233,15 +263,16 @@ func (c Config) validateFrigateConnectivity() []string {
 	var stats models.FrigateStats
 	json.Unmarshal([]byte(response), &stats)
 	log.Info().Msgf("Successfully connected to %v", url)
+	Internal.Status.Frigate.API = "ok"
 	if stats.Service.Version != "" {
 		log.Debug().Msgf("Frigate server is running version %v", stats.Service.Version)
 		// Save major version number
-		c.Frigate.Version, _ = strconv.Atoi(strings.Split(stats.Service.Version, ".")[1])
+		Internal.FrigateVersion, _ = strconv.Atoi(strings.Split(stats.Service.Version, ".")[1])
 	}
 	return connectivityErrors
 }
 
-func (c Config) validateMQTT() []string {
+func (c *Config) validateMQTT() []string {
 	var configErrors []string
 	// Check MQTT Config
 	log.Debug().Msg("MQTT Enabled.")
@@ -258,7 +289,7 @@ func (c Config) validateMQTT() []string {
 	return configErrors
 }
 
-func (c Config) validateCameraExclusions() {
+func (c *Config) validateCameraExclusions() {
 	// Check for camera exclusions
 	if len(c.Frigate.Cameras.Exclude) > 0 {
 		log.Debug().Msg("Cameras to exclude from alerting:")
@@ -268,7 +299,7 @@ func (c Config) validateCameraExclusions() {
 	}
 }
 
-func (c Config) validateQuietHours() []string {
+func (c *Config) validateQuietHours() []string {
 	var quietHoursErrors []string
 	// Check quiet hours config
 	if c.Alerts.Quiet.Start != "" || c.Alerts.Quiet.End != "" {
@@ -290,7 +321,7 @@ func (c Config) validateQuietHours() []string {
 	return quietHoursErrors
 }
 
-func (c Config) validateAlertGeneral() []string {
+func (c *Config) validateAlertGeneral() []string {
 	var alertErrors []string
 	// Check action on no snapshot available
 	if strings.ToLower(c.Alerts.General.NoSnap) != "allow" && strings.ToLower(c.Alerts.General.NoSnap) != "drop" {
@@ -313,7 +344,7 @@ func (c Config) validateAlertGeneral() []string {
 	return alertErrors
 }
 
-func (c Config) validateZoneFilters() []string {
+func (c *Config) validateZoneFilters() []string {
 	var filterErrors []string
 	// Check Zone filtering config
 	if strings.ToLower(c.Alerts.Zones.Unzoned) != "allow" && strings.ToLower(c.Alerts.Zones.Unzoned) != "drop" {
@@ -341,7 +372,7 @@ func (c Config) validateZoneFilters() []string {
 	return filterErrors
 }
 
-func (c Config) validateLabelFiltering() []string {
+func (c *Config) validateLabelFiltering() []string {
 	var labelErrors []string
 	// Check Label filtering config
 	if c.Alerts.Labels.MinScore > 0 {
@@ -384,7 +415,7 @@ func (c Config) validateLabelFiltering() []string {
 	return labelErrors
 }
 
-func (c Config) validateDiscord() []string {
+func (c *Config) validateDiscord() []string {
 	var discordErrors []string
 	log.Debug().Msg("Discord alerting enabled.")
 	if c.Alerts.Discord.Webhook == "" {
@@ -397,7 +428,7 @@ func (c Config) validateDiscord() []string {
 	return discordErrors
 }
 
-func (c Config) validateGotify() []string {
+func (c *Config) validateGotify() []string {
 	var gotifyErrors []string
 	log.Debug().Msg("Gotify alerting enabled.")
 	if c.Alerts.Gotify.Server == "" {
@@ -418,7 +449,7 @@ func (c Config) validateGotify() []string {
 	return gotifyErrors
 }
 
-func (c Config) validateSMTP() []string {
+func (c *Config) validateSMTP() []string {
 	var smtpErrors []string
 	log.Debug().Msg("SMTP alerting enabled.")
 	if c.Alerts.SMTP.Server == "" {
@@ -445,7 +476,7 @@ func (c Config) validateSMTP() []string {
 	return smtpErrors
 }
 
-func (c Config) validateTelegram() []string {
+func (c *Config) validateTelegram() []string {
 	var telegramErrors []string
 	log.Debug().Msg("Telegram alerting enabled.")
 	if c.Alerts.Telegram.ChatID == 0 {
@@ -461,7 +492,7 @@ func (c Config) validateTelegram() []string {
 	return telegramErrors
 }
 
-func (c Config) validatePushover() []string {
+func (c *Config) validatePushover() []string {
 	var pushoverErrors []string
 	log.Debug().Msg("Pushover alerting enabled.")
 	if c.Alerts.Pushover.Token == "" {
@@ -493,7 +524,7 @@ func (c Config) validatePushover() []string {
 	return pushoverErrors
 }
 
-func (c Config) validateNtfy() []string {
+func (c *Config) validateNtfy() []string {
 	var ntfyErrors []string
 	log.Debug().Msg("Ntfy alerting enabled.")
 	if c.Alerts.Ntfy.Server == "" {
@@ -515,7 +546,7 @@ func (c Config) validateNtfy() []string {
 	return ntfyErrors
 }
 
-func (c Config) validateWebhook() []string {
+func (c *Config) validateWebhook() []string {
 	var webhookErrors []string
 	log.Debug().Msg("Webhook alerting enabled.")
 	if c.Alerts.Webhook.Server == "" {
@@ -529,7 +560,7 @@ func (c Config) validateWebhook() []string {
 	return webhookErrors
 }
 
-func (c Config) validateAlertingEnabled() string {
+func (c *Config) validateAlertingEnabled() string {
 	// Check to ensure at least one alert provider is configured
 	if c.Alerts.Discord.Enabled {
 		return ""
@@ -555,7 +586,7 @@ func (c Config) validateAlertingEnabled() string {
 	return "No alerting methods have been configured. Please check config file syntax!"
 }
 
-func (c Config) validateAppMonitoring() []string {
+func (c *Config) validateAppMonitoring() []string {
 	var monitoringErrors []string
 	log.Debug().Msg("App monitoring enabled.")
 	if c.Monitor.URL == "" {

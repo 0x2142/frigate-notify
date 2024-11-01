@@ -12,13 +12,13 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
+	"github.com/0x2142/frigate-notify/api"
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/events"
 	"github.com/0x2142/frigate-notify/notifier"
 	"github.com/0x2142/frigate-notify/util"
 )
 
-var APP_VER = "v0.4.0-dev"
 var debug, debugenv bool
 var jsonlog, jsonlogenv bool
 var nocolor, nocolorenv bool
@@ -29,6 +29,7 @@ var logLevel string
 var NotifTemplates embed.FS
 
 func main() {
+	config.Internal.Status.Health = "starting"
 	// Parse flags
 	flag.StringVar(&configFile, "c", "", "Configuration file location (default \"./config.yml\")")
 	flag.BoolVar(&debug, "debug", false, "Enable debug logging (Overrides loglevel, if also set)")
@@ -80,7 +81,7 @@ func main() {
 		log.Debug().Msg("Debug logging enabled")
 	}
 
-	log.Info().Msgf("Frigate Notify - %v", APP_VER)
+	log.Info().Msgf("Frigate Notify - %v", config.Internal.AppVersion)
 	log.Info().Msg("Starting...")
 
 	// Load & validate config
@@ -95,10 +96,12 @@ func main() {
 			for {
 				_, err := util.HTTPGet(config.ConfigData.Monitor.URL, config.ConfigData.Monitor.Insecure, "")
 				if err != nil {
+					config.Internal.Status.Monitor = err.Error()
 					log.Warn().
 						Err(err).
 						Msg("Unable to reach polling monitoring URL")
 				}
+				config.Internal.Status.Monitor = "ok"
 				log.Debug().Msg("Completed monitoring check-in.")
 				time.Sleep(time.Duration(config.ConfigData.Monitor.Interval) * time.Second)
 			}
@@ -111,11 +114,25 @@ func main() {
 	// Loop & watch for events
 	if config.ConfigData.Frigate.WebAPI.Enabled {
 		log.Info().Msg("App ready!")
+		config.Internal.Status.Health = "ok"
 		for {
 			events.QueryAPI()
 			time.Sleep(time.Duration(config.ConfigData.Frigate.WebAPI.Interval) * time.Second)
 		}
 	}
+
+	// Start API server if enabled
+	if config.ConfigData.App.API.Enabled {
+		err := api.RunAPIServer()
+		if err != nil {
+			config.Internal.Status.API = err.Error()
+			log.Error().Err(err).Msg("Failed to start API server")
+		} else {
+			config.Internal.Status.API = "ok"
+			log.Info().Msgf("API server ready on :%v", config.ConfigData.App.API.Port)
+		}
+	}
+
 	// Connect MQTT
 	if config.ConfigData.Frigate.MQTT.Enabled {
 		defer events.CloseZoneCache()
@@ -123,6 +140,7 @@ func main() {
 		log.Debug().Msg("Connecting to MQTT Server...")
 		events.SubscribeMQTT()
 		log.Info().Msg("App ready!")
+		config.Internal.Status.Health = "ok"
 		sig := make(chan os.Signal, 1)
 		signal.Notify(sig, os.Interrupt)
 		<-sig

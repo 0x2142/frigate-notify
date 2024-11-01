@@ -9,7 +9,7 @@ func TestValidateAppMode(t *testing.T) {
 
 	// Check good config
 	config.App.Mode = "reviews"
-	config.Frigate.Version = 14
+	Internal.FrigateVersion = 14
 	result := config.validateAppMode()
 	expected := 0
 	if len(result) != expected {
@@ -25,12 +25,44 @@ func TestValidateAppMode(t *testing.T) {
 
 	// Check incompatible version
 	config.App.Mode = "reviews"
-	config.Frigate.Version = 13
+	Internal.FrigateVersion = 13
 	result = config.validateAppMode()
 	expected = 1
 	if len(result) != expected {
 		t.Errorf("Expected: error, Got: %v", result)
 	}
+}
+
+func TestValidateAPI(t *testing.T) {
+	config := Config{App: App{}}
+
+	config.App.API.Enabled = true
+
+	// Validate default port set
+	config.validateAPI()
+	if config.App.API.Port != 80 {
+		t.Errorf("Expected: 80, Got: %v", config.App.API.Port)
+
+	}
+
+	// Check good config
+	config.App.API.Port = 8080
+	config.App.API.Prefix = "/abcd"
+	result := config.validateAPI()
+	expected := 0
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+
+	// Check bad config
+	config.App.API.Port = 65540
+	config.App.API.Prefix = "abcd"
+	result = config.validateAPI()
+	expected = 2
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+
 }
 
 func TestValidateFrigatePolling(t *testing.T) {

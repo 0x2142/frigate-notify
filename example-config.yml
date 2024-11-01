@@ -6,6 +6,15 @@ app:
   # Set App Mode - `events` or `reviews`
   # Default is `events`
   mode:
+  # Settings for frigate-notify API
+  api:
+    # Set to true to enable REST API
+    enabled:
+    # Specify custom port, default is 8000
+    port:
+    # Specify custom API prefix, default is `/api`
+    prefix:
+
 
 ## Event Collection Methods
 # Note: Only enable one - webapi OR mqtt

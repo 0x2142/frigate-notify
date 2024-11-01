@@ -22,6 +22,7 @@ var TemplateFiles embed.FS
 
 // SendAlert forwards alert information to all enabled alerting methods
 func SendAlert(event models.Event) {
+	config.Internal.Status.LastAlert = time.Now()
 	// Collect snapshot, if available
 	var snapshot io.Reader
 	if event.HasSnapshot {
@@ -32,7 +33,7 @@ func SendAlert(event models.Event) {
 	event.Extra.EventLink = config.ConfigData.Frigate.PublicURL + "/api/events/" + event.ID + "/clip.mp4"
 
 	// Add Frigate Major version metadata
-	event.Extra.FrigateMajorVersion = config.ConfigData.Frigate.Version
+	event.Extra.FrigateMajorVersion = config.Internal.FrigateVersion
 
 	// Create copy of snapshot for each alerting method
 	var snap []byte

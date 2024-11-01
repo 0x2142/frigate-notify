@@ -19,6 +19,13 @@ type Config struct {
 
 type App struct {
 	Mode string `fig:"mode" default:"events"`
+	API  API    `fig:"api"`
+}
+
+type API struct {
+	Enabled bool   `fig:"enabled" default:false`
+	Port    int    `fig:"port" default:8000`
+	Prefix  string `fig:"prefix" default:"/api"`
 }
 
 type Frigate struct {
@@ -30,7 +37,6 @@ type Frigate struct {
 	WebAPI       WebAPI              `fig:"webapi"`
 	MQTT         MQTT                `fig:"mqtt"`
 	Cameras      Cameras             `fig:"cameras"`
-	Version      int                 // Internal use only
 }
 
 type StartupCheck struct {
@@ -210,6 +216,7 @@ func LoadConfig(configFile string) {
 
 	// Send config file to validation before completing
 	validationErrors := ConfigData.validate()
+
 	if len(validationErrors) > 0 {
 		fmt.Println()
 		log.Error().Msg("Config validation failed:")
