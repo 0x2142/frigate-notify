@@ -47,6 +47,7 @@ nav:
      - Config Options: config/options.md 
      - Templates: config/templates.md
      - Sample Config: config/sample.md
+  - API: api.md
   - Changelog: changelog.md 
   
 # Extras

@@ -3,7 +3,7 @@
 ## [v0.4.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.0) - In Development
  - Support for notification based on Alerts & Detections via Frigate Reviews
  - Add support for specifying custom [Pushover](https://frigate-notify.0x2142.com/latest/config/file/#pushover) sounds
- - Add new REST API
+ - Add initial support for a REST API
 
 ## [v0.3.5](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.5) - Oct 08 2024
  - Fixed issue where built-in alert templates were not being included in binary releases
