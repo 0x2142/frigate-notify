@@ -10,7 +10,7 @@ import (
 
 type StatusOutput struct {
 	Body struct {
-		Status models.Status
+		Status models.Status `json:"status"`
 	}
 }
 

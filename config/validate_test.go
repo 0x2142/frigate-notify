@@ -2,10 +2,12 @@ package config
 
 import (
 	"testing"
+
+	"github.com/0x2142/frigate-notify/models"
 )
 
 func TestValidateAppMode(t *testing.T) {
-	config := Config{Frigate: &Frigate{}}
+	config := Config{Frigate: &models.Frigate{}}
 
 	// Check good config
 	config.App.Mode = "reviews"
@@ -34,13 +36,13 @@ func TestValidateAppMode(t *testing.T) {
 }
 
 func TestValidateAPI(t *testing.T) {
-	config := Config{App: App{}}
+	config := Config{App: models.App{}}
 
 	config.App.API.Enabled = true
 
 	// Validate default port set
 	config.validateAPI()
-	if config.App.API.Port != 80 {
+	if config.App.API.Port != 8000 {
 		t.Errorf("Expected: 80, Got: %v", config.App.API.Port)
 
 	}
@@ -66,7 +68,7 @@ func TestValidateAPI(t *testing.T) {
 }
 
 func TestValidateFrigatePolling(t *testing.T) {
-	config := Config{Frigate: &Frigate{}}
+	config := Config{Frigate: &models.Frigate{}}
 
 	// Test one method configured
 	config.Frigate.MQTT.Enabled = true
@@ -94,7 +96,7 @@ func TestValidateFrigatePolling(t *testing.T) {
 }
 
 func TestValidateMQTT(t *testing.T) {
-	config := Config{Frigate: &Frigate{}}
+	config := Config{Frigate: &models.Frigate{}}
 
 	// Test correct config
 	config.Frigate.MQTT.Enabled = true
@@ -126,7 +128,7 @@ func TestValidateMQTT(t *testing.T) {
 }
 
 func TestValidateQuietHours(t *testing.T) {
-	config := Config{Alerts: &Alerts{}}
+	config := Config{Alerts: &models.Alerts{}}
 
 	// Test valid config
 	config.Alerts.Quiet.Start = "03:50"
@@ -155,7 +157,7 @@ func TestValidateQuietHours(t *testing.T) {
 }
 
 func TestValidateAlertGeneral(t *testing.T) {
-	config := Config{Alerts: &Alerts{}}
+	config := Config{Alerts: &models.Alerts{}}
 
 	// Test valid config
 	config.Alerts.General.NoSnap = "allow"
@@ -175,7 +177,7 @@ func TestValidateAlertGeneral(t *testing.T) {
 }
 
 func TestValidateDiscord(t *testing.T) {
-	config := Config{Alerts: &Alerts{}}
+	config := Config{Alerts: &models.Alerts{}}
 
 	// Test valid config
 	config.Alerts.Discord.Webhook = "https://something.test"
@@ -195,7 +197,7 @@ func TestValidateDiscord(t *testing.T) {
 }
 
 func TestValidateGotify(t *testing.T) {
-	config := Config{Alerts: &Alerts{}}
+	config := Config{Alerts: &models.Alerts{}}
 
 	// Test valid config
 	config.Alerts.Gotify.Server = "https://something.test"
@@ -224,7 +226,7 @@ func TestValidateGotify(t *testing.T) {
 }
 
 func TestValidateSMTP(t *testing.T) {
-	config := Config{Alerts: &Alerts{}}
+	config := Config{Alerts: &models.Alerts{}}
 
 	// Test valid config
 	config.Alerts.SMTP.Server = "192.0.2.10"
@@ -273,7 +275,7 @@ func TestValidateSMTP(t *testing.T) {
 }
 
 func TestValidateTelegram(t *testing.T) {
-	config := Config{Alerts: &Alerts{}}
+	config := Config{Alerts: &models.Alerts{}}
 
 	// Test valid config
 	config.Alerts.Telegram.ChatID = 1234
@@ -302,7 +304,7 @@ func TestValidateTelegram(t *testing.T) {
 }
 
 func TestValidatePushover(t *testing.T) {
-	config := Config{Alerts: &Alerts{}}
+	config := Config{Alerts: &models.Alerts{}}
 
 	// Test valid config
 	config.Alerts.Pushover.Token = "abcd"
@@ -357,7 +359,7 @@ func TestValidatePushover(t *testing.T) {
 }
 
 func TestValidateNtfy(t *testing.T) {
-	config := Config{Alerts: &Alerts{}}
+	config := Config{Alerts: &models.Alerts{}}
 
 	// Test valid config
 	config.Alerts.Ntfy.Server = "https://ntfy.test"
@@ -385,7 +387,7 @@ func TestValidateNtfy(t *testing.T) {
 	}
 }
 func TestValidateWebhook(t *testing.T) {
-	config := Config{Alerts: &Alerts{}}
+	config := Config{Alerts: &models.Alerts{}}
 
 	// Test valid config
 	config.Alerts.Webhook.Server = "https://webhook.test"
@@ -406,7 +408,7 @@ func TestValidateWebhook(t *testing.T) {
 }
 
 func TestValidateAlertingEnabled(t *testing.T) {
-	config := Config{Alerts: &Alerts{}}
+	config := Config{Alerts: &models.Alerts{}}
 
 	// Test valid config
 	config.Alerts.Discord.Enabled = true

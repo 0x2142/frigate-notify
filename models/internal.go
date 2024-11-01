@@ -6,7 +6,7 @@ import "time"
 type InternalConfig struct {
 	AppVersion     string
 	FrigateVersion int
-	Status         Status `json:"status"`
+	Status         Status
 }
 
 type Status struct {
