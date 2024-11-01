@@ -13,6 +13,7 @@ type VersionOutput struct {
 	}
 }
 
+// GetVersion returns the current running app version
 func GetVersion(ctx context.Context, input *struct{}) (*VersionOutput, error) {
 	log.Trace().
 		Str("uri", API_PREFIX+"/version").

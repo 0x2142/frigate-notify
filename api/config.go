@@ -13,6 +13,7 @@ type ConfigOutput struct {
 	}
 }
 
+// GetConfig returns the current running configuratio
 func GetConfig(ctx context.Context, input *struct{}) (*ConfigOutput, error) {
 	log.Trace().
 		Str("uri", API_PREFIX+"/config").

@@ -71,4 +71,23 @@ func registerRoutes(api huma.API) {
 		Tags:        []string{"App"},
 	}, GetConfig)
 
+	// GET /state
+	huma.Register(api, huma.Operation{
+		OperationID: "get-state",
+		Method:      http.MethodGet,
+		Path:        API_PREFIX + "/state",
+		Summary:     "State",
+		Description: "Retrieve current state of Frigate-Notify alerting",
+		Tags:        []string{"Control"},
+	}, GetState)
+
+	// POST /state
+	huma.Register(api, huma.Operation{
+		OperationID: "post-state",
+		Method:      http.MethodPost,
+		Path:        API_PREFIX + "/state",
+		Summary:     "State",
+		Description: "Set state of Frigate-Notify alerting",
+		Tags:        []string{"Control"},
+	}, PostState)
 }

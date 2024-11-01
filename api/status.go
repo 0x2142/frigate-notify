@@ -14,6 +14,7 @@ type StatusOutput struct {
 	}
 }
 
+// GetStatus returns current app component statuses
 func GetStatus(ctx context.Context, input *struct{}) (*StatusOutput, error) {
 	log.Trace().
 		Str("uri", API_PREFIX+"/status").
