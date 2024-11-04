@@ -111,16 +111,6 @@ func main() {
 	// Set up event cache
 	events.InitZoneCache()
 
-	// Loop & watch for events
-	if config.ConfigData.Frigate.WebAPI.Enabled {
-		log.Info().Msg("App ready!")
-		config.Internal.Status.Health = "ok"
-		for {
-			events.QueryAPI()
-			time.Sleep(time.Duration(config.ConfigData.Frigate.WebAPI.Interval) * time.Second)
-		}
-	}
-
 	// Start API server if enabled
 	if config.ConfigData.App.API.Enabled {
 		err := api.RunAPIServer()
@@ -130,6 +120,16 @@ func main() {
 		} else {
 			config.Internal.Status.API = "ok"
 			log.Info().Msgf("API server ready on :%v", config.ConfigData.App.API.Port)
+		}
+	}
+
+	// Loop & watch for events
+	if config.ConfigData.Frigate.WebAPI.Enabled {
+		log.Info().Msg("App ready!")
+		config.Internal.Status.Health = "ok"
+		for {
+			events.QueryAPI()
+			time.Sleep(time.Duration(config.ConfigData.Frigate.WebAPI.Interval) * time.Second)
 		}
 	}
 

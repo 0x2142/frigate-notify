@@ -41,6 +41,17 @@ func RunAPIServer() error {
 
 func registerRoutes(api huma.API) {
 
+	// GET /readyz
+	huma.Register(api, huma.Operation{
+		OperationID: "get-readyz",
+		Method:      http.MethodGet,
+		Path:        API_PREFIX + "/readyz",
+		Hidden:      true,
+		Summary:     "Readyz",
+		Description: "Retrieve Frigate-Notify ready state",
+		Tags:        []string{"App"},
+	}, GetReadyz)
+
 	// GET /version
 	huma.Register(api, huma.Operation{
 		OperationID: "get-version",
