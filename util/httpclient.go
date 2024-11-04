@@ -211,5 +211,10 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 		Int("status_code", response.StatusCode).
 		Msg("HTTP Response")
 
+	// Check status codes
+	if response.StatusCode < 200 || response.StatusCode > 299 {
+		return nil, fmt.Errorf("failed to send request, got status code %v", response.StatusCode)
+	}
+
 	return body, nil
 }

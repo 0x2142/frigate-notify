@@ -147,13 +147,13 @@ type Ntfy struct {
 }
 
 type Webhook struct {
-	Enabled  bool                   `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Webhook" default:false`
-	Server   string                 `fig:"server" json:"server,omitempty" doc:"Webhook address" default:""`
-	Insecure bool                   `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
-	Method   string                 `fig:"method" json:"method,omitempty" enum:"GET,POST" doc:"HTTP method for webhook notifications" default:"POST"`
-	Params   []map[string]string    `fix:"params" json:"params,omitempty" doc:"URL parameters for webhook notifications"`
-	Headers  []map[string]string    `fig:"headers" json:"headers,omitempty" doc:"HTTP headers for webhook notifications"`
-	Template map[string]interface{} `fig:"template" json:"template,omitempty" doc:"Custom message template"`
+	Enabled  bool                `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Webhook" default:false`
+	Server   string              `fig:"server" json:"server,omitempty" doc:"Webhook address" default:""`
+	Insecure bool                `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
+	Method   string              `fig:"method" json:"method,omitempty" enum:"GET,POST" doc:"HTTP method for webhook notifications" default:"POST"`
+	Params   []map[string]string `fix:"params" json:"params,omitempty" doc:"URL parameters for webhook notifications"`
+	Headers  []map[string]string `fig:"headers" json:"headers,omitempty" doc:"HTTP headers for webhook notifications"`
+	Template interface{}         `fig:"template" json:"template,omitempty" doc:"Custom message template"`
 }
 
 type Monitor struct {

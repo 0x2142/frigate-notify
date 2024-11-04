@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"text/template"
 	"time"
@@ -101,6 +102,9 @@ func setExtras(event models.Event) models.Event {
 	// MQTT uses CurrentZones, Web API uses Zones
 	// Combine into one object to use regardless of connection method
 	event.Zones = append(event.Zones, event.CurrentZones...)
+	// Remove duplicates
+	slices.Sort(event.Zones)
+	event.Zones = slices.Compact(event.Zones)
 	// Join zones into plain comma-separated string
 	event.Extra.ZoneList = strings.Join(event.Zones, ", ")
 
