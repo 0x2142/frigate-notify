@@ -128,51 +128,51 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
 	}
 
-	// Setup new HTTP Request
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(payload))
-	if err != nil {
-		return nil, err
-	}
-
-	// Add headers
-	if len(headers) > 0 {
-		for _, h := range headers {
-			for k, v := range h {
-				req.Header.Add(k, v)
-			}
-
-		}
-	}
-
-	// Remove authorization header value for logging
-	for i, h := range headers {
-		for k := range h {
-			if strings.ToLower(k) == "authorization" {
-				headers[i][k] = "--secret removed--"
-			}
-		}
-	}
-
-	// Send HTTP POST
-	if json.Valid(payload) {
-		log.Trace().
-			Str("url", url).
-			Interface("headers", headers).
-			RawJSON("body", payload).
-			Bool("insecure", insecure).
-			Msg("HTTP POST")
-	} else {
-		log.Trace().
-			Str("url", url).
-			Interface("headers", headers).
-			Interface("body", payload).
-			Bool("insecure", insecure).
-			Msg("HTTP POST")
-	}
-
 	var response *http.Response
 	retry := 1
 	for retry <= 6 {
+		// Setup new HTTP Request
+		req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(payload))
+		if err != nil {
+			return nil, err
+		}
+
+		// Add headers
+		if len(headers) > 0 {
+			for _, h := range headers {
+				for k, v := range h {
+					req.Header.Add(k, v)
+				}
+
+			}
+		}
+
+		// Remove authorization header value for logging
+		for i, h := range headers {
+			for k := range h {
+				if strings.ToLower(k) == "authorization" {
+					headers[i][k] = "--secret removed--"
+				}
+			}
+		}
+
+		// Send HTTP POST
+		if json.Valid(payload) {
+			log.Trace().
+				Str("url", url).
+				Interface("headers", headers).
+				RawJSON("body", payload).
+				Bool("insecure", insecure).
+				Msg("HTTP POST")
+		} else {
+			log.Trace().
+				Str("url", url).
+				Interface("headers", headers).
+				Interface("body", payload).
+				Bool("insecure", insecure).
+				Msg("HTTP POST")
+		}
+
 		response, err = client.Do(req)
 		if err == nil {
 			break
@@ -193,9 +193,6 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 			retry += 1
 			time.Sleep(1 * time.Second)
 		}
-	}
-	if err != nil {
-		return nil, err
 	}
 
 	defer response.Body.Close()
