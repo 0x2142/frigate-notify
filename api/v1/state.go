@@ -1,4 +1,4 @@
-package api
+package apiv1
 
 import (
 	"context"
@@ -22,7 +22,7 @@ type StateOutput struct {
 // GetState returns whether app is enabled for sending notifications or not
 func GetState(ctx context.Context, input *struct{}) (*StateOutput, error) {
 	log.Trace().
-		Str("uri", API_PREFIX+"/state").
+		Str("uri", V1_PREFIX+"/state").
 		Str("method", "GET").
 		Msg("Received API request")
 
@@ -30,7 +30,7 @@ func GetState(ctx context.Context, input *struct{}) (*StateOutput, error) {
 	resp.Body.Enabled = config.Internal.Status.Enabled
 
 	log.Trace().
-		Str("uri", API_PREFIX+"/state").
+		Str("uri", V1_PREFIX+"/state").
 		Interface("response_json", resp.Body).
 		Msg("Sent API response")
 
@@ -40,7 +40,7 @@ func GetState(ctx context.Context, input *struct{}) (*StateOutput, error) {
 // PostState updates state to enable or disable app notifications
 func PostState(ctx context.Context, input *StateInput) (*StateOutput, error) {
 	log.Trace().
-		Str("uri", API_PREFIX+"/state").
+		Str("uri", V1_PREFIX+"/state").
 		Str("method", "POST").
 		Msg("Received API request")
 
@@ -54,7 +54,7 @@ func PostState(ctx context.Context, input *StateInput) (*StateOutput, error) {
 	resp.Body.Enabled = config.Internal.Status.Enabled
 
 	log.Trace().
-		Str("uri", API_PREFIX+"/state").
+		Str("uri", V1_PREFIX+"/state").
 		//Interface("response_json", resp.Body).
 		Msg("Sent API response")
 

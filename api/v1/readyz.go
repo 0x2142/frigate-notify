@@ -1,4 +1,4 @@
-package api
+package apiv1
 
 import (
 	"context"
@@ -17,7 +17,7 @@ type ReadyzOutput struct {
 // GetReadyz returns current app ready state
 func GetReadyz(ctx context.Context, input *struct{}) (*ReadyzOutput, error) {
 	log.Trace().
-		Str("uri", API_PREFIX+"/readyz").
+		Str("uri", V1_PREFIX+"/readyz").
 		Str("method", "GET").
 		Msg("Received API request")
 
@@ -26,13 +26,13 @@ func GetReadyz(ctx context.Context, input *struct{}) (*ReadyzOutput, error) {
 	if config.Internal.Status.Health == "ok" {
 		resp.Body.Status = "ok"
 		log.Trace().
-			Str("uri", API_PREFIX+"/readyz").
+			Str("uri", V1_PREFIX+"/readyz").
 			Interface("response_json", resp.Body).
 			Msg("Sent API response")
 		return resp, nil
 	} else {
 		log.Trace().
-			Str("uri", API_PREFIX+"/readyz").
+			Str("uri", V1_PREFIX+"/readyz").
 			Int("status_code", 500).
 			Msg("Sent API response - App not ready")
 		return nil, huma.Error500InternalServerError("app not ready")

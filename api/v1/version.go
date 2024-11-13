@@ -1,4 +1,4 @@
-package api
+package apiv1
 
 import (
 	"context"
@@ -16,7 +16,7 @@ type VersionOutput struct {
 // GetVersion returns the current running app version
 func GetVersion(ctx context.Context, input *struct{}) (*VersionOutput, error) {
 	log.Trace().
-		Str("uri", API_PREFIX+"/version").
+		Str("uri", V1_PREFIX+"/version").
 		Str("method", "GET").
 		Msg("Received API request")
 
@@ -24,7 +24,7 @@ func GetVersion(ctx context.Context, input *struct{}) (*VersionOutput, error) {
 	resp.Body.Version = config.Internal.AppVersion
 
 	log.Trace().
-		Str("uri", API_PREFIX+"/version").
+		Str("uri", V1_PREFIX+"/version").
 		Interface("response_json", resp.Body).
 		Msg("Sent API response")
 

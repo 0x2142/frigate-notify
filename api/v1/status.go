@@ -1,4 +1,4 @@
-package api
+package apiv1
 
 import (
 	"context"
@@ -17,7 +17,7 @@ type StatusOutput struct {
 // GetStatus returns current app component statuses
 func GetStatus(ctx context.Context, input *struct{}) (*StatusOutput, error) {
 	log.Trace().
-		Str("uri", API_PREFIX+"/status").
+		Str("uri", V1_PREFIX+"/status").
 		Str("method", "GET").
 		Msg("Received API request")
 
@@ -25,7 +25,7 @@ func GetStatus(ctx context.Context, input *struct{}) (*StatusOutput, error) {
 	resp.Body.Status = config.Internal.Status
 
 	log.Trace().
-		Str("uri", API_PREFIX+"/status").
+		Str("uri", V1_PREFIX+"/status").
 		Interface("response_json", resp.Body).
 		Msg("Sent API response")
 

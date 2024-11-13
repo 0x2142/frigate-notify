@@ -49,7 +49,6 @@ func TestValidateAPI(t *testing.T) {
 
 	// Check good config
 	config.App.API.Port = 8080
-	config.App.API.Prefix = "/abcd"
 	result := config.validateAPI()
 	expected := 0
 	if len(result) != expected {
@@ -58,7 +57,6 @@ func TestValidateAPI(t *testing.T) {
 
 	// Check bad config
 	config.App.API.Port = 65540
-	config.App.API.Prefix = "abcd"
 	result = config.validateAPI()
 	expected = 2
 	if len(result) != expected {

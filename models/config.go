@@ -6,9 +6,8 @@ type App struct {
 }
 
 type API struct {
-	Enabled bool   `fig:"enabled" json:"enabled" doc:"Enable Frigate-Notify API server" enum:"true,false" default:false`
-	Port    int    `fig:"port" json:"port,omitempty" doc:"API server port" minimum:"1" maximum:"65535" default:"8000"`
-	Prefix  string `fig:"prefix" json:"prefix,omitempty" format:"uri-reference" doc:"Prefix for API requests" default:"/api"`
+	Enabled bool `fig:"enabled" json:"enabled" doc:"Enable Frigate-Notify API server" enum:"true,false" default:false`
+	Port    int  `fig:"port" json:"port,omitempty" doc:"API server port" minimum:"1" maximum:"65535" default:"8000"`
 }
 
 type Frigate struct {

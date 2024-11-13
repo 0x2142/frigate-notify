@@ -17,9 +17,6 @@ Config may also be provided via environment variables. Frigate-notify will load 
         - Set to `true` to enable Frigate-Notify's REST API server
     - **port** (Optional - Default: `8000`)
         - Change default port for API server
-    - **prefix** (Optional - Default: `/api`)
-        - Change default API prefix
-        - Prefix must follow the format: `/abcd`
 
 ```yaml title="Config File Snippet"
 app:
@@ -27,7 +24,6 @@ app:
   api:
     enabled: true
     port: 8000
-    prefix: /api
 ```
 
 ## Frigate

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -155,11 +154,6 @@ func (c *Config) validateAPI() []string {
 
 	if c.App.API.Port <= 0 || c.App.API.Port > 65535 {
 		apiErrors = append(apiErrors, "Invalid API port")
-	}
-
-	if match, _ := regexp.MatchString("^/[A-Za-z0-9]+$", c.App.API.Prefix); !match {
-		apiErrors = append(apiErrors, "API prefix must be in format: /example")
-
 	}
 
 	return apiErrors

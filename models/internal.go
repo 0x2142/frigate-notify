@@ -16,7 +16,7 @@ type Status struct {
 	Frigate   FrigateConnection `json:"frigate"`
 	LastEvent time.Time         `json:"last_event" example:"0001-01-01T00:00:00Z" doc:"Timestamp of last received event from Frigate"`
 	LastAlert time.Time         `json:"last_alert" example:"0001-01-01T00:00:00Z" doc:"Timestamp of last sent alert"`
-	Monitor   string            `json:"monitor" example:"ok" doc:"Health of reporting state to external health montior app"`
+	Monitor   string            `json:"monitor" example:"ok" doc:"Health of reporting state to external health monitor app"`
 }
 
 type FrigateConnection struct {

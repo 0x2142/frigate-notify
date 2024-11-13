@@ -1,4 +1,4 @@
-package api
+package apiv1
 
 import (
 	"context"
@@ -16,7 +16,7 @@ type ConfigOutput struct {
 // GetConfig returns the current running configuratio
 func GetConfig(ctx context.Context, input *struct{}) (*ConfigOutput, error) {
 	log.Trace().
-		Str("uri", API_PREFIX+"/config").
+		Str("uri", V1_PREFIX+"/config").
 		Str("method", "GET").
 		Msg("Received API request")
 
@@ -24,7 +24,7 @@ func GetConfig(ctx context.Context, input *struct{}) (*ConfigOutput, error) {
 	resp.Body.Config = config.ConfigData
 
 	log.Trace().
-		Str("uri", API_PREFIX+"/config").
+		Str("uri", V1_PREFIX+"/config").
 		Interface("response_json", resp.Body).
 		Msg("Sent API response")
 

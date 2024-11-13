@@ -12,8 +12,6 @@ app:
     enabled:
     # Specify custom port, default is 8000
     port:
-    # Specify custom API prefix, default is `/api`
-    prefix:
 
 
 ## Event Collection Methods
