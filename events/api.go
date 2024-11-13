@@ -40,11 +40,13 @@ func QueryAPI() {
 	// Query API for reviews or events
 	response, err := util.HTTPGet(url, config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
 	if err != nil {
+		config.Internal.Status.Health = "frigate webapi unreachable"
 		config.Internal.Status.Frigate.API = "unreachable"
 		log.Error().
 			Err(err).
 			Msgf("Cannot get %s from %s", appmode, url)
 	}
+	config.Internal.Status.Health = "ok"
 	config.Internal.Status.Frigate.API = "ok"
 
 	switch appmode {

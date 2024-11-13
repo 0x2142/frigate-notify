@@ -22,6 +22,17 @@ func Registerv1Routes(api huma.API) {
 		Tags:        []string{"Status"},
 	}, GetReadyz)
 
+	// GET /healthz
+	huma.Register(api, huma.Operation{
+		OperationID: "get-healthz",
+		Method:      http.MethodGet,
+		Path:        V1_PREFIX + "/healthz",
+		Hidden:      true,
+		Summary:     V1_PREFIX + "/healthz",
+		Description: "Retrieve Frigate-Notify liveness state",
+		Tags:        []string{"Status"},
+	}, GetHealthz)
+
 	// GET /version
 	huma.Register(api, huma.Operation{
 		OperationID: "get-version",
@@ -38,7 +49,7 @@ func Registerv1Routes(api huma.API) {
 		Method:      http.MethodGet,
 		Path:        V1_PREFIX + "/status",
 		Summary:     V1_PREFIX + "/status",
-		Description: "Retrieve health and status of Frigate-Notify",
+		Description: "Retrieve detailed health and status of Frigate-Notify",
 		Tags:        []string{"Status"},
 	}, GetStatus)
 

@@ -17,6 +17,7 @@ var mqtt_topic string
 
 // SubscribeMQTT establishes subscription to MQTT server & listens for messages
 func SubscribeMQTT() {
+	config.Internal.Status.Health = "frigate mqtt connecting"
 	config.Internal.Status.Frigate.MQTT = "connecting"
 	mqtt_topic = fmt.Sprintf("%s/%s", config.ConfigData.Frigate.MQTT.TopicPrefix, strings.ToLower(config.ConfigData.App.Mode))
 	// MQTT client configuration
@@ -44,6 +45,7 @@ func SubscribeMQTT() {
 	var subscribed = false
 	var retry = 0
 	for !subscribed {
+		config.Internal.Status.Health = "frigate mqtt unable to connect"
 		config.Internal.Status.Frigate.MQTT = "unreachable"
 		if retry >= 3 {
 			log.Fatal().Msgf("Max retries exceeded. Failed to establish MQTT session to %s", config.ConfigData.Frigate.MQTT.Server)
@@ -53,6 +55,7 @@ func SubscribeMQTT() {
 
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
 			retry += 1
+			config.Internal.Status.Health = "frigate mqtt unable to connect"
 			config.Internal.Status.Frigate.MQTT = "unreachable"
 
 			log.Warn().Msgf("Could not connect to MQTT at %v: %v", config.ConfigData.Frigate.MQTT.Server, token.Error())
@@ -66,6 +69,7 @@ func SubscribeMQTT() {
 
 // connectionLostHandler logs error message on MQTT connection loss
 func connectionLostHandler(c mqtt.Client, err error) {
+	config.Internal.Status.Health = "frigate mqtt connection lost"
 	config.Internal.Status.Frigate.MQTT = "unreachable"
 	log.Error().
 		Err(err).
@@ -75,8 +79,10 @@ func connectionLostHandler(c mqtt.Client, err error) {
 // connectHandler logs message on MQTT connection
 func connectHandler(client mqtt.Client) {
 	log.Info().Msg("Connected to MQTT.")
+	config.Internal.Status.Health = "ok"
 	config.Internal.Status.Frigate.MQTT = "ok"
 	if subscription := client.Subscribe(mqtt_topic, 0, handleMQTTMsg); subscription.Wait() && subscription.Error() != nil {
+		config.Internal.Status.Health = "frigate mqtt unable to subscribe"
 		config.Internal.Status.Frigate.MQTT = "unreachable"
 		log.Error().Msgf("Failed to subscribe to topic: %s", mqtt_topic)
 		time.Sleep(10 * time.Second)
