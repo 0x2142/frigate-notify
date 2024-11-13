@@ -183,7 +183,7 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 					Int("max_tries", 6).
 					Err(err).
 					Msg("HTTP Request failed, retries exceeded")
-				break
+				return nil, err
 			}
 			log.Warn().
 				Int("attempt", retry).

@@ -63,23 +63,23 @@ func Registerv1Routes(api huma.API) {
 		Tags:        []string{"Config"},
 	}, GetConfig)
 
-	// GET /state
+	// GET /notif_state
 	huma.Register(api, huma.Operation{
-		OperationID: "get-state",
+		OperationID: "get-notif-state",
 		Method:      http.MethodGet,
-		Path:        V1_PREFIX + "/state",
-		Summary:     V1_PREFIX + "/state",
-		Description: "Retrieve current state of Frigate-Notify alerting",
+		Path:        V1_PREFIX + "/notif_state",
+		Summary:     V1_PREFIX + "/notif_state",
+		Description: "Retrieve current state of Frigate-Notify notifications",
 		Tags:        []string{"Control"},
-	}, GetState)
+	}, GetNotifState)
 
-	// POST /state
+	// POST /notif_state
 	huma.Register(api, huma.Operation{
-		OperationID: "post-state",
+		OperationID: "post-notif_state",
 		Method:      http.MethodPost,
-		Path:        V1_PREFIX + "/state",
-		Summary:     V1_PREFIX + "/state",
+		Path:        V1_PREFIX + "/notif_state",
+		Summary:     V1_PREFIX + "/notif_state",
 		Description: "Set state of Frigate-Notify alerting",
 		Tags:        []string{"Control"},
-	}, PostState)
+	}, PostNotifState)
 }

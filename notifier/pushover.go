@@ -66,6 +66,7 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 				Str("event_id", event.ID).
 				Str("provider", "Pushover").
 				Msgf("Unable to send alert: %v", err)
+			config.Internal.Status.Notifications.Pushover[0].NotifFailure(err.Error())
 			return
 		}
 	} else {
@@ -78,6 +79,7 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 				Str("event_id", event.ID).
 				Str("provider", "Pushover").
 				Msgf("Unable to send alert: %v", err)
+			config.Internal.Status.Notifications.Pushover[0].NotifFailure(err.Error())
 			return
 		}
 	}
@@ -86,4 +88,6 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 		Str("event_id", event.ID).
 		Str("provider", "Pushover").
 		Msgf("Alert sent")
+	config.Internal.Status.Notifications.Pushover[0].NotifSuccess()
+
 }

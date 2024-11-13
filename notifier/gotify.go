@@ -69,6 +69,7 @@ func SendGotifyPush(event models.Event) {
 			Str("provider", "Gotify").
 			Err(err).
 			Msg("Unable to send alert")
+		config.Internal.Status.Notifications.Gotify[0].NotifFailure(err.Error())
 		return
 	}
 
@@ -82,6 +83,7 @@ func SendGotifyPush(event models.Event) {
 			Str("provider", "Gotify").
 			Err(err).
 			Msg("Unable to send alert")
+		config.Internal.Status.Notifications.Gotify[0].NotifFailure(err.Error())
 		return
 	}
 	// Check for errors:
@@ -92,10 +94,12 @@ func SendGotifyPush(event models.Event) {
 			Str("event_id", event.ID).
 			Str("provider", "Gotify").
 			Msgf("Unable to send alert: %v - %v", errorMessage.Error, errorMessage.ErrorDescription)
+		config.Internal.Status.Notifications.Gotify[0].NotifFailure(errorMessage.ErrorDescription)
 		return
 	}
 	log.Info().
 		Str("event_id", event.ID).
 		Str("provider", "Gotify").
 		Msg("Alert sent")
+	config.Internal.Status.Notifications.Gotify[0].NotifSuccess()
 }

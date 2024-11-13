@@ -23,7 +23,7 @@ var TemplateFiles embed.FS
 
 // SendAlert forwards alert information to all enabled alerting methods
 func SendAlert(event models.Event) {
-	config.Internal.Status.LastAlert = time.Now()
+	config.Internal.Status.LastNotification = time.Now()
 	// Collect snapshot, if available
 	var snapshot io.Reader
 	if event.HasSnapshot {
