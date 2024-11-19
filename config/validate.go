@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (c *Config) validate() []string {
+func (c *Config) Validate() []string {
 	var validationErrors []string
 	log.Debug().Msg("Validating config file...")
 
@@ -250,9 +250,10 @@ func (c *Config) validateFrigateConnectivity() []string {
 	}
 	if current_attempt == max_attempts {
 		Internal.Status.Frigate.API = "unreachable"
-		log.Fatal().
+		log.Error().
 			Err(err).
 			Msgf("Max attempts reached - Cannot reach Frigate server at %v", url)
+		connectivityErrors = append(connectivityErrors, "Max attempts reached - Cannot reach Frigate server at "+url)
 	}
 	var stats models.FrigateStats
 	json.Unmarshal([]byte(response), &stats)

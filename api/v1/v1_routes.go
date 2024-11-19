@@ -63,6 +63,28 @@ func Registerv1Routes(api huma.API) {
 		Tags:        []string{"Config"},
 	}, GetConfig)
 
+	// PUT /config
+	huma.Register(api, huma.Operation{
+		OperationID:   "put-config",
+		Method:        http.MethodPut,
+		Path:          V1_PREFIX + "/config",
+		Summary:       V1_PREFIX + "/config",
+		Description:   "Set current running configuration",
+		Tags:          []string{"Config"},
+		DefaultStatus: 202,
+	}, PutConfig)
+
+	// POST /reload
+	huma.Register(api, huma.Operation{
+		OperationID:   "post-reload",
+		Method:        http.MethodPost,
+		Path:          V1_PREFIX + "/reload",
+		Summary:       V1_PREFIX + "/reload",
+		Description:   "Reload config from file & restart app",
+		Tags:          []string{"Control"},
+		DefaultStatus: 202,
+	}, PostReload)
+
 	// GET /notif_state
 	huma.Register(api, huma.Operation{
 		OperationID: "get-notif-state",

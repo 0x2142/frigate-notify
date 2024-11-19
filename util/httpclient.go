@@ -66,17 +66,22 @@ func HTTPGet(url string, insecure bool, params string, headers ...map[string]str
 	}
 
 	// Remove authorization header value for logging
-	for i, h := range headers {
+	var logheaders []map[string]string
+	for _, h := range headers {
 		for k := range h {
 			if strings.ToLower(k) == "authorization" {
-				headers[i][k] = "--secret removed--"
+				modifiedHeader := make(map[string]string)
+				modifiedHeader[k] = "--secret removed--"
+				logheaders = append(logheaders, modifiedHeader)
+			} else {
+				logheaders = append(logheaders, h)
 			}
 		}
 	}
 	// Send HTTP GET
 	log.Trace().
 		Str("url", url).
-		Interface("headers", headers).
+		Interface("headers", logheaders).
 		Bool("insecure", insecure).
 		Msg("HTTP GET")
 	response, err := client.Do(req)
@@ -148,10 +153,15 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 		}
 
 		// Remove authorization header value for logging
-		for i, h := range headers {
+		var logheaders []map[string]string
+		for _, h := range headers {
 			for k := range h {
 				if strings.ToLower(k) == "authorization" {
-					headers[i][k] = "--secret removed--"
+					modifiedHeader := make(map[string]string)
+					modifiedHeader[k] = "--secret removed--"
+					logheaders = append(logheaders, modifiedHeader)
+				} else {
+					logheaders = append(logheaders, h)
 				}
 			}
 		}
@@ -160,14 +170,14 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 		if json.Valid(payload) {
 			log.Trace().
 				Str("url", url).
-				Interface("headers", headers).
+				Interface("headers", logheaders).
 				RawJSON("body", payload).
 				Bool("insecure", insecure).
 				Msg("HTTP POST")
 		} else {
 			log.Trace().
 				Str("url", url).
-				Interface("headers", headers).
+				Interface("headers", logheaders).
 				Interface("body", payload).
 				Bool("insecure", insecure).
 				Msg("HTTP POST")

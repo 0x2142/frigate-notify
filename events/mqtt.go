@@ -14,6 +14,7 @@ import (
 )
 
 var mqtt_topic string
+var client mqtt.Client
 
 // SubscribeMQTT establishes subscription to MQTT server & listens for messages
 func SubscribeMQTT() {
@@ -51,7 +52,7 @@ func SubscribeMQTT() {
 			log.Fatal().Msgf("Max retries exceeded. Failed to establish MQTT session to %s", config.ConfigData.Frigate.MQTT.Server)
 		}
 		// Connect to MQTT broker
-		client := mqtt.NewClient(opts)
+		client = mqtt.NewClient(opts)
 
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
 			retry += 1
@@ -65,6 +66,13 @@ func SubscribeMQTT() {
 		}
 		return
 	}
+}
+
+// disconnectMQTT simply disconnects the MQTT client
+func DisconnectMQTT() {
+	log.Info().Msg("Ending MQTT session")
+	client.Disconnect(300)
+	log.Info().Msg("MQTT disconnected")
 }
 
 // connectionLostHandler logs error message on MQTT connection loss

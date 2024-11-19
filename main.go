@@ -85,7 +85,8 @@ func main() {
 	log.Info().Msg("Starting...")
 
 	// Load & validate config
-	config.LoadConfig(configFile)
+	config.ConfigFile = configFile
+	config.Load()
 
 	notifier.TemplateFiles = NotifTemplates
 
@@ -110,6 +111,7 @@ func main() {
 
 	// Set up event cache
 	events.InitZoneCache()
+	defer events.CloseZoneCache()
 
 	// Start API server if enabled
 	if config.ConfigData.App.API.Enabled {
@@ -135,10 +137,9 @@ func main() {
 
 	// Connect MQTT
 	if config.ConfigData.Frigate.MQTT.Enabled {
-		defer events.CloseZoneCache()
-
 		log.Debug().Msg("Connecting to MQTT Server...")
 		events.SubscribeMQTT()
+		defer events.DisconnectMQTT()
 		log.Info().Msg("App ready!")
 		config.Internal.Status.Health = "ok"
 		sig := make(chan os.Signal, 1)

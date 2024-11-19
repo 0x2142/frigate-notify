@@ -3,38 +3,42 @@ package config
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/0x2142/frigate-notify/models"
 	"github.com/kkyr/fig"
 	"github.com/rs/zerolog/log"
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	App     models.App      `fig:"app" json:"app"`
-	Frigate *models.Frigate `fig:"frigate" json:"frigate" validate:"required"`
-	Alerts  *models.Alerts  `fig:"alerts" json:"alerts" validate:"required"`
-	Monitor models.Monitor  `fig:"monitor" json:"monitor"`
+	App     models.App      `fig:"app" json:"app" required:"false"`
+	Frigate *models.Frigate `fig:"frigate" json:"frigate" validate:"required" required:"true"`
+	Alerts  *models.Alerts  `fig:"alerts" json:"alerts" validate:"required" required:"true"`
+	Monitor models.Monitor  `fig:"monitor" json:"monitor" required:"false"`
 }
 
 var ConfigData Config
+var ConfigFile string
 
-// loadConfig opens & attempts to parse configuration file
-func LoadConfig(configFile string) {
+// Load opens & attempts to parse configuration file
+func Load() {
 	// Set config file location
-	if configFile == "" {
+	if ConfigFile == "" {
 		var ok bool
-		configFile, ok = os.LookupEnv("FN_CONFIGFILE")
+		ConfigFile, ok = os.LookupEnv("FN_CONFIGFILE")
 		if !ok {
-			configFile = "./config.yml"
+			ConfigFile = "./config.yml"
 		}
 	}
 
 	// Load Config file
-	log.Debug().Msgf("Attempting to load config file: %v", configFile)
+	log.Debug().Msgf("Attempting to load config file: %v", ConfigFile)
 
-	err := fig.Load(&ConfigData, fig.File(filepath.Base(configFile)), fig.Dirs(filepath.Dir(configFile)), fig.UseEnv("FN"))
+	err := fig.Load(&ConfigData, fig.File(filepath.Base(ConfigFile)), fig.Dirs(filepath.Dir(ConfigFile)), fig.UseEnv("FN"))
 	if err != nil {
 		if errors.Is(err, fig.ErrFileNotFound) {
 			log.Warn().Msg("Config file could not be read, attempting to load config from environment")
@@ -53,7 +57,7 @@ func LoadConfig(configFile string) {
 	log.Info().Msg("Config loaded.")
 
 	// Send config file to validation before completing
-	validationErrors := ConfigData.validate()
+	validationErrors := ConfigData.Validate()
 
 	if len(validationErrors) > 0 {
 		fmt.Println()
@@ -66,4 +70,42 @@ func LoadConfig(configFile string) {
 	} else {
 		log.Info().Msg("Config file validated!")
 	}
+}
+
+func Save(skipBackup bool) {
+	log.Debug().Msg("Writing new config file")
+
+	data, err := yaml.Marshal(&ConfigData)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to save config")
+		return
+	}
+
+	// Store backup of original config, if requested
+	if !skipBackup {
+		original, err := os.Open(ConfigFile)
+		if err != nil {
+			log.Error().Err(err).Msg("Unable to create config backup")
+		}
+		defer original.Close()
+
+		newFile := fmt.Sprintf("%s-%s.bak", ConfigFile, time.Now().Format("20060102150405"))
+		copy, err := os.Create(newFile)
+		if err != nil {
+			log.Error().Err(err).Msg("Unable to create config backup")
+		}
+		defer copy.Close()
+
+		io.Copy(copy, original)
+		log.Info().Msgf("Created config file backup: %v", newFile)
+
+	}
+
+	err = os.WriteFile(ConfigFile, data, 0644)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to save config")
+		return
+	}
+
+	log.Info().Msg("Config file saved")
 }
