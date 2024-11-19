@@ -59,6 +59,10 @@ func Load() {
 	// Send config file to validation before completing
 	validationErrors := ConfigData.Validate()
 
+	log.Trace().
+		Interface("config", ConfigData).
+		Msg("Config file loaded & validation completed")
+
 	if len(validationErrors) > 0 {
 		fmt.Println()
 		log.Error().Msg("Config validation failed:")
