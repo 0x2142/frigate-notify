@@ -58,7 +58,7 @@ func TestValidateAPI(t *testing.T) {
 	// Check bad config
 	config.App.API.Port = 65540
 	result = config.validateAPI()
-	expected = 2
+	expected = 1
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}

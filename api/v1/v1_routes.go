@@ -71,7 +71,7 @@ func Registerv1Routes(api huma.API) {
 		Summary:       V1_PREFIX + "/config",
 		Description:   "Set current running configuration",
 		Tags:          []string{"Config"},
-		DefaultStatus: 202,
+		DefaultStatus: http.StatusAccepted,
 	}, PutConfig)
 
 	// POST /reload
@@ -82,7 +82,7 @@ func Registerv1Routes(api huma.API) {
 		Summary:       V1_PREFIX + "/reload",
 		Description:   "Reload config from file & restart app",
 		Tags:          []string{"Control"},
-		DefaultStatus: 202,
+		DefaultStatus: http.StatusAccepted,
 	}, PostReload)
 
 	// GET /notif_state
@@ -97,11 +97,23 @@ func Registerv1Routes(api huma.API) {
 
 	// POST /notif_state
 	huma.Register(api, huma.Operation{
-		OperationID: "post-notif_state",
-		Method:      http.MethodPost,
-		Path:        V1_PREFIX + "/notif_state",
-		Summary:     V1_PREFIX + "/notif_state",
-		Description: "Set state of Frigate-Notify alerting",
-		Tags:        []string{"Control"},
+		OperationID:   "post-notif_state",
+		Method:        http.MethodPost,
+		Path:          V1_PREFIX + "/notif_state",
+		Summary:       V1_PREFIX + "/notif_state",
+		Description:   "Set state of Frigate-Notify alerting",
+		Tags:          []string{"Control"},
+		DefaultStatus: http.StatusAccepted,
 	}, PostNotifState)
+
+	// POST /notiftest
+	huma.Register(api, huma.Operation{
+		OperationID:   "post-notiftest",
+		Method:        http.MethodPost,
+		Path:          V1_PREFIX + "/notif_test",
+		Summary:       V1_PREFIX + "/notif_test",
+		Description:   "Send test notification via configured providers",
+		Tags:          []string{"Control"},
+		DefaultStatus: http.StatusAccepted,
+	}, PostNotifTest)
 }

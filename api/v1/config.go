@@ -17,9 +17,11 @@ type ConfigOutput struct {
 
 type PutConfigInput struct {
 	Body struct {
-		Config     config.Config `json:"config"`
-		SkipSave   bool          `json:"skipsave,omitempty" doc:"Skip writing new config to file" default:"false"`
-		SkipBackup bool          `json:"skipbackup,omitempty" doc:"Skip creating config file backup" default:"false"`
+		Config       config.Config `json:"config"`
+		SkipSave     bool          `json:"skipsave,omitempty" doc:"Skip writing new config to file" default:"false"`
+		SkipBackup   bool          `json:"skipbackup,omitempty" doc:"Skip creating config file backup" default:"false"`
+		SkipValidate bool          `json:"skipvalidate,omitempty" doc:"Skip config validation checking"`
+		SkipReload   bool          `json:"skipreload,omitempty" doc:"Skip config reload after updating settings" hidden:"true"`
 	}
 }
 
@@ -58,11 +60,18 @@ func PutConfig(ctx context.Context, input *PutConfigInput) (*PutConfigOutput, er
 	resp := &PutConfigOutput{}
 
 	newConfig := input.Body.Config
-	validationErrors := newConfig.Validate()
+
+	var validationErrors []string
+	if !input.Body.SkipValidate {
+		log.Trace().Msg("Skipping config validation checks")
+		validationErrors = newConfig.Validate()
+	}
 
 	if len(validationErrors) == 0 {
 		resp.Body.Status = "ok"
-		go reloadCfg(newConfig, input.Body.SkipSave, input.Body.SkipBackup)
+		if !input.Body.SkipReload {
+			go reloadCfg(newConfig, input.Body.SkipSave, input.Body.SkipBackup)
+		}
 
 		log.Trace().
 			Str("uri", V1_PREFIX+"/config").
