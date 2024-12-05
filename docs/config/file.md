@@ -12,11 +12,18 @@ Config may also be provided via environment variables. Frigate-notify will load 
     - `reviews` will only notify on Frigate **Alerts** (Requires Frigate 0.14+)
         - When in `reviews` mode, toggle `notify_detections` under the `alerts` config section to also notify on **Detections**
         - See also [Alerts vs Detections](https://docs.frigate.video/configuration/review/#alerts-and-detections)
-    - For more information on reviews vs events, see 
+- **API**
+    - **enabled** (Optional - Default: `false`)
+        - Set to `true` to enable Frigate-Notify's REST API server
+    - **port** (Optional - Default: `8000`)
+        - Change default port for API server
 
 ```yaml title="Config File Snippet"
 app:
   mode: events
+  api:
+    enabled: true
+    port: 8000
 ```
 
 ## Frigate

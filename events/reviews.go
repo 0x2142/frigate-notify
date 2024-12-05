@@ -15,6 +15,8 @@ import (
 
 // processReview handles querying detections under a review & preparing for sending an alert
 func processReview(review models.Review) {
+	config.Internal.Status.LastEvent = time.Now()
+
 	// Convert to human-readable timestamp
 	reviewTime := time.Unix(int64(review.StartTime), 0)
 	log.Info().
@@ -44,6 +46,7 @@ func processReview(review models.Review) {
 
 		response, err := util.HTTPGet(url, config.ConfigData.Frigate.Insecure, "")
 		if err != nil {
+			config.Internal.Status.Frigate.API = "unreachable"
 			log.Error().
 				Err(err).
 				Str("review_id", review.ID).
@@ -51,6 +54,7 @@ func processReview(review models.Review) {
 				Msgf("Unable to retrieve detection information")
 			continue
 		}
+		config.Internal.Status.Frigate.API = "ok"
 
 		var detection models.Event
 		json.Unmarshal(response, &detection)

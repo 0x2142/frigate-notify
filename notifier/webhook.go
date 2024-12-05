@@ -22,6 +22,7 @@ func SendWebhook(event models.Event) {
 			Str("provider", "Webhook").
 			Err(err).
 			Msg("Unable to send alert")
+		config.Internal.Status.Notifications.Webhook[0].NotifFailure(err.Error())
 		return
 	}
 	if string(payload) != "null" {
@@ -46,10 +47,12 @@ func SendWebhook(event models.Event) {
 			Str("provider", "Webhook").
 			Err(err).
 			Msg("Unable to send alert")
+		config.Internal.Status.Notifications.Webhook[0].NotifFailure(err.Error())
 		return
 	}
 	log.Info().
 		Str("event_id", event.ID).
 		Str("provider", "Webhook").
 		Msg("Alert sent")
+	config.Internal.Status.Notifications.Webhook[0].NotifSuccess()
 }

@@ -32,6 +32,7 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader) {
 			Str("provider", "Discord").
 			Err(err).
 			Msg("Unable to send alert")
+		config.Internal.Status.Notifications.Discord[0].NotifFailure(err.Error())
 	}
 	defer client.Close(context.TODO())
 
@@ -64,9 +65,11 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader) {
 			Str("provider", "Discord").
 			Err(err).
 			Msg("Unable to send alert")
+		config.Internal.Status.Notifications.Discord[0].NotifFailure(err.Error())
 	}
 	log.Info().
 		Str("event_id", event.ID).
 		Str("provider", "Discord").
 		Msg("Alert sent")
+	config.Internal.Status.Notifications.Discord[0].NotifSuccess()
 }

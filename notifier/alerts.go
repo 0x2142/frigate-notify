@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"text/template"
 	"time"
@@ -22,6 +23,7 @@ var TemplateFiles embed.FS
 
 // SendAlert forwards alert information to all enabled alerting methods
 func SendAlert(event models.Event) {
+	config.Internal.Status.LastNotification = time.Now()
 	// Collect snapshot, if available
 	var snapshot io.Reader
 	if event.HasSnapshot {
@@ -32,7 +34,7 @@ func SendAlert(event models.Event) {
 	event.Extra.EventLink = config.ConfigData.Frigate.PublicURL + "/api/events/" + event.ID + "/clip.mp4"
 
 	// Add Frigate Major version metadata
-	event.Extra.FrigateMajorVersion = config.ConfigData.Frigate.Version
+	event.Extra.FrigateMajorVersion = config.Internal.FrigateVersion
 
 	// Create copy of snapshot for each alerting method
 	var snap []byte
@@ -100,6 +102,9 @@ func setExtras(event models.Event) models.Event {
 	// MQTT uses CurrentZones, Web API uses Zones
 	// Combine into one object to use regardless of connection method
 	event.Zones = append(event.Zones, event.CurrentZones...)
+	// Remove duplicates
+	slices.Sort(event.Zones)
+	event.Zones = slices.Compact(event.Zones)
 	// Join zones into plain comma-separated string
 	event.Extra.ZoneList = strings.Join(event.Zones, ", ")
 

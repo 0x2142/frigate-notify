@@ -66,6 +66,7 @@ func SendNtfyPush(event models.Event, snapshot io.Reader) {
 			Str("provider", "Ntfy").
 			Err(err).
 			Msg("Unable to send alert")
+		config.Internal.Status.Notifications.Ntfy[0].NotifFailure(err.Error())
 		return
 	}
 
@@ -76,10 +77,13 @@ func SendNtfyPush(event models.Event, snapshot io.Reader) {
 			Str("provider", "Ntfy").
 			Str("error", string(resp)).
 			Msg("Unable to send alert")
+		config.Internal.Status.Notifications.Ntfy[0].NotifFailure(string(resp))
+
 	}
 
 	log.Info().
 		Str("event_id", event.ID).
 		Str("provider", "Ntfy").
 		Msg("Alert sent")
+	config.Internal.Status.Notifications.Ntfy[0].NotifSuccess()
 }

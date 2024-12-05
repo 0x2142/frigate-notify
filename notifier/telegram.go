@@ -29,6 +29,8 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader) {
 			Str("provider", "Telegram").
 			Err(err).
 			Msg("Unable to send alert")
+		config.Internal.Status.Notifications.Telegram[0].NotifFailure(err.Error())
+
 		return
 	}
 
@@ -47,6 +49,7 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader) {
 				Str("provider", "Telegram").
 				Err(err).
 				Msg("Unable to send alert")
+			config.Internal.Status.Notifications.Telegram[0].NotifFailure(err.Error())
 			return
 		}
 	} else {
@@ -63,6 +66,7 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader) {
 				Str("provider", "Telegram").
 				Err(err).
 				Msg("Unable to send alert")
+			config.Internal.Status.Notifications.Telegram[0].NotifFailure(err.Error())
 			return
 		}
 	}
@@ -70,4 +74,5 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader) {
 		Str("event_id", event.ID).
 		Str("provider", "Telegram").
 		Msg("Alert sent")
+	config.Internal.Status.Notifications.Telegram[0].NotifSuccess()
 }

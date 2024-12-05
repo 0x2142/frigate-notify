@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
 	"github.com/0x2142/frigate-notify/notifier"
 	"github.com/rs/zerolog/log"
@@ -11,6 +12,7 @@ import (
 
 // processEvent handles preparing event for alerting
 func processEvent(event models.Event) {
+	config.Internal.Status.LastEvent = time.Now()
 	// For events collected via API, top-level top_score value is no longer used
 	// So need to replace it with data.top_score value
 	if event.TopScore == 0 {
