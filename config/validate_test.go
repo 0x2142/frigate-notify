@@ -176,18 +176,19 @@ func TestValidateAlertGeneral(t *testing.T) {
 
 func TestValidateDiscord(t *testing.T) {
 	config := Config{Alerts: &models.Alerts{}}
+	config.Alerts.Discord = make([]models.Discord, 1)
 
 	// Test valid config
-	config.Alerts.Discord.Webhook = "https://something.test"
-	result := config.validateDiscord()
+	config.Alerts.Discord[0].Webhook = "https://something.test"
+	result := config.validateDiscord(0)
 	expected := 0
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test missing webhook config
-	config.Alerts.Discord.Webhook = ""
-	result = config.validateDiscord()
+	config.Alerts.Discord[0].Webhook = ""
+	result = config.validateDiscord(0)
 	expected = 1
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
@@ -196,27 +197,28 @@ func TestValidateDiscord(t *testing.T) {
 
 func TestValidateGotify(t *testing.T) {
 	config := Config{Alerts: &models.Alerts{}}
+	config.Alerts.Gotify = make([]models.Gotify, 1)
 
 	// Test valid config
-	config.Alerts.Gotify.Server = "https://something.test"
-	config.Alerts.Gotify.Token = "abcdefg"
-	result := config.validateGotify()
+	config.Alerts.Gotify[0].Server = "https://something.test"
+	config.Alerts.Gotify[0].Token = "abcdefg"
+	result := config.validateGotify(0)
 	expected := 0
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test missing server config
-	config.Alerts.Gotify.Server = ""
-	result = config.validateGotify()
+	config.Alerts.Gotify[0].Server = ""
+	result = config.validateGotify(0)
 	expected = 1
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test missing token config
-	config.Alerts.Gotify.Token = ""
-	result = config.validateGotify()
+	config.Alerts.Gotify[0].Token = ""
+	result = config.validateGotify(0)
 	expected = 1
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
@@ -225,47 +227,48 @@ func TestValidateGotify(t *testing.T) {
 
 func TestValidateSMTP(t *testing.T) {
 	config := Config{Alerts: &models.Alerts{}}
+	config.Alerts.SMTP = make([]models.SMTP, 1)
 
 	// Test valid config
-	config.Alerts.SMTP.Server = "192.0.2.10"
-	config.Alerts.SMTP.Recipient = "someone@none.test"
-	config.Alerts.SMTP.User = "someuser"
-	config.Alerts.SMTP.Password = "abcd"
-	result := config.validateSMTP()
+	config.Alerts.SMTP[0].Server = "192.0.2.10"
+	config.Alerts.SMTP[0].Recipient = "someone@none.test"
+	config.Alerts.SMTP[0].User = "someuser"
+	config.Alerts.SMTP[0].Password = "abcd"
+	result := config.validateSMTP(0)
 	expected := 0
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Check Default port set
-	if config.Alerts.SMTP.Port != 25 {
-		t.Errorf("Expected: port 25 , Got: %v", config.Alerts.SMTP.Port)
+	if config.Alerts.SMTP[0].Port != 25 {
+		t.Errorf("Expected: port 25 , Got: %v", config.Alerts.SMTP[0].Port)
 	}
 
 	// Check SMTP From is copied
-	if config.Alerts.SMTP.User != config.Alerts.SMTP.From {
-		t.Errorf("Expected: %v, Got: %v", config.Alerts.SMTP.User, config.Alerts.SMTP.From)
+	if config.Alerts.SMTP[0].User != config.Alerts.SMTP[0].From {
+		t.Errorf("Expected: %v, Got: %v", config.Alerts.SMTP[0].User, config.Alerts.SMTP[0].From)
 	}
 
 	// Test missing server
-	config.Alerts.SMTP.Server = ""
-	result = config.validateSMTP()
+	config.Alerts.SMTP[0].Server = ""
+	result = config.validateSMTP(0)
 	expected = 1
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test missing recipient
-	config.Alerts.SMTP.Recipient = ""
-	result = config.validateSMTP()
+	config.Alerts.SMTP[0].Recipient = ""
+	result = config.validateSMTP(0)
 	expected = 2
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test invalid auth config
-	config.Alerts.SMTP.Password = ""
-	result = config.validateSMTP()
+	config.Alerts.SMTP[0].Password = ""
+	result = config.validateSMTP(0)
 	expected = 3
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
@@ -274,27 +277,28 @@ func TestValidateSMTP(t *testing.T) {
 
 func TestValidateTelegram(t *testing.T) {
 	config := Config{Alerts: &models.Alerts{}}
+	config.Alerts.Telegram = make([]models.Telegram, 1)
 
 	// Test valid config
-	config.Alerts.Telegram.ChatID = 1234
-	config.Alerts.Telegram.Token = "abcd"
-	result := config.validateTelegram()
+	config.Alerts.Telegram[0].ChatID = 1234
+	config.Alerts.Telegram[0].Token = "abcd"
+	result := config.validateTelegram(0)
 	expected := 0
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test missing Chat ID
-	config.Alerts.Telegram.ChatID = 0
-	result = config.validateTelegram()
+	config.Alerts.Telegram[0].ChatID = 0
+	result = config.validateTelegram(0)
 	expected = 1
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test missing Token
-	config.Alerts.Telegram.Token = ""
-	result = config.validateTelegram()
+	config.Alerts.Telegram[0].Token = ""
+	result = config.validateTelegram(0)
 	expected = 2
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
@@ -303,53 +307,54 @@ func TestValidateTelegram(t *testing.T) {
 
 func TestValidatePushover(t *testing.T) {
 	config := Config{Alerts: &models.Alerts{}}
+	config.Alerts.Pushover = make([]models.Pushover, 1)
 
 	// Test valid config
-	config.Alerts.Pushover.Token = "abcd"
-	config.Alerts.Pushover.Userkey = "abcd"
-	config.Alerts.Pushover.Priority = 1
-	result := config.validatePushover()
+	config.Alerts.Pushover[0].Token = "abcd"
+	config.Alerts.Pushover[0].Userkey = "abcd"
+	config.Alerts.Pushover[0].Priority = 1
+	result := config.validatePushover(0)
 	expected := 0
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test missing token
-	config.Alerts.Pushover.Token = ""
-	result = config.validatePushover()
+	config.Alerts.Pushover[0].Token = ""
+	result = config.validatePushover(0)
 	expected = 1
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test missing Userkey
-	config.Alerts.Pushover.Userkey = ""
-	result = config.validatePushover()
+	config.Alerts.Pushover[0].Userkey = ""
+	result = config.validatePushover(0)
 	expected = 2
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test priority 2 missing retry / expiration config
-	config.Alerts.Pushover.Priority = 2
-	result = config.validatePushover()
+	config.Alerts.Pushover[0].Priority = 2
+	result = config.validatePushover(0)
 	expected = 4
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test priority 2 with low retry interval
-	config.Alerts.Pushover.Retry = 2
-	config.Alerts.Pushover.Expire = 10
-	result = config.validatePushover()
+	config.Alerts.Pushover[0].Retry = 2
+	config.Alerts.Pushover[0].Expire = 10
+	result = config.validatePushover(0)
 	expected = 3
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test negative TTL
-	config.Alerts.Pushover.TTL = -2
-	result = config.validatePushover()
+	config.Alerts.Pushover[0].TTL = -2
+	result = config.validatePushover(0)
 	expected = 4
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
@@ -358,27 +363,28 @@ func TestValidatePushover(t *testing.T) {
 
 func TestValidateNtfy(t *testing.T) {
 	config := Config{Alerts: &models.Alerts{}}
+	config.Alerts.Ntfy = make([]models.Ntfy, 1)
 
 	// Test valid config
-	config.Alerts.Ntfy.Server = "https://ntfy.test"
-	config.Alerts.Ntfy.Topic = "frigate"
-	result := config.validateNtfy()
+	config.Alerts.Ntfy[0].Server = "https://ntfy.test"
+	config.Alerts.Ntfy[0].Topic = "frigate"
+	result := config.validateNtfy(0)
 	expected := 0
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test missing server config
-	config.Alerts.Ntfy.Server = ""
-	result = config.validateNtfy()
+	config.Alerts.Ntfy[0].Server = ""
+	result = config.validateNtfy(0)
 	expected = 1
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test missing topic config
-	config.Alerts.Ntfy.Topic = ""
-	result = config.validateNtfy()
+	config.Alerts.Ntfy[0].Topic = ""
+	result = config.validateNtfy(0)
 	expected = 2
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
@@ -386,18 +392,19 @@ func TestValidateNtfy(t *testing.T) {
 }
 func TestValidateWebhook(t *testing.T) {
 	config := Config{Alerts: &models.Alerts{}}
+	config.Alerts.Webhook = make([]models.Webhook, 1)
 
 	// Test valid config
-	config.Alerts.Webhook.Server = "https://webhook.test"
-	result := config.validateWebhook()
+	config.Alerts.Webhook[0].Server = "https://webhook.test"
+	result := config.validateWebhook(0)
 	expected := 0
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
 	}
 
 	// Test missing server config
-	config.Alerts.Webhook.Server = ""
-	result = config.validateWebhook()
+	config.Alerts.Webhook[0].Server = ""
+	result = config.validateWebhook(0)
 	expected = 1
 	if len(result) != expected {
 		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
@@ -407,9 +414,10 @@ func TestValidateWebhook(t *testing.T) {
 
 func TestValidateAlertingEnabled(t *testing.T) {
 	config := Config{Alerts: &models.Alerts{}}
+	config.Alerts.Discord = make([]models.Discord, 1)
 
 	// Test valid config
-	config.Alerts.Discord.Enabled = true
+	config.Alerts.Discord[0].Enabled = true
 	result := config.validateAlertingEnabled()
 	expected := ""
 	if result != expected {
@@ -417,7 +425,7 @@ func TestValidateAlertingEnabled(t *testing.T) {
 	}
 
 	// Test missing server config
-	config.Alerts.Discord.Enabled = false
+	config.Alerts.Discord[0].Enabled = false
 	result = config.validateAlertingEnabled()
 	if result == "" {
 		t.Errorf("Expected: error message, Got: %v", result)
