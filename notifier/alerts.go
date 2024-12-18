@@ -21,6 +21,11 @@ import (
 
 var TemplateFiles embed.FS
 
+type notifMeta struct {
+	name  string
+	index int
+}
+
 // SendAlert forwards alert information to all enabled alerting methods
 func SendAlert(event models.Event) {
 	config.Internal.Status.LastNotification = time.Now()
@@ -43,26 +48,68 @@ func SendAlert(event models.Event) {
 	}
 
 	// Send Alerts
-	if config.ConfigData.Alerts.Discord.Enabled {
-		go SendDiscordMessage(event, bytes.NewReader(snap))
+	// Discord
+	for id, profile := range config.ConfigData.Alerts.Discord {
+		if profile.Enabled {
+			provider := notifMeta{name: "discord", index: id}
+			if checkAlertFilters(event, profile.Filters, provider) {
+				go SendDiscordMessage(event, bytes.NewReader(snap), provider)
+			}
+		}
 	}
-	if config.ConfigData.Alerts.Gotify.Enabled {
-		go SendGotifyPush(event)
+	// Gotify
+	for id, profile := range config.ConfigData.Alerts.Gotify {
+		if profile.Enabled {
+			provider := notifMeta{name: "gotify", index: id}
+			if checkAlertFilters(event, profile.Filters, provider) {
+				go SendGotifyPush(event, provider)
+			}
+		}
 	}
-	if config.ConfigData.Alerts.SMTP.Enabled {
-		go SendSMTP(event, bytes.NewReader(snap))
+	// SMTP
+	for id, profile := range config.ConfigData.Alerts.SMTP {
+		if profile.Enabled {
+			provider := notifMeta{name: "smtp", index: id}
+			if checkAlertFilters(event, profile.Filters, provider) {
+				go SendSMTP(event, bytes.NewReader(snap), provider)
+			}
+		}
 	}
-	if config.ConfigData.Alerts.Telegram.Enabled {
-		go SendTelegramMessage(event, bytes.NewReader(snap))
+	// Telegram
+	for id, profile := range config.ConfigData.Alerts.Telegram {
+		if profile.Enabled {
+			provider := notifMeta{name: "telegram", index: id}
+			if checkAlertFilters(event, profile.Filters, provider) {
+				go SendTelegramMessage(event, bytes.NewReader(snap), provider)
+			}
+		}
 	}
-	if config.ConfigData.Alerts.Pushover.Enabled {
-		go SendPushoverMessage(event, bytes.NewReader(snap))
+	// Pushover
+	for id, profile := range config.ConfigData.Alerts.Pushover {
+		if profile.Enabled {
+			provider := notifMeta{name: "pushover", index: id}
+			if checkAlertFilters(event, profile.Filters, provider) {
+				go SendPushoverMessage(event, bytes.NewReader(snap), provider)
+			}
+		}
 	}
-	if config.ConfigData.Alerts.Ntfy.Enabled {
-		go SendNtfyPush(event, bytes.NewReader(snap))
+	// Ntfy
+	for id, profile := range config.ConfigData.Alerts.Ntfy {
+		if profile.Enabled {
+			provider := notifMeta{name: "ntfy", index: id}
+			if checkAlertFilters(event, profile.Filters, provider) {
+				go SendNtfyPush(event, bytes.NewReader(snap), provider)
+			}
+		}
 	}
-	if config.ConfigData.Alerts.Webhook.Enabled {
-		go SendWebhook(event)
+	// Webhook
+	for id, profile := range config.ConfigData.Alerts.Webhook {
+		if profile.Enabled {
+			provider := notifMeta{name: "webhook", index: id}
+			if checkAlertFilters(event, profile.Filters, provider) {
+				go SendWebhook(event, provider)
+			}
+		}
 	}
 }
 
