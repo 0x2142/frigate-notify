@@ -16,6 +16,7 @@ import (
 // SendSMTP forwards alert data via email
 func SendSMTP(event models.Event, snapshot io.Reader, provider notifMeta) {
 	profile := config.ConfigData.Alerts.SMTP[provider.index]
+	status := &config.Internal.Status.Notifications.SMTP[provider.index]
 
 	// Build notification
 	var message string
@@ -65,7 +66,7 @@ func SendSMTP(event models.Event, snapshot io.Reader, provider notifMeta) {
 			Err(err).
 			Int("provider_id", provider.index).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.SMTP[0].NotifFailure(err.Error())
+		status.NotifFailure(err.Error())
 	}
 
 	log.Trace().
@@ -89,7 +90,7 @@ func SendSMTP(event models.Event, snapshot io.Reader, provider notifMeta) {
 			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.SMTP[0].NotifFailure(err.Error())
+		status.NotifFailure(err.Error())
 		return
 	}
 	log.Info().
@@ -97,7 +98,7 @@ func SendSMTP(event models.Event, snapshot io.Reader, provider notifMeta) {
 		Str("provider", "SMTP").
 		Int("provider_id", provider.index).
 		Msg("Alert sent")
-	config.Internal.Status.Notifications.SMTP[0].NotifSuccess()
+	status.NotifSuccess()
 }
 
 // ParseSMTPRecipients splits individual email addresses from config file

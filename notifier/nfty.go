@@ -15,6 +15,7 @@ import (
 // SendNtfyPush forwards alert messages to Ntfy server
 func SendNtfyPush(event models.Event, snapshot io.Reader, provider notifMeta) {
 	profile := config.ConfigData.Alerts.Ntfy[provider.index]
+	status := &config.Internal.Status.Notifications.Ntfy[provider.index]
 
 	// Build notification
 	var message string
@@ -69,7 +70,7 @@ func SendNtfyPush(event models.Event, snapshot io.Reader, provider notifMeta) {
 			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.Ntfy[0].NotifFailure(err.Error())
+		status.NotifFailure(err.Error())
 		return
 	}
 
@@ -81,7 +82,7 @@ func SendNtfyPush(event models.Event, snapshot io.Reader, provider notifMeta) {
 			Int("provider_id", provider.index).
 			Str("error", string(resp)).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.Ntfy[0].NotifFailure(string(resp))
+		status.NotifFailure(string(resp))
 
 	}
 
@@ -90,5 +91,5 @@ func SendNtfyPush(event models.Event, snapshot io.Reader, provider notifMeta) {
 		Int("provider_id", provider.index).
 		Str("provider", "Ntfy").
 		Msg("Alert sent")
-	config.Internal.Status.Notifications.Ntfy[0].NotifSuccess()
+	status.NotifSuccess()
 }

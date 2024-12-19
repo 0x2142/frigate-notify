@@ -15,6 +15,7 @@ import (
 // SendPushoverMessage sends alert message through Pushover service
 func SendPushoverMessage(event models.Event, snapshot io.Reader, provider notifMeta) {
 	profile := config.ConfigData.Alerts.Pushover[provider.index]
+	status := &config.Internal.Status.Notifications.Pushover[provider.index]
 
 	// Build notification
 	var message string
@@ -71,7 +72,7 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader, provider notifM
 				Str("provider", "Pushover").
 				Int("provider_id", provider.index).
 				Msgf("Unable to send alert: %v", err)
-			config.Internal.Status.Notifications.Pushover[0].NotifFailure(err.Error())
+			status.NotifFailure(err.Error())
 			return
 		}
 	} else {
@@ -86,7 +87,7 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader, provider notifM
 				Str("provider", "Pushover").
 				Int("provider_id", provider.index).
 				Msgf("Unable to send alert: %v", err)
-			config.Internal.Status.Notifications.Pushover[0].NotifFailure(err.Error())
+			status.NotifFailure(err.Error())
 			return
 		}
 	}
@@ -96,6 +97,6 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader, provider notifM
 		Str("provider", "Pushover").
 		Int("provider_id", provider.index).
 		Msgf("Alert sent")
-	config.Internal.Status.Notifications.Pushover[0].NotifSuccess()
+	status.NotifSuccess()
 
 }

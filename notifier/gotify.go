@@ -37,6 +37,7 @@ type gotifyPayload struct {
 // SendGotifyPush forwards alert messages to Gotify push notification server
 func SendGotifyPush(event models.Event, provider notifMeta) {
 	profile := config.ConfigData.Alerts.Gotify[provider.index]
+	status := &config.Internal.Status.Notifications.Gotify[provider.index]
 
 	var snapshotURL string
 	if config.ConfigData.Frigate.PublicURL != "" {
@@ -72,7 +73,7 @@ func SendGotifyPush(event models.Event, provider notifMeta) {
 			Err(err).
 			Int("provider_id", provider.index).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.Gotify[0].NotifFailure(err.Error())
+		status.NotifFailure(err.Error())
 		return
 	}
 
@@ -87,7 +88,7 @@ func SendGotifyPush(event models.Event, provider notifMeta) {
 			Err(err).
 			Int("provider_id", provider.index).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.Gotify[0].NotifFailure(err.Error())
+		status.NotifFailure(err.Error())
 		return
 	}
 	// Check for errors:
@@ -99,7 +100,7 @@ func SendGotifyPush(event models.Event, provider notifMeta) {
 			Str("provider", "Gotify").
 			Int("provider_id", provider.index).
 			Msgf("Unable to send alert: %v - %v", errorMessage.Error, errorMessage.ErrorDescription)
-		config.Internal.Status.Notifications.Gotify[0].NotifFailure(errorMessage.ErrorDescription)
+		status.NotifFailure(errorMessage.ErrorDescription)
 		return
 	}
 	log.Info().
@@ -107,5 +108,5 @@ func SendGotifyPush(event models.Event, provider notifMeta) {
 		Str("provider", "Gotify").
 		Int("provider_id", provider.index).
 		Msg("Alert sent")
-	config.Internal.Status.Notifications.Gotify[0].NotifSuccess()
+	status.NotifSuccess()
 }

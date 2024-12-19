@@ -14,6 +14,7 @@ import (
 // SendTelegramMessage sends alert through Telegram to individual users
 func SendTelegramMessage(event models.Event, snapshot io.Reader, provider notifMeta) {
 	profile := config.ConfigData.Alerts.Telegram[provider.index]
+	status := &config.Internal.Status.Notifications.Telegram[provider.index]
 
 	// Build notification
 	var message string
@@ -32,7 +33,7 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader, provider notifM
 			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.Telegram[0].NotifFailure(err.Error())
+		status.NotifFailure(err.Error())
 
 		return
 	}
@@ -54,7 +55,7 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader, provider notifM
 				Int("provider_id", provider.index).
 				Err(err).
 				Msg("Unable to send alert")
-			config.Internal.Status.Notifications.Telegram[0].NotifFailure(err.Error())
+			status.NotifFailure(err.Error())
 			return
 		}
 	} else {
@@ -73,7 +74,7 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader, provider notifM
 				Int("provider_id", provider.index).
 				Err(err).
 				Msg("Unable to send alert")
-			config.Internal.Status.Notifications.Telegram[0].NotifFailure(err.Error())
+			status.NotifFailure(err.Error())
 			return
 		}
 	}
@@ -82,5 +83,5 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader, provider notifM
 		Str("provider", "Telegram").
 		Int("provider_id", provider.index).
 		Msg("Alert sent")
-	config.Internal.Status.Notifications.Telegram[0].NotifSuccess()
+	status.NotifSuccess()
 }

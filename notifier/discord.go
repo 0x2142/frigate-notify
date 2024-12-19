@@ -16,6 +16,7 @@ import (
 // SendDiscordMessage pushes alert message to Discord via webhook
 func SendDiscordMessage(event models.Event, snapshot io.Reader, provider notifMeta) {
 	profile := config.ConfigData.Alerts.Discord[provider.index]
+	status := &config.Internal.Status.Notifications.Discord[provider.index]
 
 	var err error
 	var message string
@@ -35,7 +36,7 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader, provider notifMe
 			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.Discord[0].NotifFailure(err.Error())
+		status.NotifFailure(err.Error())
 	}
 	defer client.Close(context.TODO())
 
@@ -71,12 +72,12 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader, provider notifMe
 			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.Discord[0].NotifFailure(err.Error())
+		status.NotifFailure(err.Error())
 	}
 	log.Info().
 		Str("event_id", event.ID).
 		Str("provider", "Discord").
 		Int("provider_id", provider.index).
 		Msg("Alert sent")
-	config.Internal.Status.Notifications.Discord[0].NotifSuccess()
+	status.NotifSuccess()
 }

@@ -14,6 +14,7 @@ import (
 // SendWebhook sends alert through HTTP POST to target webhook
 func SendWebhook(event models.Event, provider notifMeta) {
 	profile := config.ConfigData.Alerts.Webhook[provider.index]
+	status := &config.Internal.Status.Notifications.Webhook[provider.index]
 
 	// Build notification
 	var message string
@@ -25,7 +26,7 @@ func SendWebhook(event models.Event, provider notifMeta) {
 			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.Webhook[0].NotifFailure(err.Error())
+		status.NotifFailure(err.Error())
 		return
 	}
 	if string(payload) != "null" {
@@ -51,7 +52,7 @@ func SendWebhook(event models.Event, provider notifMeta) {
 			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.Webhook[0].NotifFailure(err.Error())
+		status.NotifFailure(err.Error())
 		return
 	}
 	log.Info().
@@ -59,5 +60,5 @@ func SendWebhook(event models.Event, provider notifMeta) {
 		Str("provider", "Webhook").
 		Int("provider_id", provider.index).
 		Msg("Alert sent")
-	config.Internal.Status.Notifications.Webhook[0].NotifSuccess()
+	status.NotifSuccess()
 }
