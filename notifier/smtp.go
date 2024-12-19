@@ -14,19 +14,22 @@ import (
 )
 
 // SendSMTP forwards alert data via email
-func SendSMTP(event models.Event, snapshot io.Reader) {
+func SendSMTP(event models.Event, snapshot io.Reader, provider notifMeta) {
+	profile := config.ConfigData.Alerts.SMTP[provider.index]
+	status := &config.Internal.Status.Notifications.SMTP[provider.index]
+
 	// Build notification
 	var message string
-	if config.ConfigData.Alerts.SMTP.Template != "" {
-		message = renderMessage(config.ConfigData.Alerts.SMTP.Template, event, "message", "SMTP")
+	if profile.Template != "" {
+		message = renderMessage(profile.Template, event, "message", "SMTP")
 	} else {
 		message = renderMessage("html", event, "message", "SMTP")
 	}
 
 	// Set up email alert
 	m := mail.NewMsg()
-	m.From(config.ConfigData.Alerts.SMTP.From)
-	m.To(ParseSMTPRecipients()...)
+	m.From(profile.From)
+	m.To(ParseSMTPRecipients(profile.Recipient)...)
 	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "SMTP")
 	m.Subject(title)
 	// Attach snapshot if one exists
@@ -40,19 +43,19 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 	time.Sleep(5 * time.Second)
 
 	// Set up SMTP Connection
-	c, err := mail.NewClient(config.ConfigData.Alerts.SMTP.Server, mail.WithPort(config.ConfigData.Alerts.SMTP.Port))
+	c, err := mail.NewClient(profile.Server, mail.WithPort(profile.Port))
 	// Add authentication params if needed
-	if config.ConfigData.Alerts.SMTP.User != "" && config.ConfigData.Alerts.SMTP.Password != "" {
+	if profile.User != "" && profile.Password != "" {
 		c.SetSMTPAuth(mail.SMTPAuthPlain)
-		c.SetUsername(config.ConfigData.Alerts.SMTP.User)
-		c.SetPassword(config.ConfigData.Alerts.SMTP.Password)
+		c.SetUsername(profile.User)
+		c.SetPassword(profile.Password)
 	}
 	// Mandatory TLS is enabled by default, so disable TLS if config flag is set
-	if !config.ConfigData.Alerts.SMTP.TLS {
+	if !profile.TLS {
 		c.SetTLSPolicy(mail.NoTLS)
 	}
 	// Disable certificate verification if needed
-	if config.ConfigData.Alerts.SMTP.Insecure {
+	if profile.Insecure {
 		c.SetTLSConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 
@@ -61,8 +64,9 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 			Str("event_id", event.ID).
 			Str("provider", "SMTP").
 			Err(err).
+			Int("provider_id", provider.index).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.SMTP[0].NotifFailure(err.Error())
+		status.NotifFailure(err.Error())
 	}
 
 	log.Trace().
@@ -70,11 +74,12 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 		Strs("recipients", m.GetToString()).
 		Str("subject", title).
 		Interface("payload", message).
-		Str("server", config.ConfigData.Alerts.SMTP.Server).
-		Int("port", config.ConfigData.Alerts.SMTP.Port).
-		Bool("tls", config.ConfigData.Alerts.SMTP.TLS).
-		Str("username", config.ConfigData.Alerts.SMTP.User).
+		Str("server", profile.Server).
+		Int("port", profile.Port).
+		Bool("tls", profile.TLS).
+		Str("username", profile.User).
 		Str("password", "--secret removed--").
+		Int("provider_id", provider.index).
 		Msg("Send SMTP Alert")
 
 	// Send message
@@ -82,22 +87,24 @@ func SendSMTP(event models.Event, snapshot io.Reader) {
 		log.Warn().
 			Str("event_id", event.ID).
 			Str("provider", "SMTP").
+			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
-		config.Internal.Status.Notifications.SMTP[0].NotifFailure(err.Error())
+		status.NotifFailure(err.Error())
 		return
 	}
 	log.Info().
 		Str("event_id", event.ID).
 		Str("provider", "SMTP").
+		Int("provider_id", provider.index).
 		Msg("Alert sent")
-	config.Internal.Status.Notifications.SMTP[0].NotifSuccess()
+	status.NotifSuccess()
 }
 
 // ParseSMTPRecipients splits individual email addresses from config file
-func ParseSMTPRecipients() []string {
+func ParseSMTPRecipients(recipientList string) []string {
 	var recipients []string
-	list := strings.Split(config.ConfigData.Alerts.SMTP.Recipient, ",")
+	list := strings.Split(recipientList, ",")
 	for _, addr := range list {
 		recipients = append(recipients, strings.TrimSpace(addr))
 	}

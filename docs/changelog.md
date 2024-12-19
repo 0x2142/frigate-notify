@@ -2,8 +2,13 @@
 
 ## [v0.4.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.0) - In Development
  - Support for notification based on Alerts & Detections via Frigate Reviews
+     - ⚠️ **Note:** Reviews mode is the default with this release
+     - To continue using `events` mode, please see the [docs](https://frigate-notify.0x2142.com/latest/config/file/#app)
+ - Add initial support for a [REST API](https://frigate-notify.0x2142.com/latest/api/)
+ - Added support for [multiple notification endpoints](https://frigate-notify.0x2142.com/latest/config/profilesandfilters/) per notification provider
+     - Includes ability to filter which endpoint is used based on event conditions
+     - For example: Two SMTP alert endpoints, each with different contacts. One group for high priority detections (person, car) & the other for anything else
  - Add support for specifying custom [Pushover](https://frigate-notify.0x2142.com/latest/config/file/#pushover) sounds
- - Add initial support for a REST API
  - Fixed issue with retry logic used for webhook notifications
 
 ## [v0.3.5](https://github.com/0x2142/frigate-notify/releases/tag/v0.3.5) - Oct 08 2024

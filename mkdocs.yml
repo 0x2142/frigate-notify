@@ -45,6 +45,7 @@ nav:
      - config/index.md
      - Config File: config/file.md
      - Config Options: config/options.md 
+     - Alert Profiles & Filters: config/profilesandfilters.md
      - Templates: config/templates.md
      - Sample Config: config/sample.md
   - API: api.md

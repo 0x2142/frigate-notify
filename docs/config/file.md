@@ -140,6 +140,8 @@ frigate:
 !!! note
     Any combination of alerting methods may be enabled, though you'll probably want to enable at least one! 😅
 
+All alert providers (Discord, Gotify, etc) also support optional filters & the ability to configure multiple profiles per provider. Please see [Alert Profiles & Filters](https://frigate-notify.0x2142.com/latest/config/profilesandfilters/) for more information.
+
 ### General
 
 - **title** (Optional - Default: `Frigate Alert`)

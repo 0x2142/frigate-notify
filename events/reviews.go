@@ -67,7 +67,7 @@ func processReview(review models.Review) {
 
 		// Check that event passes configured filters
 		detection.CurrentZones = detection.Zones
-		if !checkFilters(detection) {
+		if !checkEventFilters(detection) {
 			reviewFiltered = true
 			break
 		}
