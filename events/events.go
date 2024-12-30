@@ -32,7 +32,7 @@ func processEvent(event models.Event) {
 		Msgf("Event start time: %s", eventTime)
 
 	// Check that event passes configured filters
-	if !checkFilters(event) {
+	if !checkEventFilters(event) {
 		return
 	}
 

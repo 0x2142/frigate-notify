@@ -70,51 +70,64 @@ func (c *Config) Validate() []string {
 	}
 
 	// Validate Discord
-	if c.Alerts.Discord.Enabled {
-		if results := c.validateDiscord(); len(results) > 0 {
-			validationErrors = append(validationErrors, results...)
+	for id, profile := range c.Alerts.Discord {
+		if profile.Enabled {
+			if results := c.validateDiscord(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
 		}
 	}
 
 	// Validate Gotify
-	if c.Alerts.Gotify.Enabled {
-		if results := c.validateGotify(); len(results) > 0 {
-			validationErrors = append(validationErrors, results...)
+	for id, profile := range c.Alerts.Gotify {
+		if profile.Enabled {
+			if results := c.validateGotify(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
 		}
 	}
 
 	// Validate SMTP
-	if c.Alerts.SMTP.Enabled {
-		if results := c.validateSMTP(); len(results) > 0 {
-			validationErrors = append(validationErrors, results...)
+	for id, profile := range c.Alerts.SMTP {
+		if profile.Enabled {
+			if results := c.validateSMTP(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
 		}
 	}
-
 	// Validate Telegram
-	if c.Alerts.Telegram.Enabled {
-		if results := c.validateTelegram(); len(results) > 0 {
-			validationErrors = append(validationErrors, results...)
+	for id, profile := range c.Alerts.Telegram {
+		if profile.Enabled {
+			if results := c.validateTelegram(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
 		}
 	}
 
 	// Validate Pushover
-	if c.Alerts.Pushover.Enabled {
-		if results := c.validatePushover(); len(results) > 0 {
-			validationErrors = append(validationErrors, results...)
+	for id, profile := range c.Alerts.Pushover {
+		if profile.Enabled {
+			if results := c.validatePushover(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
 		}
 	}
 
 	// Validate Ntfy
-	if c.Alerts.Ntfy.Enabled {
-		if results := c.validateNtfy(); len(results) > 0 {
-			validationErrors = append(validationErrors, results...)
+	for id, profile := range c.Alerts.Ntfy {
+		if profile.Enabled {
+			if results := c.validateNtfy(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
 		}
 	}
 
 	// Validate Webhook
-	if c.Alerts.Webhook.Enabled {
-		if results := c.validateWebhook(); len(results) > 0 {
-			validationErrors = append(validationErrors, results...)
+	for id, profile := range c.Alerts.Webhook {
+		if profile.Enabled {
+			if results := c.validateWebhook(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
 		}
 	}
 
@@ -410,160 +423,160 @@ func (c *Config) validateLabelFiltering() []string {
 	return labelErrors
 }
 
-func (c *Config) validateDiscord() []string {
+func (c *Config) validateDiscord(id int) []string {
 	var discordErrors []string
-	log.Debug().Msg("Discord alerting enabled.")
-	discordStatus := models.NotifierStatus{Enabled: true, Status: "configured, not used yet"}
+	log.Debug().Msgf("Alerting enabled for Discord profile ID %v", id)
+	discordStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
 	Internal.Status.Notifications.Discord = append(Internal.Status.Notifications.Discord, discordStatus)
-	if c.Alerts.Discord.Webhook == "" {
-		discordErrors = append(discordErrors, "No Discord webhook specified!")
+	if c.Alerts.Discord[id].Webhook == "" {
+		discordErrors = append(discordErrors, fmt.Sprintf("No Discord webhook specified! Profile ID %v", id))
 	}
 	// Check template syntax
-	if msg := validateTemplate("Discord", c.Alerts.Discord.Template); msg != "" {
-		discordErrors = append(discordErrors, msg)
+	if msg := validateTemplate("Discord", c.Alerts.Discord[id].Template); msg != "" {
+		discordErrors = append(discordErrors, msg+fmt.Sprintf(" Profile ID %v", id))
 	}
 	return discordErrors
 }
 
-func (c *Config) validateGotify() []string {
+func (c *Config) validateGotify(id int) []string {
 	var gotifyErrors []string
-	log.Debug().Msg("Gotify alerting enabled.")
-	gotifyStatus := models.NotifierStatus{Enabled: true, Status: "configured, not used yet"}
+	log.Debug().Msgf("Alerting enabled for Gotify profile ID %v", id)
+	gotifyStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
 	Internal.Status.Notifications.Gotify = append(Internal.Status.Notifications.Gotify, gotifyStatus)
-	if c.Alerts.Gotify.Server == "" {
-		gotifyErrors = append(gotifyErrors, "No Gotify server specified!")
+	if c.Alerts.Gotify[id].Server == "" {
+		gotifyErrors = append(gotifyErrors, fmt.Sprintf("No Gotify server specified! Profile ID %v", id))
 	}
-	if c.Alerts.Gotify.Token == "" {
-		gotifyErrors = append(gotifyErrors, "No Gotify token specified!")
+	if c.Alerts.Gotify[id].Token == "" {
+		gotifyErrors = append(gotifyErrors, fmt.Sprintf("No Gotify token specified! Profile ID %v", id))
 	}
 	// Check if Gotify server URL contains protocol, assume HTTP if not specified
-	if !strings.Contains(c.Alerts.Gotify.Server, "http://") && !strings.Contains(c.Alerts.Gotify.Server, "https://") {
-		log.Debug().Msg("No protocol specified on Gotify Server. Assuming http://. If this is incorrect, please adjust the config file.")
-		c.Alerts.Gotify.Server = fmt.Sprintf("http://%s", c.Alerts.Gotify.Server)
+	if !strings.Contains(c.Alerts.Gotify[id].Server, "http://") && !strings.Contains(c.Alerts.Gotify[id].Server, "https://") {
+		log.Debug().Msgf("No protocol specified on Gotify Server. Assuming http://. If this is incorrect, please adjust the config file. Profile ID %v", id)
+		c.Alerts.Gotify[id].Server = fmt.Sprintf("http://%s", c.Alerts.Gotify[id].Server)
 	}
 	// Check template syntax
-	if msg := validateTemplate("Gotify", c.Alerts.Gotify.Template); msg != "" {
-		gotifyErrors = append(gotifyErrors, msg)
+	if msg := validateTemplate("Gotify", c.Alerts.Gotify[id].Template); msg != "" {
+		gotifyErrors = append(gotifyErrors, msg+fmt.Sprintf(" Profile ID %v", id))
 	}
 	return gotifyErrors
 }
 
-func (c *Config) validateSMTP() []string {
+func (c *Config) validateSMTP(id int) []string {
 	var smtpErrors []string
-	log.Debug().Msg("SMTP alerting enabled.")
-	smtpStatus := models.NotifierStatus{Enabled: true, Status: "configured, not used yet"}
+	log.Debug().Msgf("Alerting enabled for SMTP profile ID %v", id)
+	smtpStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
 	Internal.Status.Notifications.SMTP = append(Internal.Status.Notifications.SMTP, smtpStatus)
-	if c.Alerts.SMTP.Server == "" {
-		smtpErrors = append(smtpErrors, "No SMTP server specified!")
+	if c.Alerts.SMTP[id].Server == "" {
+		smtpErrors = append(smtpErrors, fmt.Sprintf("No SMTP server specified! Profile ID %v", id))
 	}
-	if c.Alerts.SMTP.Recipient == "" {
-		smtpErrors = append(smtpErrors, "No SMTP recipients specified!")
+	if c.Alerts.SMTP[id].Recipient == "" {
+		smtpErrors = append(smtpErrors, fmt.Sprintf("No SMTP recipients specified! Profile ID %v", id))
 	}
-	if c.Alerts.SMTP.User != "" && c.Alerts.SMTP.Password == "" {
-		smtpErrors = append(smtpErrors, "SMTP username in config, but no password provided!")
+	if c.Alerts.SMTP[id].User != "" && c.Alerts.SMTP[id].Password == "" {
+		smtpErrors = append(smtpErrors, fmt.Sprintf("SMTP username in config, but no password provided! Profile ID %v", id))
 	}
-	if c.Alerts.SMTP.Port == 0 {
-		c.Alerts.SMTP.Port = 25
+	if c.Alerts.SMTP[id].Port == 0 {
+		c.Alerts.SMTP[id].Port = 25
 	}
 	// Copy `user` to `from` if `from` not explicitly configured
-	if c.Alerts.SMTP.From == "" && c.Alerts.SMTP.User != "" {
-		c.Alerts.SMTP.From = c.Alerts.SMTP.User
+	if c.Alerts.SMTP[id].From == "" && c.Alerts.SMTP[id].User != "" {
+		c.Alerts.SMTP[id].From = c.Alerts.SMTP[id].User
 	}
 	// Check template syntax
-	if msg := validateTemplate("SMTP", c.Alerts.SMTP.Template); msg != "" {
-		smtpErrors = append(smtpErrors, msg)
+	if msg := validateTemplate("SMTP", c.Alerts.SMTP[id].Template); msg != "" {
+		smtpErrors = append(smtpErrors, msg+fmt.Sprintf(" Profile ID %v", id))
 	}
 
 	return smtpErrors
 }
 
-func (c *Config) validateTelegram() []string {
+func (c *Config) validateTelegram(id int) []string {
 	var telegramErrors []string
-	log.Debug().Msg("Telegram alerting enabled.")
-	telegramStatus := models.NotifierStatus{Enabled: true, Status: "configured, not used yet"}
+	log.Debug().Msgf("Alerting enabled for Telegram profile ID %v", id)
+	telegramStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
 	Internal.Status.Notifications.Telegram = append(Internal.Status.Notifications.Telegram, telegramStatus)
-	if c.Alerts.Telegram.ChatID == 0 {
-		telegramErrors = append(telegramErrors, "No Telegram Chat ID specified!")
+	if c.Alerts.Telegram[id].ChatID == 0 {
+		telegramErrors = append(telegramErrors, fmt.Sprintf("No Telegram Chat ID specified! Profile ID %v", id))
 	}
-	if c.Alerts.Telegram.Token == "" {
-		telegramErrors = append(telegramErrors, "No Telegram bot token specified!")
+	if c.Alerts.Telegram[id].Token == "" {
+		telegramErrors = append(telegramErrors, fmt.Sprintf("No Telegram bot token specified! Profile ID %v", id))
 	}
 	// Check template syntax
-	if msg := validateTemplate("Telegram", c.Alerts.Telegram.Template); msg != "" {
-		telegramErrors = append(telegramErrors, msg)
+	if msg := validateTemplate("Telegram", c.Alerts.Telegram[id].Template); msg != "" {
+		telegramErrors = append(telegramErrors, msg+fmt.Sprintf(" Profile ID %v", id))
 	}
 	return telegramErrors
 }
 
-func (c *Config) validatePushover() []string {
+func (c *Config) validatePushover(id int) []string {
 	var pushoverErrors []string
-	log.Debug().Msg("Pushover alerting enabled.")
-	pushoverStatus := models.NotifierStatus{Enabled: true, Status: "configured, not used yet"}
+	log.Debug().Msgf("Alerting enabled for Pushover profile ID %v", id)
+	pushoverStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
 	Internal.Status.Notifications.Pushover = append(Internal.Status.Notifications.Pushover, pushoverStatus)
-	if c.Alerts.Pushover.Token == "" {
-		pushoverErrors = append(pushoverErrors, "No Pushover API token specified!")
+	if c.Alerts.Pushover[id].Token == "" {
+		pushoverErrors = append(pushoverErrors, fmt.Sprintf("No Pushover API token specified! Profile ID %v", id))
 	}
-	if c.Alerts.Pushover.Userkey == "" {
-		pushoverErrors = append(pushoverErrors, "No Pushover user key specified!")
+	if c.Alerts.Pushover[id].Userkey == "" {
+		pushoverErrors = append(pushoverErrors, fmt.Sprintf("No Pushover user key specified! Profile ID %v", id))
 	}
-	if c.Alerts.Pushover.Priority < -2 || c.Alerts.Pushover.Priority > 2 {
-		pushoverErrors = append(pushoverErrors, "Pushover priority must be between -2 and 2!")
+	if c.Alerts.Pushover[id].Priority < -2 || c.Alerts.Pushover[id].Priority > 2 {
+		pushoverErrors = append(pushoverErrors, fmt.Sprintf("Pushover priority must be between -2 and 2! Profile ID %v", id))
 	}
 	// Priority 2 is emergency, needs a retry interval & expiration set
-	if c.Alerts.Pushover.Priority == 2 {
-		if c.Alerts.Pushover.Retry == 0 || c.Alerts.Pushover.Expire == 0 {
-			pushoverErrors = append(pushoverErrors, "Pushover retry interval & expiration must be set with priority 2!")
+	if c.Alerts.Pushover[id].Priority == 2 {
+		if c.Alerts.Pushover[id].Retry == 0 || c.Alerts.Pushover[id].Expire == 0 {
+			pushoverErrors = append(pushoverErrors, fmt.Sprintf("Pushover retry interval & expiration must be set with priority 2! Profile ID %v", id))
 		}
-		if c.Alerts.Pushover.Retry < 30 {
-			pushoverErrors = append(pushoverErrors, "Pushover retry cannot be less than 30 seconds!")
+		if c.Alerts.Pushover[id].Retry < 30 {
+			pushoverErrors = append(pushoverErrors, fmt.Sprintf("Pushover retry cannot be less than 30 seconds! Profile ID %v", id))
 		}
 	}
-	if c.Alerts.Pushover.TTL < 0 {
-		pushoverErrors = append(pushoverErrors, "Pushover TTL cannot be negative!")
+	if c.Alerts.Pushover[id].TTL < 0 {
+		pushoverErrors = append(pushoverErrors, fmt.Sprintf("Pushover TTL cannot be negative! Profile ID %v", id))
 	}
 
 	// Check template syntax
-	if msg := validateTemplate("Pushover", c.Alerts.Pushover.Template); msg != "" {
-		pushoverErrors = append(pushoverErrors, msg)
+	if msg := validateTemplate("Pushover", c.Alerts.Pushover[id].Template); msg != "" {
+		pushoverErrors = append(pushoverErrors, msg+fmt.Sprintf("Profile ID %v", id))
 	}
 	return pushoverErrors
 }
 
-func (c *Config) validateNtfy() []string {
+func (c *Config) validateNtfy(id int) []string {
 	var ntfyErrors []string
-	log.Debug().Msg("Ntfy alerting enabled.")
-	ntfyStatus := models.NotifierStatus{Enabled: true, Status: "configured, not used yet"}
+	log.Debug().Msgf("Alerting enabled for Ntfy profile ID %v", id)
+	ntfyStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
 	Internal.Status.Notifications.Ntfy = append(Internal.Status.Notifications.Ntfy, ntfyStatus)
-	if c.Alerts.Ntfy.Server == "" {
-		ntfyErrors = append(ntfyErrors, "No Ntfy server specified!")
+	if c.Alerts.Ntfy[id].Server == "" {
+		ntfyErrors = append(ntfyErrors, fmt.Sprintf("No Ntfy server specified! Profile ID %v", id))
 	}
-	if c.Alerts.Ntfy.Topic == "" {
-		ntfyErrors = append(ntfyErrors, "No Ntfy topic specified!")
+	if c.Alerts.Ntfy[id].Topic == "" {
+		ntfyErrors = append(ntfyErrors, fmt.Sprintf("No Ntfy topic specified! Profile ID %v", id))
 	}
 	// Check template syntax
-	if msg := validateTemplate("Ntfy", c.Alerts.Ntfy.Template); msg != "" {
-		ntfyErrors = append(ntfyErrors, msg)
+	if msg := validateTemplate("Ntfy", c.Alerts.Ntfy[id].Template); msg != "" {
+		ntfyErrors = append(ntfyErrors, msg+fmt.Sprintf("Profile ID %v", id))
 	}
 
 	// Check HTTP header template syntax
 	if msg := validateTemplate("Ntfy HTTP Headers", c.Alerts.General.Title); msg != "" {
-		ntfyErrors = append(ntfyErrors, msg)
+		ntfyErrors = append(ntfyErrors, msg+fmt.Sprintf("Profile ID %v", id))
 	}
 
 	return ntfyErrors
 }
 
-func (c *Config) validateWebhook() []string {
+func (c *Config) validateWebhook(id int) []string {
 	var webhookErrors []string
-	log.Debug().Msg("Webhook alerting enabled.")
-	webhookStatus := models.NotifierStatus{Enabled: true, Status: "configured, not used yet"}
+	log.Debug().Msgf("Alerting enabled for Webhook profile ID %v", id)
+	webhookStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
 	Internal.Status.Notifications.Webhook = append(Internal.Status.Notifications.Webhook, webhookStatus)
-	if c.Alerts.Webhook.Server == "" {
-		webhookErrors = append(webhookErrors, "No Webhook server specified!")
+	if c.Alerts.Webhook[id].Server == "" {
+		webhookErrors = append(webhookErrors, fmt.Sprintf("No Webhook server specified! Profile ID %v", id))
 	}
 	// Check HTTP header template syntax
 	if msg := validateTemplate("Webhook HTTP Headers", c.Alerts.General.Title); msg != "" {
-		webhookErrors = append(webhookErrors, msg)
+		webhookErrors = append(webhookErrors, msg+fmt.Sprintf("Profile ID %v", id))
 	}
 
 	return webhookErrors
@@ -571,26 +584,40 @@ func (c *Config) validateWebhook() []string {
 
 func (c *Config) validateAlertingEnabled() string {
 	// Check to ensure at least one alert provider is configured
-	if c.Alerts.Discord.Enabled {
-		return ""
+	for _, profile := range c.Alerts.Discord {
+		if profile.Enabled {
+			return ""
+		}
 	}
-	if c.Alerts.Gotify.Enabled {
-		return ""
+	for _, profile := range c.Alerts.Gotify {
+		if profile.Enabled {
+			return ""
+		}
 	}
-	if c.Alerts.SMTP.Enabled {
-		return ""
+	for _, profile := range c.Alerts.SMTP {
+		if profile.Enabled {
+			return ""
+		}
 	}
-	if c.Alerts.Telegram.Enabled {
-		return ""
+	for _, profile := range c.Alerts.Telegram {
+		if profile.Enabled {
+			return ""
+		}
 	}
-	if c.Alerts.Pushover.Enabled {
-		return ""
+	for _, profile := range c.Alerts.Pushover {
+		if profile.Enabled {
+			return ""
+		}
 	}
-	if c.Alerts.Ntfy.Enabled {
-		return ""
+	for _, profile := range c.Alerts.Ntfy {
+		if profile.Enabled {
+			return ""
+		}
 	}
-	if c.Alerts.Webhook.Enabled {
-		return ""
+	for _, profile := range c.Alerts.Webhook {
+		if profile.Enabled {
+			return ""
+		}
 	}
 	return "No alerting methods have been configured. Please check config file syntax!"
 }

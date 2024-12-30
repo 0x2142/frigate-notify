@@ -11,8 +11,8 @@ import (
 	"github.com/0x2142/frigate-notify/models"
 )
 
-// checkFilters processes incoming event through configured filters to determine if it should generate a notification
-func checkFilters(event models.Event) bool {
+// checkEventFilters processes incoming event through configured filters to determine if it should generate a notification
+func checkEventFilters(event models.Event) bool {
 	// Check if notifications are currently disabled
 	if !config.Internal.Status.Notifications.Enabled {
 		log.Info().Msg("Event dropped - Notifications currently disabled.")
