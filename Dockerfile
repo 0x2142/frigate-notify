@@ -21,4 +21,6 @@ COPY /templates /app/templates
 COPY --from=build /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
+EXPOSE 8000
+
 ENTRYPOINT [ "/app/frigate-notify" ]
