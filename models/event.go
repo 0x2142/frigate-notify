@@ -54,4 +54,5 @@ type ExtraFields struct {
 	FrigateMajorVersion int
 	EventLink           string
 	ReviewLink          string
+	CameraName          string
 }

@@ -1,9 +1,9 @@
 Detection at {{ .Extra.FormattedTime }} <br />
-Camera: {{ .Camera }} <br />
+Camera: {{ .Extra.CameraName }} <br />
 Label: {{ .Label }} ({{ .Extra.TopScorePercent }}) <br />
 {{ if ge (len .Zones ) 1 }}Zone(s): {{ .Extra.ZoneList }}
 {{ end }}
 <br />
-Links: <a href="{{if ge .Extra.FrigateMajorVersion 14 }}{{ .Extra.PublicURL }}/#{{ .Camera }}{{ else }}{{ .Extra.PublicURL }}/cameras/{{ .Camera }}{{ end }}">Camera</a>{{ if ne .Extra.ReviewLink "" }} | <a href="{{ .Extra.ReviewLink }}">Review Event</a>{{ else }}{{ if .HasClip }} | <a href="{{ .Extra.EventLink }}">Event Clip</a> <br />{{ end }}{{ end }}
+Links: <a href="{{if ge .Extra.FrigateMajorVersion 14 }}{{ .Extra.PublicURL }}/#{{ .Extra.CameraName }}{{ else }}{{ .Extra.PublicURL }}/cameras/{{ .Extra.CameraName }}{{ end }}">Camera</a>{{ if ne .Extra.ReviewLink "" }} | <a href="{{ .Extra.ReviewLink }}">Review Event</a>{{ else }}{{ if .HasClip }} | <a href="{{ .Extra.EventLink }}">Event Clip</a> <br />{{ end }}{{ end }}
 {{ if not .HasSnapshot }}<br /><br />No snapshot available.
 {{ end }}
