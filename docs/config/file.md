@@ -10,7 +10,7 @@ Config may also be provided via environment variables. Frigate-notify will load 
     - Specify whether to notifications are based on Frigate [Events or Reviews](https://docs.frigate.video/configuration/review/#review-items-vs-events)
     - `events` will notify on every detected object from Frigate
     - `reviews` will only notify on Frigate **Alerts** (Requires Frigate 0.14+)
-        - When in `reviews` mode, toggle `notify_detections` under the `alerts` config section to also notify on **Detections**
+        - When in `reviews` mode, toggle `notify_detections` under the `alerts` [config section](#alerts) to also notify on **Detections**
         - See also [Alerts vs Detections](https://docs.frigate.video/configuration/review/#alerts-and-detections)
 - **API**
     - **enabled** (Optional - Default: `false`)

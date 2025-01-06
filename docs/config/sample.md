@@ -8,7 +8,6 @@ app:
   api:
     enabled:
     port:
-    prefix:
     
 frigate:
   server: 
