@@ -104,11 +104,10 @@ func checkEventFilters(event models.Event) bool {
 			return false
 		}
 	} else {
-		for _, sublabel := range event.SubLabel {
-			if !isAllowedLabel(event.ID, sublabel, "sublabel") {
-				return false
-			}
+		if !isAllowedLabel(event.ID, event.SubLabel, "sublabel") {
+			return false
 		}
+
 	}
 
 	// Default

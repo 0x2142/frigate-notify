@@ -106,15 +106,13 @@ func checkAlertFilters(event models.Event, filters models.AlertFilter, provider 
 	log.Trace().
 		Str("provider", provider.name).
 		Int("provider_id", provider.index).
-		Strs("label", event.SubLabel).
+		Str("sublabel", event.SubLabel).
 		Strs("allowed", filters.Sublabels).
 		Msg("Check allowed sublabel")
 	if len(filters.Sublabels) >= 1 {
 		matchsublabel := false
-		for _, sublabel := range event.SubLabel {
-			if slices.Contains(filters.Sublabels, sublabel) {
-				matchsublabel = true
-			}
+		if slices.Contains(filters.Sublabels, event.SubLabel) {
+			matchsublabel = true
 		}
 		if !matchsublabel {
 			log.Debug().
