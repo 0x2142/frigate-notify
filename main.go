@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"flag"
+	"io"
 	"os"
 	"os/signal"
 	"strings"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/0x2142/frigate-notify/api"
 	"github.com/0x2142/frigate-notify/config"
@@ -30,6 +32,7 @@ var NotifTemplates embed.FS
 
 func main() {
 	config.Internal.Status.Health = "starting"
+
 	// Parse flags
 	flag.StringVar(&configFile, "c", "", "Configuration file location (default \"./config.yml\")")
 	flag.BoolVar(&debug, "debug", false, "Enable debug logging (Overrides loglevel, if also set)")
@@ -39,13 +42,22 @@ func main() {
 	flag.Parse()
 
 	// Set up logging
-	_, jsonlogenv = os.LookupEnv("FN_JSONLOG")
-	if jsonlog || jsonlogenv {
-		zerolog.TimeFieldFormat = "2006/01/02 15:04:05 -0700"
-	} else {
-		_, nocolorenv = os.LookupEnv("FN_NOCOLOR")
-		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006/01/02 15:04:05 -0700", NoColor: nocolorenv || nocolor})
+	var logwriter io.Writer = os.Stdout
+	logfile := &lumberjack.Logger{
+		Filename:   "log/app.log",
+		MaxSize:    10,
+		MaxBackups: 5,
+		LocalTime:  true,
 	}
+
+	_, jsonlogenv = os.LookupEnv("FN_JSONLOG")
+	if !jsonlog && !jsonlogenv {
+		_, nocolorenv = os.LookupEnv("FN_NOCOLOR")
+		logwriter = zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006/01/02 15:04:05 -0700", NoColor: nocolorenv || nocolor}
+	}
+
+	zerolog.TimeFieldFormat = "2006/01/02 15:04:05 -0700"
+	log.Logger = zerolog.New(zerolog.MultiLevelWriter(logwriter, logfile)).With().Timestamp().Logger()
 
 	// Apply custom log level, if set
 	if logLevel == "" {
