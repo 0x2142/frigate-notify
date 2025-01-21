@@ -45,6 +45,7 @@ alerts:
     snap_crop:
     notify_once:
     notify_detections:
+    recheck_delay:
 
   quiet:
     start:

@@ -15,6 +15,10 @@ import (
 
 // processReview handles querying detections under a review & preparing for sending an alert
 func processReview(review models.Review) {
+	if config.ConfigData.Alerts.General.RecheckDelay != 0 {
+		review = recheckReview(review)
+	}
+
 	config.Internal.Status.LastEvent = time.Now()
 
 	// Convert to human-readable timestamp
@@ -90,4 +94,32 @@ func processReview(review models.Review) {
 
 	// Send alert with snapshot
 	notifier.SendAlert(firstDetection)
+}
+
+func recheckReview(review models.Review) models.Review {
+	delay := config.ConfigData.Alerts.General.RecheckDelay
+	log.Debug().
+		Str("review_id", review.ID).
+		Int("recheck_delay", delay).
+		Msg("Waiting to re-check review details")
+	time.Sleep(time.Duration(delay) * time.Second)
+	log.Debug().
+		Str("review_id", review.ID).
+		Int("recheck_delay", delay).
+		Msg("Re-checking review details")
+
+	url := config.ConfigData.Frigate.Server + "/api/review/" + review.ID
+	response, err := util.HTTPGet(url, config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
+	if err != nil {
+		config.Internal.Status.Health = "frigate webapi unreachable"
+		config.Internal.Status.Frigate.API = "unreachable"
+		log.Error().
+			Err(err).
+			Msgf("Cannot get event from %s", url)
+	}
+	config.Internal.Status.Health = "ok"
+	config.Internal.Status.Frigate.API = "ok"
+
+	json.Unmarshal([]byte(response), &review)
+	return review
 }

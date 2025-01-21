@@ -172,6 +172,11 @@ All alert providers (Discord, Gotify, etc) also support optional filters & the a
     - Only used when app `mode` is `reviews`
     - By default, notifications will only be sent on Frigate alerts
     - Set to `true` to also enable on detections
+- **recheck_delay** (Optional - Default: `0`)
+    - Optionally re-check event details from Frigate before sending notifications
+    - Delay period in seconds
+    - If set to `0`, events are sent immediately upon receipt from Frigate
+    - This setting can be useful if needing to wait for a 3rd-party app to set sub_labels
 
 ```yaml title="Config File Snippet"
 alerts:

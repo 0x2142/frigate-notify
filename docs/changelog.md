@@ -11,7 +11,9 @@
  - Added support for [multiple notification endpoints](https://frigate-notify.0x2142.com/latest/config/profilesandfilters/) per notification provider
      - Includes ability to filter which endpoint is used based on event conditions
      - For example: Two SMTP alert endpoints, each with different contacts. One group for high priority detections (person, car) & the other for anything else
- - Add support for specifying custom [Pushover](https://frigate-notify.0x2142.com/latest/config/file/#pushover) sounds
+ - Added support for specifying custom [Pushover](https://frigate-notify.0x2142.com/latest/config/file/#pushover) sounds
+ - Added support for [re-checking](https://frigate-notify.0x2142.com/latest/config/file/#general) event details from Frigate after a delay
+     - Useful if waiting for a 3rd-party app to update `sub_label`
  - Camera names are now transformed to title case (ex. "side_door" becomes "Side Door")
  - Fixed issue with retry logic used for webhook notifications
 
