@@ -70,7 +70,9 @@ func (c *Config) Validate() []string {
 	}
 
 	// Validate Discord
+	Internal.Status.Notifications.Discord = make([]models.NotifierStatus, len(c.Alerts.Discord))
 	for id, profile := range c.Alerts.Discord {
+		Internal.Status.Notifications.Discord[id].InitNotifStatus(id, profile.Enabled)
 		if profile.Enabled {
 			if results := c.validateDiscord(id); len(results) > 0 {
 				validationErrors = append(validationErrors, results...)
@@ -79,7 +81,9 @@ func (c *Config) Validate() []string {
 	}
 
 	// Validate Gotify
+	Internal.Status.Notifications.Gotify = make([]models.NotifierStatus, len(c.Alerts.Gotify))
 	for id, profile := range c.Alerts.Gotify {
+		Internal.Status.Notifications.Gotify[id].InitNotifStatus(id, profile.Enabled)
 		if profile.Enabled {
 			if results := c.validateGotify(id); len(results) > 0 {
 				validationErrors = append(validationErrors, results...)
@@ -88,7 +92,9 @@ func (c *Config) Validate() []string {
 	}
 
 	// Validate SMTP
+	Internal.Status.Notifications.SMTP = make([]models.NotifierStatus, len(c.Alerts.SMTP))
 	for id, profile := range c.Alerts.SMTP {
+		Internal.Status.Notifications.SMTP[id].InitNotifStatus(id, profile.Enabled)
 		if profile.Enabled {
 			if results := c.validateSMTP(id); len(results) > 0 {
 				validationErrors = append(validationErrors, results...)
@@ -96,7 +102,9 @@ func (c *Config) Validate() []string {
 		}
 	}
 	// Validate Telegram
+	Internal.Status.Notifications.Telegram = make([]models.NotifierStatus, len(c.Alerts.Telegram))
 	for id, profile := range c.Alerts.Telegram {
+		Internal.Status.Notifications.Telegram[id].InitNotifStatus(id, profile.Enabled)
 		if profile.Enabled {
 			if results := c.validateTelegram(id); len(results) > 0 {
 				validationErrors = append(validationErrors, results...)
@@ -105,7 +113,9 @@ func (c *Config) Validate() []string {
 	}
 
 	// Validate Pushover
+	Internal.Status.Notifications.Pushover = make([]models.NotifierStatus, len(c.Alerts.Pushover))
 	for id, profile := range c.Alerts.Pushover {
+		Internal.Status.Notifications.Pushover[id].InitNotifStatus(id, profile.Enabled)
 		if profile.Enabled {
 			if results := c.validatePushover(id); len(results) > 0 {
 				validationErrors = append(validationErrors, results...)
@@ -114,7 +124,9 @@ func (c *Config) Validate() []string {
 	}
 
 	// Validate Ntfy
+	Internal.Status.Notifications.Ntfy = make([]models.NotifierStatus, len(c.Alerts.Ntfy))
 	for id, profile := range c.Alerts.Ntfy {
+		Internal.Status.Notifications.Ntfy[id].InitNotifStatus(id, profile.Enabled)
 		if profile.Enabled {
 			if results := c.validateNtfy(id); len(results) > 0 {
 				validationErrors = append(validationErrors, results...)
@@ -123,7 +135,9 @@ func (c *Config) Validate() []string {
 	}
 
 	// Validate Webhook
+	Internal.Status.Notifications.Webhook = make([]models.NotifierStatus, len(c.Alerts.Webhook))
 	for id, profile := range c.Alerts.Webhook {
+		Internal.Status.Notifications.Webhook[id].InitNotifStatus(id, profile.Enabled)
 		if profile.Enabled {
 			if results := c.validateWebhook(id); len(results) > 0 {
 				validationErrors = append(validationErrors, results...)
@@ -426,8 +440,6 @@ func (c *Config) validateLabelFiltering() []string {
 func (c *Config) validateDiscord(id int) []string {
 	var discordErrors []string
 	log.Debug().Msgf("Alerting enabled for Discord profile ID %v", id)
-	discordStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
-	Internal.Status.Notifications.Discord = append(Internal.Status.Notifications.Discord, discordStatus)
 	if c.Alerts.Discord[id].Webhook == "" {
 		discordErrors = append(discordErrors, fmt.Sprintf("No Discord webhook specified! Profile ID %v", id))
 	}
@@ -441,8 +453,6 @@ func (c *Config) validateDiscord(id int) []string {
 func (c *Config) validateGotify(id int) []string {
 	var gotifyErrors []string
 	log.Debug().Msgf("Alerting enabled for Gotify profile ID %v", id)
-	gotifyStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
-	Internal.Status.Notifications.Gotify = append(Internal.Status.Notifications.Gotify, gotifyStatus)
 	if c.Alerts.Gotify[id].Server == "" {
 		gotifyErrors = append(gotifyErrors, fmt.Sprintf("No Gotify server specified! Profile ID %v", id))
 	}
@@ -464,8 +474,6 @@ func (c *Config) validateGotify(id int) []string {
 func (c *Config) validateSMTP(id int) []string {
 	var smtpErrors []string
 	log.Debug().Msgf("Alerting enabled for SMTP profile ID %v", id)
-	smtpStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
-	Internal.Status.Notifications.SMTP = append(Internal.Status.Notifications.SMTP, smtpStatus)
 	if c.Alerts.SMTP[id].Server == "" {
 		smtpErrors = append(smtpErrors, fmt.Sprintf("No SMTP server specified! Profile ID %v", id))
 	}
@@ -493,8 +501,6 @@ func (c *Config) validateSMTP(id int) []string {
 func (c *Config) validateTelegram(id int) []string {
 	var telegramErrors []string
 	log.Debug().Msgf("Alerting enabled for Telegram profile ID %v", id)
-	telegramStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
-	Internal.Status.Notifications.Telegram = append(Internal.Status.Notifications.Telegram, telegramStatus)
 	if c.Alerts.Telegram[id].ChatID == 0 {
 		telegramErrors = append(telegramErrors, fmt.Sprintf("No Telegram Chat ID specified! Profile ID %v", id))
 	}
@@ -511,8 +517,6 @@ func (c *Config) validateTelegram(id int) []string {
 func (c *Config) validatePushover(id int) []string {
 	var pushoverErrors []string
 	log.Debug().Msgf("Alerting enabled for Pushover profile ID %v", id)
-	pushoverStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
-	Internal.Status.Notifications.Pushover = append(Internal.Status.Notifications.Pushover, pushoverStatus)
 	if c.Alerts.Pushover[id].Token == "" {
 		pushoverErrors = append(pushoverErrors, fmt.Sprintf("No Pushover API token specified! Profile ID %v", id))
 	}
@@ -545,8 +549,6 @@ func (c *Config) validatePushover(id int) []string {
 func (c *Config) validateNtfy(id int) []string {
 	var ntfyErrors []string
 	log.Debug().Msgf("Alerting enabled for Ntfy profile ID %v", id)
-	ntfyStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
-	Internal.Status.Notifications.Ntfy = append(Internal.Status.Notifications.Ntfy, ntfyStatus)
 	if c.Alerts.Ntfy[id].Server == "" {
 		ntfyErrors = append(ntfyErrors, fmt.Sprintf("No Ntfy server specified! Profile ID %v", id))
 	}
@@ -569,8 +571,6 @@ func (c *Config) validateNtfy(id int) []string {
 func (c *Config) validateWebhook(id int) []string {
 	var webhookErrors []string
 	log.Debug().Msgf("Alerting enabled for Webhook profile ID %v", id)
-	webhookStatus := models.NotifierStatus{ID: id, Enabled: true, Status: "configured, not used yet"}
-	Internal.Status.Notifications.Webhook = append(Internal.Status.Notifications.Webhook, webhookStatus)
 	if c.Alerts.Webhook[id].Server == "" {
 		webhookErrors = append(webhookErrors, fmt.Sprintf("No Webhook server specified! Profile ID %v", id))
 	}

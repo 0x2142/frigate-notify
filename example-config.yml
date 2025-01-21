@@ -92,6 +92,10 @@ alerts:
     # When app mode is set to `reviews`, notifications are only sent on Frigate alerts
     # Set this to `true` to also notify on detections
     notify_detections:
+    # Recheck event details from Frigate after a delay (in seconds)
+    # By default, if set to 0 - events are sent immediately
+    # This can be useful to wait for a 3rd-party app to set sub_labels before sending notifications
+    recheck_delay:
 
 
   # If configured, ignore events between times below

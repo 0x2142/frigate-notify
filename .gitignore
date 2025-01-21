@@ -13,3 +13,4 @@ site/
 *config.yml
 Taskfile.yaml
 mqttlogger/
+log/

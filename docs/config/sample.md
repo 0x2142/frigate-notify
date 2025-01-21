@@ -8,7 +8,6 @@ app:
   api:
     enabled:
     port:
-    prefix:
     
 frigate:
   server: 
@@ -46,6 +45,7 @@ alerts:
     snap_crop:
     notify_once:
     notify_detections:
+    recheck_delay:
 
   quiet:
     start:

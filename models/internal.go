@@ -46,6 +46,12 @@ type NotifierStatus struct {
 	LastError   string    `json:"last_error" doc:"Error message from last failure, if applicable" default:"n/a"`
 }
 
+func (n *NotifierStatus) InitNotifStatus(id int, enabled bool) {
+	n.ID = id
+	n.Enabled = enabled
+	n.Status = "configured, not used yet"
+}
+
 func (n *NotifierStatus) NotifSuccess() {
 	n.LastSuccess = time.Now()
 	n.Sent += 1

@@ -103,10 +103,17 @@ func HTTPGet(url string, insecure bool, params string, headers ...map[string]str
 			Int("status_code", response.StatusCode).
 			Msg("HTTP Response")
 	} else {
-		log.Trace().
-			RawJSON("body", body).
-			Int("status_code", response.StatusCode).
-			Msg("HTTP Response")
+		if json.Valid(body) {
+			log.Trace().
+				RawJSON("body", body).
+				Int("status_code", response.StatusCode).
+				Msg("HTTP Response")
+		} else {
+			log.Trace().
+				Str("body", string(body)).
+				Int("status_code", response.StatusCode).
+				Msg("HTTP Response")
+		}
 	}
 
 	if response.StatusCode != 200 {

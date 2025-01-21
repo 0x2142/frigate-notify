@@ -26,6 +26,7 @@ func PostReload(ctx context.Context, input *struct{}) (*ReloadOutput, error) {
 	go func() {
 		log.Info().Msg("Received request to reload config")
 		// Re-load from file & trigger reload
+		config.ConfigData = config.Config{}
 		config.Load()
 		newconfig := config.ConfigData
 		go reloadCfg(newconfig, true, true)

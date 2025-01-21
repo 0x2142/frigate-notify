@@ -10,7 +10,7 @@ Config may also be provided via environment variables. Frigate-notify will load 
     - Specify whether to notifications are based on Frigate [Events or Reviews](https://docs.frigate.video/configuration/review/#review-items-vs-events)
     - `events` will notify on every detected object from Frigate
     - `reviews` will only notify on Frigate **Alerts** (Requires Frigate 0.14+)
-        - When in `reviews` mode, toggle `notify_detections` under the `alerts` config section to also notify on **Detections**
+        - When in `reviews` mode, toggle `notify_detections` under the `alerts` [config section](#alerts) to also notify on **Detections**
         - See also [Alerts vs Detections](https://docs.frigate.video/configuration/review/#alerts-and-detections)
 - **API**
     - **enabled** (Optional - Default: `false`)
@@ -172,6 +172,11 @@ All alert providers (Discord, Gotify, etc) also support optional filters & the a
     - Only used when app `mode` is `reviews`
     - By default, notifications will only be sent on Frigate alerts
     - Set to `true` to also enable on detections
+- **recheck_delay** (Optional - Default: `0`)
+    - Optionally re-check event details from Frigate before sending notifications
+    - Delay period in seconds
+    - If set to `0`, events are sent immediately upon receipt from Frigate
+    - This setting can be useful if needing to wait for a 3rd-party app to set sub_labels
 
 ```yaml title="Config File Snippet"
 alerts:

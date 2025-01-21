@@ -69,7 +69,8 @@ type General struct {
 	SnapTimestamp    bool   `fig:"snap_timestamp,omitempty" json:"snap_timestamp" enum:"true,false" doc:"Include timestamp on snapshots" default:false`
 	SnapCrop         bool   `fig:"snap_crop,omitempty"  json:"snap_crop" enum:"true,false" doc:"Crop snapshots" default:false`
 	NotifyOnce       bool   `fig:"notify_once,omitempty"  json:"notify_once" enum:"true,false" doc:"Only notify once per event (For app mode: events)" default:false`
-	NotifyDetections bool   `fig:"notify_detections,omitempty" json:"notify_detections" enum:"true,false"  doc:"Enable notifications on detection (For app mode: reviews)" default:false`
+	NotifyDetections bool   `fig:"notify_detections,omitempty" json:"notify_detections" enum:"true,false" doc:"Enable notifications on detection (For app mode: reviews)" default:false`
+	RecheckDelay     int    `fig:"recheck_delay" json:"recheck_delay" default:"0" doc:"Delay before re-checking event details from Frigate"`
 }
 
 type Quiet struct {

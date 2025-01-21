@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
@@ -142,6 +144,10 @@ func GetSnapshot(eventID string) io.Reader {
 
 // setExtras adds additional data into the event model to be used for templates
 func setExtras(event models.Event) models.Event {
+	// Transform camera names, example: "test_camera" to "Test Camera"
+	caser := cases.Title(language.Und)
+	event.Extra.CameraName = caser.String(strings.ReplaceAll(event.Camera, "_", " "))
+
 	// Assign Frigate URL to extra event fields
 	event.Extra.LocalURL = config.ConfigData.Frigate.Server
 	event.Extra.PublicURL = config.ConfigData.Frigate.PublicURL
