@@ -28,6 +28,7 @@ func processReview(review models.Review) {
 		Str("camera", review.Camera).
 		Int("num_detections", len(review.Data.Detections)).
 		Str("objects", strings.Join(review.Data.Objects, ",")).
+		Str("audio", strings.Join(review.Data.Audio, ",")).
 		Str("zones", strings.Join(review.Data.Zones, ",")).
 		Str("severity", review.Severity).
 		Msg("Processing review...")
@@ -40,6 +41,25 @@ func processReview(review models.Review) {
 			Str("review_id", review.ID).
 			Msg("Review dropped - Event is detection only, not alert")
 		return
+	}
+
+	// Check if audio-only event
+	if len(review.Data.Detections) == 0 && len(review.Data.Audio) != 0 {
+		if config.ConfigData.Alerts.General.AudioOnly == "allow" {
+			// Assemble some info via Review item, since there is no detection event to look up
+			var audioEvent models.Event
+			audioEvent.StartTime = review.StartTime
+			audioEvent.Extra.Audio = strings.Join(review.Data.Audio, ",")
+			audioEvent.Camera = review.Camera
+			audioEvent.Extra.ReviewLink = config.ConfigData.Frigate.PublicURL + "/review?id=" + review.ID
+			notifier.SendAlert(audioEvent)
+			return
+		} else {
+			log.Info().
+				Str("review_id", review.ID).
+				Msg("Review dropped - Audio only event")
+			return
+		}
 	}
 
 	// Retrieve detailed detection information

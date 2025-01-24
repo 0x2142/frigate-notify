@@ -14,6 +14,7 @@
  - Added support for specifying custom [Pushover](https://frigate-notify.0x2142.com/latest/config/file/#pushover) sounds
  - Added support for [re-checking](https://frigate-notify.0x2142.com/latest/config/file/#general) event details from Frigate after a delay
      - Useful if waiting for a 3rd-party app to update `sub_label`
+ - Added support for processing audio events & optionally dropping [audio-only](https://frigate-notify.0x2142.com/latest/config/file/#general) events
  - Camera names are now transformed to title case (ex. "side_door" becomes "Side Door")
  - Fixed issue with retry logic used for webhook notifications
 

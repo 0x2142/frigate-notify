@@ -55,4 +55,5 @@ type ExtraFields struct {
 	EventLink           string
 	ReviewLink          string
 	CameraName          string
+	Audio               string
 }

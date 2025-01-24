@@ -1,10 +1,11 @@
 Detection at {{ .Extra.FormattedTime }}
 Camera: {{ .Extra.CameraName }}
-Label: {{ .Label }} ({{ .Extra.TopScorePercent }})
+{{ if ne .Label "" }}Label: {{ .Label }} ({{ .Extra.TopScorePercent }}) {{ end }}
+{{ if ge (len .Extra.Audio ) 1 }}Audio: {{ .Extra.Audio }} {{ end }}
 {{ if ge (len .Zones ) 1 }}Zone(s): {{ .Extra.ZoneList }}
 {{ end }}
 Links:
-{{if ge .Extra.FrigateMajorVersion 14 }} - Camera: {{ .Extra.PublicURL }}/#{{ .Extra.CameraName }}{{else}} - Camera: {{ .Extra.PublicURL }}/cameras/{{ .Extra.CameraName }}{{end}}
+{{if ge .Extra.FrigateMajorVersion 14 }} - Camera: {{ .Extra.PublicURL }}/#{{ .Camera }}{{else}} - Camera: {{ .Extra.PublicURL }}/cameras/{{ .Camera }}{{end}}
 {{if ne .Extra.ReviewLink ""}} - Review Event: {{ .Extra.ReviewLink }}{{ else }}{{ if .HasClip }} - Event Clip: {{ .Extra.EventLink }}{{ end }}{{ end }}
 
 {{ if not .HasSnapshot }}No snapshot available.{{end}}

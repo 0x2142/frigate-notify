@@ -96,6 +96,9 @@ alerts:
     # By default, if set to 0 - events are sent immediately
     # This can be useful to wait for a 3rd-party app to set sub_labels before sending notifications
     recheck_delay:
+    # Allow audio-only events (no object detection)
+    # Set to `drop` to disallow this
+    audio_only: allow
 
 
   # If configured, ignore events between times below

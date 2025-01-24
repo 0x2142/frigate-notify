@@ -13,6 +13,12 @@ import (
 
 // checkEventFilters processes incoming event through configured filters to determine if it should generate a notification
 func checkEventFilters(event models.Event) bool {
+	// Check if audio event
+	if event.Data.Type == "audio" && config.ConfigData.Alerts.General.AudioOnly == "drop" {
+		log.Info().Msg("Event dropped - Audio only.")
+		return false
+	}
+
 	// Check if notifications are currently disabled
 	if !config.Internal.Status.Notifications.Enabled {
 		log.Info().Msg("Event dropped - Notifications currently disabled.")

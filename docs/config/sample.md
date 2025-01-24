@@ -46,6 +46,7 @@ alerts:
     notify_once:
     notify_detections:
     recheck_delay:
+    audio_only:
 
   quiet:
     start:
