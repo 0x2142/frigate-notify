@@ -177,6 +177,10 @@ All alert providers (Discord, Gotify, etc) also support optional filters & the a
     - Delay period in seconds
     - If set to `0`, events are sent immediately upon receipt from Frigate
     - This setting can be useful if needing to wait for a 3rd-party app to set sub_labels
+- **audio_only** (Optional - Default: `allow`)
+    - Specify what to do with events that only contain audio detection
+    - By default, these events will generate notifications
+    - Set to `drop` to silently drop these events & not send notifications
 
 ```yaml title="Config File Snippet"
 alerts:
@@ -189,6 +193,7 @@ alerts:
     snap_crop:
     notify_once:
     notify_detections:
+    audio_only:
 ```
 
 ### Quiet Hours

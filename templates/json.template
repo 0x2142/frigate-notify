@@ -4,12 +4,13 @@
     "camera": "{{ .Extra.CameraName }}",
     "label": "{{ .Label }}", 
     "score": "{{ .Extra.TopScorePercent }}",
+    "audio": "{{ .Extra.Audio }}",
     "current_zones": "{{ .CurrentZones }}",
     "entered_zones": "{{ .EnteredZones }}",
     "has_clip": "{{ .HasClip }}",
     "has_snapshot": "{{ .HasSnapshot }}",
     "links": {
-        "camera": {{if ge .Extra.FrigateMajorVersion 14 }}"{{ .Extra.PublicURL }}/#{{ .Extra.CameraName }}",{{ else }}"{{ .Extra.PublicURL }}/cameras/{{ .Extra.CameraName }}",{{ end }}
+        "camera": {{if ge .Extra.FrigateMajorVersion 14 }}"{{ .Extra.PublicURL }}/#{{ .Camera }}",{{ else }}"{{ .Extra.PublicURL }}/cameras/{{ .Camera }}",{{ end }}
         {{ if .HasClip }} "clip": "{{ .Extra.EventLink }}",{{ end }}
         {{ if ne .Extra.ReviewLink "" }} "review": "{{ .Extra.ReviewLink }}",{{ end }}
         {{ if .HasSnapshot }} "snapshot": "{{ .Extra.LocalURL }}/api/events/{{ .ID }}/snapshot.jpg"{{ end }}

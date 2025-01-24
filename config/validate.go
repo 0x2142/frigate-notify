@@ -352,6 +352,13 @@ func (c *Config) validateAlertGeneral() []string {
 		log.Debug().Msgf("Events without a snapshot: %v", strings.ToLower(c.Alerts.General.NoSnap))
 	}
 
+	// Check action on audio-only events
+	if strings.ToLower(c.Alerts.General.AudioOnly) != "allow" && strings.ToLower(c.Alerts.General.AudioOnly) != "drop" {
+		alertErrors = append(alertErrors, "Option for audio_only must be 'allow' or 'drop'")
+	} else {
+		log.Debug().Msgf("Audio-only events: %v", strings.ToLower(c.Alerts.General.AudioOnly))
+	}
+
 	// Notify_Once
 	log.Debug().Msgf("Notify only once per event: %v", c.Alerts.General.NotifyOnce)
 

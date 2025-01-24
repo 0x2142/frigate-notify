@@ -71,6 +71,7 @@ type General struct {
 	NotifyOnce       bool   `fig:"notify_once,omitempty"  json:"notify_once" enum:"true,false" doc:"Only notify once per event (For app mode: events)" default:false`
 	NotifyDetections bool   `fig:"notify_detections,omitempty" json:"notify_detections" enum:"true,false" doc:"Enable notifications on detection (For app mode: reviews)" default:false`
 	RecheckDelay     int    `fig:"recheck_delay" json:"recheck_delay" default:"0" doc:"Delay before re-checking event details from Frigate"`
+	AudioOnly        string `fig:"audio_only" json:"audio_only" enum:"allow,drop" doc:"Allow/Drop events that only contain audio detections" default:"allow"`
 }
 
 type Quiet struct {
