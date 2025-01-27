@@ -12,49 +12,53 @@ import (
 )
 
 // SendWebhook sends alert through HTTP POST to target webhook
-func SendWebhook(event models.Event) {
+func SendWebhook(event models.Event, provider notifMeta) {
+	profile := config.ConfigData.Alerts.Webhook[provider.index]
+	status := &config.Internal.Status.Notifications.Webhook[provider.index]
+
 	// Build notification
 	var message string
-	payload, err := json.Marshal(config.ConfigData.Alerts.Webhook.Template)
+	payload, err := json.Marshal(profile.Template)
 	if err != nil {
 		log.Warn().
 			Str("event_id", event.ID).
 			Str("provider", "Webhook").
+			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
+		status.NotifFailure(err.Error())
 		return
 	}
 	if string(payload) != "null" {
-		message = renderMessage(string(payload), event)
-		log.Debug().
-			Str("event_id", event.ID).
-			Str("provider", "Webhook").
-			Str("rendered_template", message).
-			Msg("Custom message template used")
+		message = renderMessage(string(payload), event, "message", "Webhook")
 	} else {
-		message = renderMessage("json", event)
+		message = renderMessage("json", event, "message", "Webhook")
 	}
 
-	headers := renderHTTPKV(config.ConfigData.Alerts.Webhook.Headers, event, "headers")
-	params := renderHTTPKV(config.ConfigData.Alerts.Webhook.Params, event, "params")
+	headers := renderHTTPKV(profile.Headers, event, "headers", "Webhook")
+	params := renderHTTPKV(profile.Params, event, "params", "Webhook")
 	paramString := util.BuildHTTPParams(params...)
-	if strings.ToUpper(config.ConfigData.Alerts.Webhook.Method) == "GET" {
-		_, err = util.HTTPGet(config.ConfigData.Alerts.Webhook.Server, config.ConfigData.Alerts.Webhook.Insecure, paramString, headers...)
+	if strings.ToUpper(profile.Method) == "GET" {
+		_, err = util.HTTPGet(profile.Server, profile.Insecure, paramString, headers...)
 
 	} else {
-		_, err = util.HTTPPost(config.ConfigData.Alerts.Webhook.Server, config.ConfigData.Alerts.Webhook.Insecure, []byte(message), paramString, headers...)
+		_, err = util.HTTPPost(profile.Server, profile.Insecure, []byte(message), paramString, headers...)
 	}
 
 	if err != nil {
 		log.Warn().
 			Str("event_id", event.ID).
 			Str("provider", "Webhook").
+			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
+		status.NotifFailure(err.Error())
 		return
 	}
 	log.Info().
 		Str("event_id", event.ID).
 		Str("provider", "Webhook").
+		Int("provider_id", provider.index).
 		Msg("Alert sent")
+	status.NotifSuccess()
 }

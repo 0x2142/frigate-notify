@@ -14,33 +14,33 @@ import (
 )
 
 // SendDiscordMessage pushes alert message to Discord via webhook
-func SendDiscordMessage(event models.Event, snapshot io.Reader) {
+func SendDiscordMessage(event models.Event, snapshot io.Reader, provider notifMeta) {
+	profile := config.ConfigData.Alerts.Discord[provider.index]
+	status := &config.Internal.Status.Notifications.Discord[provider.index]
+
 	var err error
 	var message string
 	// Build notification
-	if config.ConfigData.Alerts.Discord.Template != "" {
-		message = renderMessage(config.ConfigData.Alerts.Discord.Template, event)
-		log.Debug().
-			Str("event_id", event.ID).
-			Str("provider", "Discord").
-			Str("rendered_template", message).
-			Msg("Custom message template used")
+	if profile.Template != "" {
+		message = renderMessage(profile.Template, event, "message", "Discord")
 	} else {
-		message = renderMessage("markdown", event)
+		message = renderMessage("markdown", event, "message", "Discord")
 	}
 
 	// Connect to Discord
-	client, err := webhook.NewWithURL(config.ConfigData.Alerts.Discord.Webhook)
+	client, err := webhook.NewWithURL(profile.Webhook)
 	if err != nil {
 		log.Warn().
 			Str("event_id", event.ID).
 			Str("provider", "Discord").
+			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
+		status.NotifFailure(err.Error())
 	}
 	defer client.Close(context.TODO())
 
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "Discord")
 	title = fmt.Sprintf("**%v**\n\n", title)
 	message = title + message
 
@@ -52,6 +52,7 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader) {
 		msg, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetEmbeds(embed).SetFiles(image).Build())
 		log.Trace().
 			Str("event_id", event.ID).
+			Int("provider_id", provider.index).
 			Interface("payload", msg).
 			Msg("Send Discord Alert")
 
@@ -60,6 +61,7 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader) {
 		msg, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetEmbeds(embed).Build())
 		log.Trace().
 			Str("event_id", event.ID).
+			Int("provider_id", provider.index).
 			Interface("payload", msg).
 			Msg("Send Discord Alert")
 	}
@@ -67,11 +69,15 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader) {
 		log.Warn().
 			Str("event_id", event.ID).
 			Str("provider", "Discord").
+			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
+		status.NotifFailure(err.Error())
 	}
 	log.Info().
 		Str("event_id", event.ID).
 		Str("provider", "Discord").
+		Int("provider_id", provider.index).
 		Msg("Alert sent")
+	status.NotifSuccess()
 }

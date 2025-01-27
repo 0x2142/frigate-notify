@@ -1,9 +1,8 @@
-package frigate
+package events
 
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"strings"
 	"time"
 
@@ -11,12 +10,17 @@ import (
 
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
-	"github.com/0x2142/frigate-notify/notifier"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
+var mqtt_topic string
+var client mqtt.Client
+
 // SubscribeMQTT establishes subscription to MQTT server & listens for messages
 func SubscribeMQTT() {
+	config.Internal.Status.Health = "frigate mqtt connecting"
+	config.Internal.Status.Frigate.MQTT = "connecting"
+	mqtt_topic = fmt.Sprintf("%s/%s", config.ConfigData.Frigate.MQTT.TopicPrefix, strings.ToLower(config.ConfigData.App.Mode))
 	// MQTT client configuration
 	mqttServer := fmt.Sprintf("tcp://%s:%d", config.ConfigData.Frigate.MQTT.Server, config.ConfigData.Frigate.MQTT.Port)
 	opts := mqtt.NewClientOptions()
@@ -35,21 +39,26 @@ func SubscribeMQTT() {
 		Str("client_id", config.ConfigData.Frigate.MQTT.ClientID).
 		Str("username", config.ConfigData.Frigate.MQTT.Username).
 		Str("password", "--secret removed--").
-		Str("topic", config.ConfigData.Frigate.MQTT.TopicPrefix+"/events").
+		Str("topic", mqtt_topic).
 		Bool("auto_reconnect", true).
 		Msg("Init MQTT connection")
 
 	var subscribed = false
 	var retry = 0
 	for !subscribed {
+		config.Internal.Status.Health = "frigate mqtt unable to connect"
+		config.Internal.Status.Frigate.MQTT = "unreachable"
 		if retry >= 3 {
 			log.Fatal().Msgf("Max retries exceeded. Failed to establish MQTT session to %s", config.ConfigData.Frigate.MQTT.Server)
 		}
 		// Connect to MQTT broker
-		client := mqtt.NewClient(opts)
+		client = mqtt.NewClient(opts)
 
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
 			retry += 1
+			config.Internal.Status.Health = "frigate mqtt unable to connect"
+			config.Internal.Status.Frigate.MQTT = "unreachable"
+
 			log.Warn().Msgf("Could not connect to MQTT at %v: %v", config.ConfigData.Frigate.MQTT.Server, token.Error())
 			log.Warn().Msgf("Retrying in 10 seconds. Attempt %v of 3.", retry)
 			time.Sleep(10 * time.Second)
@@ -59,86 +68,17 @@ func SubscribeMQTT() {
 	}
 }
 
-// processEvent handles incoming MQTT messages & pulls out relevant info for alerting
-func processEvent(client mqtt.Client, msg mqtt.Message) {
-	// Parse incoming MQTT message
-	var event models.MQTTEvent
-	json.Unmarshal(msg.Payload(), &event)
-
-	log.Trace().
-		RawJSON("payload", msg.Payload()).
-		Msg("MQTT event received")
-
-	if event.Type == "new" || event.Type == "update" {
-		if event.Type == "new" {
-			log.Info().
-				Str("event_id", event.After.ID).
-				Msg("New event received")
-		} else if event.Type == "update" {
-			log.Info().
-				Str("event_id", event.After.ID).
-				Msg("Event update received")
-		}
-
-		// Convert to human-readable timestamp
-		eventTime := time.Unix(int64(event.After.StartTime), 0)
-		log.Info().
-			Str("event_id", event.After.ID).
-			Str("camera", event.After.Camera).
-			Str("label", event.After.Label).
-			Str("zones", strings.Join(event.After.CurrentZones, ",")).
-			Msg("Event Detected")
-		log.Debug().
-			Str("event_id", event.After.ID).
-			Msgf("Event start time: %s", eventTime)
-
-		// Check that event passes configured filters
-		if !checkEventFilters(event.After.Event) {
-			return
-		}
-
-		// Check if already notified on zones
-		if zoneAlreadyAlerted(event.After.Event) {
-			log.Info().
-				Str("event_id", event.After.ID).
-				Str("camera", event.After.Camera).
-				Str("label", event.After.Label).
-				Str("zones", strings.Join(event.After.CurrentZones, ",")).
-				Msg("Event dropped - Already notified on this zone")
-			return
-		} else {
-			log.Debug().
-				Str("event_id", event.After.ID).
-				Str("camera", event.After.Camera).
-				Str("label", event.After.Label).
-				Str("zones", strings.Join(event.After.CurrentZones, ",")).
-				Msg("Object entered new zone")
-		}
-
-		// If snapshot was collected, pull down image to send with alert
-		var snapshot io.Reader
-		var snapshotURL string
-		if event.After.HasSnapshot {
-			snapshotURL = config.ConfigData.Frigate.Server + eventsURI + "/" + event.After.ID + snapshotURI
-			snapshot = GetSnapshot(snapshotURL, event.After.ID)
-		}
-
-		// Send alert with snapshot
-		notifier.SendAlert(event.After.Event, snapshot, event.After.ID)
-	}
-
-	// Clear event cache entry when event ends
-	if event.Type == "end" {
-		log.Debug().
-			Str("event_id", event.After.ID).
-			Msg("Event ended")
-		delZoneAlerted(event.After.Event)
-		return
-	}
+// disconnectMQTT simply disconnects the MQTT client
+func DisconnectMQTT() {
+	log.Info().Msg("Ending MQTT session")
+	client.Disconnect(300)
+	log.Info().Msg("MQTT disconnected")
 }
 
 // connectionLostHandler logs error message on MQTT connection loss
 func connectionLostHandler(c mqtt.Client, err error) {
+	config.Internal.Status.Health = "frigate mqtt connection lost"
+	config.Internal.Status.Frigate.MQTT = "unreachable"
 	log.Error().
 		Err(err).
 		Msg("Lost connection to MQTT broker")
@@ -147,10 +87,75 @@ func connectionLostHandler(c mqtt.Client, err error) {
 // connectHandler logs message on MQTT connection
 func connectHandler(client mqtt.Client) {
 	log.Info().Msg("Connected to MQTT.")
-	topic := fmt.Sprintf(config.ConfigData.Frigate.MQTT.TopicPrefix + "/events")
-	if subscription := client.Subscribe(topic, 0, processEvent); subscription.Wait() && subscription.Error() != nil {
-		log.Error().Msgf("Failed to subscribe to topic: %s", topic)
+	config.Internal.Status.Health = "ok"
+	config.Internal.Status.Frigate.MQTT = "ok"
+	if subscription := client.Subscribe(mqtt_topic, 0, handleMQTTMsg); subscription.Wait() && subscription.Error() != nil {
+		config.Internal.Status.Health = "frigate mqtt unable to subscribe"
+		config.Internal.Status.Frigate.MQTT = "unreachable"
+		log.Error().Msgf("Failed to subscribe to topic: %s", mqtt_topic)
 		time.Sleep(10 * time.Second)
 	}
-	log.Info().Msgf("Subscribed to MQTT topic: %s", topic)
+
+	log.Info().Msgf("Subscribed to MQTT topic: %s", mqtt_topic)
+}
+
+// handleMQTTMsg processes incoming MQTT messages depending on topic
+func handleMQTTMsg(client mqtt.Client, msg mqtt.Message) {
+	topic := strings.Split(msg.Topic(), "/")[1]
+
+	log.Trace().
+		RawJSON("payload", msg.Payload()).
+		Msg("New MQTT message received")
+
+	switch topic {
+	case "reviews":
+		var review models.MQTTReview
+		json.Unmarshal(msg.Payload(), &review)
+
+		switch review.Type {
+		case "new":
+			log.Debug().
+				Str("review_id", review.After.ID).
+				Msg("New review received")
+			processReview(review.After.Review)
+		case "update":
+			log.Debug().
+				Str("review_id", review.After.ID).
+				Msg("Review update received")
+			processReview(review.After.Review)
+		case "end":
+			log.Debug().
+				Str("review_id", review.After.ID).
+				Msg("Review ended")
+			for _, detection := range review.After.Data.Detections {
+				delZoneAlerted(models.Event{
+					ID:           detection,
+					Camera:       review.After.Camera,
+					CurrentZones: review.After.Data.Zones,
+				})
+			}
+		}
+	case "events":
+		var event models.MQTTEvent
+		json.Unmarshal(msg.Payload(), &event)
+
+		switch event.Type {
+		case "new":
+			log.Info().
+				Str("event_id", event.After.ID).
+				Msg("New event received")
+			processEvent(event.After.Event)
+		case "update":
+			log.Info().
+				Str("event_id", event.After.ID).
+				Msg("Event update received")
+			processEvent(event.After.Event)
+		case "end":
+			log.Debug().
+				Str("event_id", event.After.ID).
+				Msg("Event ended")
+			delZoneAlerted(event.After.Event)
+		}
+
+	}
 }

@@ -1,7 +1,16 @@
 .vscode
+.env
+*.tmp
+*.bak
 # Go build and workspace files
 frigate-notify
 go.work
 go.work.sum
+dist/
+# Mkdocs
+site/
 # Local test config
-config.yml
+*config.yml
+Taskfile.yaml
+mqttlogger/
+log/

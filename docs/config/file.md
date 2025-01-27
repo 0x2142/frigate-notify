@@ -4,6 +4,28 @@ The following section details options available via the `config.yml` file. Confi
 
 Config may also be provided via environment variables. Frigate-notify will load environment variables prefixed with `FN_`. Environment variables follow the same structure as the config file below, with heirarchy separated by an underscore (`_`). For example, setting the Frigate server address would be `FN_FRIGATE_SERVER`, or enabling Discord alerts would use `FN_ALERTS_DISCORD_ENABLED`.
 
+## App
+
+- **mode** (Optional - Default: `events`)
+    - Specify whether to notifications are based on Frigate [Events or Reviews](https://docs.frigate.video/configuration/review/#review-items-vs-events)
+    - `events` will notify on every detected object from Frigate
+    - `reviews` will only notify on Frigate **Alerts** (Requires Frigate 0.14+)
+        - When in `reviews` mode, toggle `notify_detections` under the `alerts` [config section](#alerts) to also notify on **Detections**
+        - See also [Alerts vs Detections](https://docs.frigate.video/configuration/review/#alerts-and-detections)
+- **API**
+    - **enabled** (Optional - Default: `false`)
+        - Set to `true` to enable Frigate-Notify's REST API server
+    - **port** (Optional - Default: `8000`)
+        - Change default port for API server
+
+```yaml title="Config File Snippet"
+app:
+  mode: events
+  api:
+    enabled: true
+    port: 8000
+```
+
 ## Frigate
 
 ### Server
@@ -118,6 +140,8 @@ frigate:
 !!! note
     Any combination of alerting methods may be enabled, though you'll probably want to enable at least one! 😅
 
+All alert providers (Discord, Gotify, etc) also support optional filters & the ability to configure multiple profiles per provider. Please see [Alert Profiles & Filters](https://frigate-notify.0x2142.com/latest/config/profilesandfilters/) for more information.
+
 ### General
 
 - **title** (Optional - Default: `Frigate Alert`)
@@ -144,6 +168,19 @@ frigate:
 - **notify_once** (Optional - Default: `false`)
     - By default, each Frigate event may generate several notifications as the object changes zones, etc
     - Set this to `true` to only notify once per event
+- **notify_detections** (Optional - Default: `false`)
+    - Only used when app `mode` is `reviews`
+    - By default, notifications will only be sent on Frigate alerts
+    - Set to `true` to also enable on detections
+- **recheck_delay** (Optional - Default: `0`)
+    - Optionally re-check event details from Frigate before sending notifications
+    - Delay period in seconds
+    - If set to `0`, events are sent immediately upon receipt from Frigate
+    - This setting can be useful if needing to wait for a 3rd-party app to set sub_labels
+- **audio_only** (Optional - Default: `allow`)
+    - Specify what to do with events that only contain audio detection
+    - By default, these events will generate notifications
+    - Set to `drop` to silently drop these events & not send notifications
 
 ```yaml title="Config File Snippet"
 alerts:
@@ -155,6 +192,8 @@ alerts:
     snap_timestamp:
     snap_crop:
     notify_once:
+    notify_detections:
+    audio_only:
 ```
 
 ### Quiet Hours
@@ -418,6 +457,9 @@ alerts:
 - **devices** (Optional)
     - Optionally specify list of devices to send notifications to
     - If left empty, all devices will receive the notification
+- **sound** (Optional)
+    - Specify custom sound for notifications from this app
+    - For available values, see the [Pushover Docs](https://pushover.net/api#sounds)
 - **priority** (Optional)
     - Optionally set message priority
     - Valid priorities are -2, -1, 0, 1, 2
@@ -441,6 +483,7 @@ alerts:
     token: aaaaaaaaaaaaaaaaaaaaaa
     userkey: bbbbbbbbbbbbbbbbbbbbbb
     devices: device1,device2
+    sound:
     priority: 0
     retry:
     expire:

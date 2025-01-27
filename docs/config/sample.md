@@ -3,6 +3,12 @@
 A full config file template has been provided below:
 
 ```yaml
+app:
+  mode:
+  api:
+    enabled:
+    port:
+    
 frigate:
   server: 
   ignoressl:
@@ -38,6 +44,9 @@ alerts:
     snap_timestamp:
     snap_crop:
     notify_once:
+    notify_detections:
+    recheck_delay:
+    audio_only:
 
   quiet:
     start:
@@ -97,6 +106,7 @@ alerts:
     token:
     userkey:
     devices:
+    sound:
     priority:
     retry:
     expire:

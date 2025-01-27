@@ -13,49 +13,49 @@ import (
 )
 
 // SendPushoverMessage sends alert message through Pushover service
-func SendPushoverMessage(event models.Event, snapshot io.Reader) {
+func SendPushoverMessage(event models.Event, snapshot io.Reader, provider notifMeta) {
+	profile := config.ConfigData.Alerts.Pushover[provider.index]
+	status := &config.Internal.Status.Notifications.Pushover[provider.index]
+
 	// Build notification
 	var message string
-	if config.ConfigData.Alerts.Pushover.Template != "" {
-		message = renderMessage(config.ConfigData.Alerts.Pushover.Template, event)
-		log.Debug().
-			Str("event_id", event.ID).
-			Str("provider", "Pushover").
-			Str("rendered_template", message).
-			Msg("Custom message template used")
+	if profile.Template != "" {
+		message = renderMessage(profile.Template, event, "message", "Pushover")
 	} else {
-		message = renderMessage("html", event)
+		message = renderMessage("html", event, "message", "Pushover")
 		message = strings.ReplaceAll(message, "<br />", "")
 	}
 
-	push := pushover.New(config.ConfigData.Alerts.Pushover.Token)
-	recipient := pushover.NewRecipient(config.ConfigData.Alerts.Pushover.Userkey)
+	push := pushover.New(profile.Token)
+	recipient := pushover.NewRecipient(profile.Userkey)
 
 	// Create new message
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "Pushover")
 	notif := &pushover.Message{
 		Message:  message,
 		Title:    title,
-		Priority: config.ConfigData.Alerts.Pushover.Priority,
+		Priority: profile.Priority,
+		Sound:    profile.Sound,
 		HTML:     true,
-		TTL:      time.Duration(config.ConfigData.Alerts.Pushover.TTL) * time.Second,
+		TTL:      time.Duration(profile.TTL) * time.Second,
 	}
 
 	// If emergency priority, set retry / expiration
 	if notif.Priority == 2 {
-		notif.Retry = time.Duration(config.ConfigData.Alerts.Pushover.Retry) * time.Second
-		notif.Expire = time.Duration(config.ConfigData.Alerts.Pushover.Expire) * time.Second
+		notif.Retry = time.Duration(profile.Retry) * time.Second
+		notif.Expire = time.Duration(profile.Expire) * time.Second
 	}
 
 	// Add target devices if specified
-	if config.ConfigData.Alerts.Pushover.Devices != "" {
-		devices := strings.ReplaceAll(config.ConfigData.Alerts.Pushover.Devices, " ", "")
+	if profile.Devices != "" {
+		devices := strings.ReplaceAll(profile.Devices, " ", "")
 		notif.DeviceName = devices
 	}
 
 	log.Trace().
 		Interface("payload", notif).
 		Interface("recipient", "--secret removed--").
+		Int("provider_id", provider.index).
 		Msg("Send Pushover alert")
 
 	// Send notification
@@ -64,24 +64,30 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 		response, err := push.SendMessage(notif, recipient)
 		log.Trace().
 			Interface("payload", response).
+			Int("provider_id", provider.index).
 			Msg("Pushover response")
 		if err != nil {
 			log.Warn().
 				Str("event_id", event.ID).
 				Str("provider", "Pushover").
+				Int("provider_id", provider.index).
 				Msgf("Unable to send alert: %v", err)
+			status.NotifFailure(err.Error())
 			return
 		}
 	} else {
 		response, err := push.SendMessage(notif, recipient)
 		log.Trace().
 			Interface("payload", response).
+			Int("provider_id", provider.index).
 			Msg("Pushover response")
 		if err != nil {
 			log.Warn().
 				Str("event_id", event.ID).
 				Str("provider", "Pushover").
+				Int("provider_id", provider.index).
 				Msgf("Unable to send alert: %v", err)
+			status.NotifFailure(err.Error())
 			return
 		}
 	}
@@ -89,5 +95,8 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader) {
 	log.Info().
 		Str("event_id", event.ID).
 		Str("provider", "Pushover").
+		Int("provider_id", provider.index).
 		Msgf("Alert sent")
+	status.NotifSuccess()
+
 }

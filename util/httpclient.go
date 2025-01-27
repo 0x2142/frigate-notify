@@ -66,17 +66,22 @@ func HTTPGet(url string, insecure bool, params string, headers ...map[string]str
 	}
 
 	// Remove authorization header value for logging
-	for i, h := range headers {
+	var logheaders []map[string]string
+	for _, h := range headers {
 		for k := range h {
 			if strings.ToLower(k) == "authorization" {
-				headers[i][k] = "--secret removed--"
+				modifiedHeader := make(map[string]string)
+				modifiedHeader[k] = "--secret removed--"
+				logheaders = append(logheaders, modifiedHeader)
+			} else {
+				logheaders = append(logheaders, h)
 			}
 		}
 	}
 	// Send HTTP GET
 	log.Trace().
 		Str("url", url).
-		Interface("headers", headers).
+		Interface("headers", logheaders).
 		Bool("insecure", insecure).
 		Msg("HTTP GET")
 	response, err := client.Do(req)
@@ -98,10 +103,17 @@ func HTTPGet(url string, insecure bool, params string, headers ...map[string]str
 			Int("status_code", response.StatusCode).
 			Msg("HTTP Response")
 	} else {
-		log.Trace().
-			RawJSON("body", body).
-			Int("status_code", response.StatusCode).
-			Msg("HTTP Response")
+		if json.Valid(body) {
+			log.Trace().
+				RawJSON("body", body).
+				Int("status_code", response.StatusCode).
+				Msg("HTTP Response")
+		} else {
+			log.Trace().
+				Str("body", string(body)).
+				Int("status_code", response.StatusCode).
+				Msg("HTTP Response")
+		}
 	}
 
 	if response.StatusCode != 200 {
@@ -128,51 +140,56 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
 	}
 
-	// Setup new HTTP Request
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(payload))
-	if err != nil {
-		return nil, err
-	}
-
-	// Add headers
-	if len(headers) > 0 {
-		for _, h := range headers {
-			for k, v := range h {
-				req.Header.Add(k, v)
-			}
-
-		}
-	}
-
-	// Remove authorization header value for logging
-	for i, h := range headers {
-		for k := range h {
-			if strings.ToLower(k) == "authorization" {
-				headers[i][k] = "--secret removed--"
-			}
-		}
-	}
-
-	// Send HTTP POST
-	if json.Valid(payload) {
-		log.Trace().
-			Str("url", url).
-			Interface("headers", headers).
-			RawJSON("body", payload).
-			Bool("insecure", insecure).
-			Msg("HTTP POST")
-	} else {
-		log.Trace().
-			Str("url", url).
-			Interface("headers", headers).
-			Interface("body", payload).
-			Bool("insecure", insecure).
-			Msg("HTTP POST")
-	}
-
 	var response *http.Response
 	retry := 1
 	for retry <= 6 {
+		// Setup new HTTP Request
+		req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(payload))
+		if err != nil {
+			return nil, err
+		}
+
+		// Add headers
+		if len(headers) > 0 {
+			for _, h := range headers {
+				for k, v := range h {
+					req.Header.Add(k, v)
+				}
+
+			}
+		}
+
+		// Remove authorization header value for logging
+		var logheaders []map[string]string
+		for _, h := range headers {
+			for k := range h {
+				if strings.ToLower(k) == "authorization" {
+					modifiedHeader := make(map[string]string)
+					modifiedHeader[k] = "--secret removed--"
+					logheaders = append(logheaders, modifiedHeader)
+				} else {
+					logheaders = append(logheaders, h)
+				}
+			}
+		}
+
+		// Send HTTP POST
+		if json.Valid(payload) {
+			log.Trace().
+				Str("url", url).
+				Interface("headers", logheaders).
+				RawJSON("body", payload).
+				Bool("insecure", insecure).
+				Msg("HTTP POST")
+		} else {
+			log.Trace().
+				Str("url", url).
+				Interface("headers", logheaders).
+				Interface("body", payload).
+				Bool("insecure", insecure).
+				Msg("HTTP POST")
+		}
+
 		response, err = client.Do(req)
 		if err == nil {
 			break
@@ -183,7 +200,7 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 					Int("max_tries", 6).
 					Err(err).
 					Msg("HTTP Request failed, retries exceeded")
-				break
+				return nil, err
 			}
 			log.Warn().
 				Int("attempt", retry).
@@ -193,9 +210,6 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 			retry += 1
 			time.Sleep(1 * time.Second)
 		}
-	}
-	if err != nil {
-		return nil, err
 	}
 
 	defer response.Body.Close()
@@ -210,6 +224,11 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 		RawJSON("body", body).
 		Int("status_code", response.StatusCode).
 		Msg("HTTP Response")
+
+	// Check status codes
+	if response.StatusCode < 200 || response.StatusCode > 299 {
+		return nil, fmt.Errorf("failed to send request, got status code %v", response.StatusCode)
+	}
 
 	return body, nil
 }

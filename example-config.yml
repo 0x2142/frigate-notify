@@ -1,6 +1,19 @@
 ## SAMPLE CONFIG FILE
 # For more info, see docs at https://frigate-notify.0x2142.com/config/file/
 
+# Frigate-Notify App settings
+app:
+  # Set App Mode - `events` or `reviews`
+  # Default is `events`
+  mode:
+  # Settings for frigate-notify API
+  api:
+    # Set to true to enable REST API
+    enabled:
+    # Specify custom port, default is 8000
+    port:
+
+
 ## Event Collection Methods
 # Note: Only enable one - webapi OR mqtt
 frigate:
@@ -76,6 +89,16 @@ alerts:
     # By default, each Frigate event may generate several notifications as the object changes zones, etc
     # Set this to `true` to only notify once per event
     notify_once:
+    # When app mode is set to `reviews`, notifications are only sent on Frigate alerts
+    # Set this to `true` to also notify on detections
+    notify_detections:
+    # Recheck event details from Frigate after a delay (in seconds)
+    # By default, if set to 0 - events are sent immediately
+    # This can be useful to wait for a 3rd-party app to set sub_labels before sending notifications
+    recheck_delay:
+    # Allow audio-only events (no object detection)
+    # Set to `drop` to disallow this
+    audio_only: allow
 
 
   # If configured, ignore events between times below
@@ -173,6 +196,9 @@ alerts:
     userkey:
     # Optional list of target devices by name, separated by comma
     devices:
+    # Specify custom sound for notifications from this app
+    # For available values, see: https://pushover.net/api#sounds
+    sound:
     # Optional message priority, default is 0
     priority:
     # If priority is 2, retry & expiration must be set

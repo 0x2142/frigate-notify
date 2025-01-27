@@ -13,36 +13,26 @@ import (
 )
 
 // SendNtfyPush forwards alert messages to Ntfy server
-func SendNtfyPush(event models.Event, snapshot io.Reader) {
+func SendNtfyPush(event models.Event, snapshot io.Reader, provider notifMeta) {
+	profile := config.ConfigData.Alerts.Ntfy[provider.index]
+	status := &config.Internal.Status.Notifications.Ntfy[provider.index]
+
 	// Build notification
 	var message string
-	if config.ConfigData.Alerts.Ntfy.Template != "" {
-		message = renderMessage(config.ConfigData.Alerts.Ntfy.Template, event)
-		log.Debug().
-			Str("event_id", event.ID).
-			Str("provider", "Ntfy").
-			Str("rendered_template", message).
-			Msg("Custom message template used")
+	if profile.Template != "" {
+		message = renderMessage(profile.Template, event, "message", "Ntfy")
 	} else {
-		message = renderMessage("plaintext", event)
+		message = renderMessage("plaintext", event, "message", "Ntfy")
 	}
 
-	NtfyURL := fmt.Sprintf("%s/%s", config.ConfigData.Alerts.Ntfy.Server, config.ConfigData.Alerts.Ntfy.Topic)
+	NtfyURL := fmt.Sprintf("%s/%s", profile.Server, profile.Topic)
 
 	// Set headers
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event)
+	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "Ntfy")
 	var headers []map[string]string
 	headers = append(headers, map[string]string{"Content-Type": "text/markdown"})
 	headers = append(headers, map[string]string{"X-Title": title})
-	headers = append(headers, config.ConfigData.Alerts.Ntfy.Headers...)
-
-	// Set action link to the recorded clip
-	var clip string
-	if config.ConfigData.Frigate.PublicURL != "" {
-		clip = fmt.Sprintf("%s/api/events/%s/clip.mp4", config.ConfigData.Frigate.PublicURL, event.ID)
-	} else {
-		clip = fmt.Sprintf("%s/api/events/%s/clip.mp4", config.ConfigData.Frigate.Server, event.ID)
-	}
+	headers = append(headers, profile.Headers...)
 
 	var attachment []byte
 	if event.HasSnapshot {
@@ -63,18 +53,24 @@ func SendNtfyPush(event models.Event, snapshot io.Reader) {
 		}
 	}
 	if !hasAction {
-		headers = append(headers, map[string]string{"X-Actions": "view, View Clip, " + clip + ", clear=true"})
+		if event.Extra.ReviewLink != "" {
+			headers = append(headers, map[string]string{"X-Actions": "view, Review Event, " + event.Extra.ReviewLink + ", clear=true"})
+		} else {
+			headers = append(headers, map[string]string{"X-Actions": "view, View Clip, " + event.Extra.EventLink + ", clear=true"})
+		}
 	}
 
-	headers = renderHTTPKV(headers, event, "headers")
+	headers = renderHTTPKV(headers, event, "headers", "Ntfy")
 
-	resp, err := util.HTTPPost(NtfyURL, config.ConfigData.Alerts.Ntfy.Insecure, attachment, "", headers...)
+	resp, err := util.HTTPPost(NtfyURL, profile.Insecure, attachment, "", headers...)
 	if err != nil {
 		log.Warn().
 			Str("event_id", event.ID).
 			Str("provider", "Ntfy").
+			Int("provider_id", provider.index).
 			Err(err).
 			Msg("Unable to send alert")
+		status.NotifFailure(err.Error())
 		return
 	}
 
@@ -83,12 +79,17 @@ func SendNtfyPush(event models.Event, snapshot io.Reader) {
 		log.Warn().
 			Str("event_id", event.ID).
 			Str("provider", "Ntfy").
+			Int("provider_id", provider.index).
 			Str("error", string(resp)).
 			Msg("Unable to send alert")
+		status.NotifFailure(string(resp))
+
 	}
 
 	log.Info().
 		Str("event_id", event.ID).
+		Int("provider_id", provider.index).
 		Str("provider", "Ntfy").
 		Msg("Alert sent")
+	status.NotifSuccess()
 }

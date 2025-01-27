@@ -1,4 +1,4 @@
-package frigate
+package events
 
 import (
 	"slices"
@@ -13,6 +13,18 @@ import (
 
 // checkEventFilters processes incoming event through configured filters to determine if it should generate a notification
 func checkEventFilters(event models.Event) bool {
+	// Check if audio event
+	if event.Data.Type == "audio" && config.ConfigData.Alerts.General.AudioOnly == "drop" {
+		log.Info().Msg("Event dropped - Audio only.")
+		return false
+	}
+
+	// Check if notifications are currently disabled
+	if !config.Internal.Status.Notifications.Enabled {
+		log.Info().Msg("Event dropped - Notifications currently disabled.")
+		return false
+	}
+
 	// Skip excluded cameras
 	if slices.Contains(config.ConfigData.Frigate.Cameras.Exclude, event.Camera) {
 		log.Info().
@@ -21,6 +33,7 @@ func checkEventFilters(event models.Event) bool {
 			Msg("Event dropped - Camera Excluded")
 		return false
 	}
+
 	// Drop event if no snapshot or clip is available - Event is likely being filtered on Frigate side.
 	// For example, if a camera has `required_zones` set - then there may not be any clip or snap until
 	// object moves into required zone
@@ -30,6 +43,7 @@ func checkEventFilters(event models.Event) bool {
 			Msg("Event dropped - No snapshot or clip available")
 		return false
 	}
+
 	// Check if notify_once is set & we already notified on this event
 	if config.ConfigData.Alerts.General.NotifyOnce {
 		// Check if cache already contains event ID
@@ -40,6 +54,25 @@ func checkEventFilters(event models.Event) bool {
 			return false
 		}
 	}
+
+	// Check if already notified on zones
+	if zoneAlreadyAlerted(event) {
+		log.Info().
+			Str("event_id", event.ID).
+			Str("camera", event.Camera).
+			Str("label", event.Label).
+			Str("zones", strings.Join(event.CurrentZones, ",")).
+			Msg("Event dropped - Already notified on this zone")
+		return false
+	} else {
+		log.Debug().
+			Str("event_id", event.ID).
+			Str("camera", event.Camera).
+			Str("label", event.Label).
+			Str("zones", strings.Join(event.CurrentZones, ",")).
+			Msg("Object entered new zone")
+	}
+
 	// Drop event if no snapshot & skip_nosnap is true
 	if !event.HasSnapshot && strings.ToLower(config.ConfigData.Alerts.General.NoSnap) == "drop" {
 		log.Info().
@@ -47,6 +80,7 @@ func checkEventFilters(event models.Event) bool {
 			Msg("Event dropped - No snapshot available")
 		return false
 	}
+
 	// Check quiet hours
 	if isQuietHours() {
 		log.Info().
@@ -54,30 +88,34 @@ func checkEventFilters(event models.Event) bool {
 			Msg("Event dropped - Quiet hours.")
 		return false
 	}
+
 	// Check Zone filter
 	if !isAllowedZone(event.ID, event.CurrentZones) {
 		return false
 	}
+
 	// Check Label filter
 	if !isAllowedLabel(event.ID, event.Label, "label") {
 		return false
 	}
+
 	// Check label score
 	if !aboveMinScore(event.ID, event.TopScore) {
 		return false
 	}
+
 	// Check Sublabel filter
 	if len(event.SubLabel) == 0 {
 		if !isAllowedLabel(event.ID, "", "sublabel") {
 			return false
 		}
 	} else {
-		for _, sublabel := range event.SubLabel {
-			if !isAllowedLabel(event.ID, sublabel, "sublabel") {
-				return false
-			}
+		if !isAllowedLabel(event.ID, event.SubLabel, "sublabel") {
+			return false
 		}
+
 	}
+
 	// Default
 	return true
 }
@@ -203,13 +241,14 @@ func isAllowedLabel(id string, label string, kind string) bool {
 
 // aboveMinScore checks if label score is above configured minimum
 func aboveMinScore(id string, score float64) bool {
+	minScore := config.ConfigData.Alerts.Labels.MinScore
 	score = score * 100
 	log.Trace().
 		Str("event_id", id).
 		Float64("event_score", score).
-		Float64("min_score", score).
+		Float64("min_score", minScore).
 		Msg("Check minimum score")
-	if score >= config.ConfigData.Alerts.Labels.MinScore {
+	if score >= minScore {
 		return true
 	} else {
 		log.Info().

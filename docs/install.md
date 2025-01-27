@@ -15,6 +15,9 @@ version: "3.0"
 services:
   frigate-notify:
     image: ghcr.io/0x2142/frigate-notify:latest
+    # Uncomment below if REST API server is enabled
+    # ports:
+    #   - "8000:8000"
     environment:
       - TZ=Etc/UTC
     volumes:

@@ -1,22 +1,20 @@
 {
     "time": "{{ .Extra.FormattedTime }}",
     "id": "{{ .ID }}",
-    "camera": "{{ .Camera }}",
+    "camera": "{{ .Extra.CameraName }}",
     "label": "{{ .Label }}", 
     "score": "{{ .Extra.TopScorePercent }}",
+    "audio": "{{ .Extra.Audio }}",
     "current_zones": "{{ .CurrentZones }}",
     "entered_zones": "{{ .EnteredZones }}",
     "has_clip": "{{ .HasClip }}",
     "has_snapshot": "{{ .HasSnapshot }}",
     "links": {
-        {{ if ne .Extra.PublicURL "" }} "camera": {{if ge .Extra.FrigateMajorVersion 14 }}"{{ .Extra.PublicURL }}/#{{ .Camera }}",{{ else }}"{{ .Extra.PublicURL }}/cameras/{{ .Camera }}",{{ end }}
-        {{ if .HasClip }} "clip": "{{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}",
-        {{ if .HasSnapshot }} "snapshot": "{{ .Extra.PublicURL }}/api/events/{{ .ID }}/snapshot.jpg{{ end }}",
-        {{ else }} "camera": {{if ge .Extra.FrigateMajorVersion 14 }}"{{ .Extra.LocalURL }}/#{{ .Camera }}",{{ else }}"{{ .Extra.LocalURL }}/cameras/{{ .Camera }}",{{ end }}
-        {{ if .HasClip }} "clip": "{{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}",
-        {{ if .HasSnapshot }} "snapshot": "{{ .Extra.LocalURL }}/api/events/{{ .ID }}/snapshot.jpg{{ end }}",
-        {{ end }}
-    },
+        "camera": {{if ge .Extra.FrigateMajorVersion 14 }}"{{ .Extra.PublicURL }}/#{{ .Camera }}",{{ else }}"{{ .Extra.PublicURL }}/cameras/{{ .Camera }}",{{ end }}
+        {{ if .HasClip }} "clip": "{{ .Extra.EventLink }}",{{ end }}
+        {{ if ne .Extra.ReviewLink "" }} "review": "{{ .Extra.ReviewLink }}",{{ end }}
+        {{ if .HasSnapshot }} "snapshot": "{{ .Extra.LocalURL }}/api/events/{{ .ID }}/snapshot.jpg"{{ end }}
+    }
 }
 
 

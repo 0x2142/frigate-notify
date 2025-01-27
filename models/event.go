@@ -35,7 +35,7 @@ type Event struct {
 	Region             interface{} `json:"region"`
 	RetainIndefinitely bool        `json:"retain_indefinitely"`
 	StartTime          float64     `json:"start_time"`
-	SubLabel           []string    `json:"sub_label"`
+	SubLabel           string      `json:"sub_label"`
 	Thumbnail          string      `json:"thumbnail"`
 	TopScore           float64     `json:"top_score"`
 	Zones              []string    `json:"zones"`
@@ -52,4 +52,8 @@ type ExtraFields struct {
 	LocalURL            string
 	PublicURL           string
 	FrigateMajorVersion int
+	EventLink           string
+	ReviewLink          string
+	CameraName          string
+	Audio               string
 }

@@ -1,13 +1,11 @@
 Detection at {{ .Extra.FormattedTime }}
-Camera: {{ .Camera }}
-Label: {{ .Label }} ({{ .Extra.TopScorePercent }})
+Camera: {{ .Extra.CameraName }}
+{{ if ne .Label "" }}Label: {{ .Label }} ({{ .Extra.TopScorePercent }}) {{ end }}
+{{ if ge (len .Extra.Audio ) 1 }}Audio: {{ .Extra.Audio }} {{ end }}
 {{ if ge (len .Zones ) 1 }}Zone(s): {{ .Extra.ZoneList }}
 {{ end }}
 Links:
-{{ if ne .Extra.PublicURL "" }}{{if ge .Extra.FrigateMajorVersion 14 }} - Camera: {{ .Extra.PublicURL }}/#{{ .Camera }}{{else}} - Camera: {{ .Extra.PublicURL }}/cameras/{{ .Camera }}{{end}}
-{{ if .HasClip }} - Event Clip: {{ .Extra.PublicURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}
-{{ else }}{{if ge .Extra.FrigateMajorVersion 14 }} - Camera: {{ .Extra.LocalURL }}/#{{ .Camera }}{{ else }} - Camera: {{ .Extra.LocalURL }}/cameras/{{ .Camera }}{{ end }}
-{{ if .HasClip }} - Event Clip: {{ .Extra.LocalURL }}/api/events/{{ .ID }}/clip.mp4{{ end }}
-{{ end }}
+{{if ge .Extra.FrigateMajorVersion 14 }} - Camera: {{ .Extra.PublicURL }}/#{{ .Camera }}{{else}} - Camera: {{ .Extra.PublicURL }}/cameras/{{ .Camera }}{{end}}
+{{if ne .Extra.ReviewLink ""}} - Review Event: {{ .Extra.ReviewLink }}{{ else }}{{ if .HasClip }} - Event Clip: {{ .Extra.EventLink }}{{ end }}{{ end }}
 
 {{ if not .HasSnapshot }}No snapshot available.{{end}}
