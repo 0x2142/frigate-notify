@@ -159,6 +159,7 @@ func TestValidateAlertGeneral(t *testing.T) {
 
 	// Test valid config
 	config.Alerts.General.NoSnap = "allow"
+	config.Alerts.General.AudioOnly = "allow"
 	result := config.validateAlertGeneral()
 	expected := 0
 	if len(result) != expected {
