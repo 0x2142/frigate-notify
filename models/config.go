@@ -1,7 +1,7 @@
 package models
 
 type App struct {
-	Mode string `fig:"mode" json:"mode" enum:"events,reviews" doc:"Type of polling method used when connecting to Frigate" default:"events"`
+	Mode string `fig:"mode" json:"mode" enum:"events,reviews" doc:"Type of polling method used when connecting to Frigate" default:"reviews"`
 	API  API    `fig:"api" json:"api" doc:"Frigate-Notify API settings"`
 }
 
