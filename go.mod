@@ -1,8 +1,8 @@
 module github.com/0x2142/frigate-notify
 
-go 1.22
+go 1.23
 
-toolchain go1.22.1
+toolchain go1.23.5
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.27.0
