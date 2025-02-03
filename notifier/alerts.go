@@ -29,19 +29,20 @@ type notifMeta struct {
 }
 
 // SendAlert forwards alert information to all enabled alerting methods
-func SendAlert(event models.Event) {
+func SendAlert(events []models.Event) {
 	config.Internal.Status.LastNotification = time.Now()
+
 	// Collect snapshot, if available
 	var snapshot io.Reader
-	if event.HasSnapshot {
-		snapshot = GetSnapshot(event.ID)
+	for _, event := range events {
+		if event.HasSnapshot {
+			snapshot = GetSnapshot(event.ID)
+			break
+		}
 	}
 
-	// Set Event link
-	event.Extra.EventLink = config.ConfigData.Frigate.PublicURL + "/api/events/" + event.ID + "/clip.mp4"
-
-	// Add Frigate Major version metadata
-	event.Extra.FrigateMajorVersion = config.Internal.FrigateVersion
+	// Set extra event details & get event used for notifications
+	event := setExtras(events)
 
 	// Create copy of snapshot for each alerting method
 	var snap []byte
@@ -54,7 +55,7 @@ func SendAlert(event models.Event) {
 	for id, profile := range config.ConfigData.Alerts.Discord {
 		if profile.Enabled {
 			provider := notifMeta{name: "discord", index: id}
-			if checkAlertFilters(event, profile.Filters, provider) {
+			if checkAlertFilters(events, profile.Filters, provider) {
 				go SendDiscordMessage(event, bytes.NewReader(snap), provider)
 			}
 		}
@@ -63,7 +64,7 @@ func SendAlert(event models.Event) {
 	for id, profile := range config.ConfigData.Alerts.Gotify {
 		if profile.Enabled {
 			provider := notifMeta{name: "gotify", index: id}
-			if checkAlertFilters(event, profile.Filters, provider) {
+			if checkAlertFilters(events, profile.Filters, provider) {
 				go SendGotifyPush(event, provider)
 			}
 		}
@@ -72,7 +73,7 @@ func SendAlert(event models.Event) {
 	for id, profile := range config.ConfigData.Alerts.SMTP {
 		if profile.Enabled {
 			provider := notifMeta{name: "smtp", index: id}
-			if checkAlertFilters(event, profile.Filters, provider) {
+			if checkAlertFilters(events, profile.Filters, provider) {
 				go SendSMTP(event, bytes.NewReader(snap), provider)
 			}
 		}
@@ -81,7 +82,7 @@ func SendAlert(event models.Event) {
 	for id, profile := range config.ConfigData.Alerts.Telegram {
 		if profile.Enabled {
 			provider := notifMeta{name: "telegram", index: id}
-			if checkAlertFilters(event, profile.Filters, provider) {
+			if checkAlertFilters(events, profile.Filters, provider) {
 				go SendTelegramMessage(event, bytes.NewReader(snap), provider)
 			}
 		}
@@ -90,7 +91,7 @@ func SendAlert(event models.Event) {
 	for id, profile := range config.ConfigData.Alerts.Pushover {
 		if profile.Enabled {
 			provider := notifMeta{name: "pushover", index: id}
-			if checkAlertFilters(event, profile.Filters, provider) {
+			if checkAlertFilters(events, profile.Filters, provider) {
 				go SendPushoverMessage(event, bytes.NewReader(snap), provider)
 			}
 		}
@@ -99,7 +100,7 @@ func SendAlert(event models.Event) {
 	for id, profile := range config.ConfigData.Alerts.Ntfy {
 		if profile.Enabled {
 			provider := notifMeta{name: "ntfy", index: id}
-			if checkAlertFilters(event, profile.Filters, provider) {
+			if checkAlertFilters(events, profile.Filters, provider) {
 				go SendNtfyPush(event, bytes.NewReader(snap), provider)
 			}
 		}
@@ -108,7 +109,7 @@ func SendAlert(event models.Event) {
 	for id, profile := range config.ConfigData.Alerts.Webhook {
 		if profile.Enabled {
 			provider := notifMeta{name: "webhook", index: id}
-			if checkAlertFilters(event, profile.Filters, provider) {
+			if checkAlertFilters(events, profile.Filters, provider) {
 				go SendWebhook(event, provider)
 			}
 		}
@@ -143,41 +144,59 @@ func GetSnapshot(eventID string) io.Reader {
 }
 
 // setExtras adds additional data into the event model to be used for templates
-func setExtras(event models.Event) models.Event {
+func setExtras(events []models.Event) models.Event {
+	// Pull first event, which will be used to store info relevant to notifications
+	key := events[0]
+
+	// Set Event link
+	key.Extra.EventLink = config.ConfigData.Frigate.PublicURL + "/api/events/" + key.ID + "/clip.mp4"
+
+	// Add Frigate Major version metadata
+	key.Extra.FrigateMajorVersion = config.Internal.FrigateVersion
+
 	// Transform camera names, example: "test_camera" to "Test Camera"
 	caser := cases.Title(language.Und)
-	event.Extra.CameraName = caser.String(strings.ReplaceAll(event.Camera, "_", " "))
+	key.Extra.CameraName = caser.String(strings.ReplaceAll(key.Camera, "_", " "))
 
 	// Assign Frigate URL to extra event fields
-	event.Extra.LocalURL = config.ConfigData.Frigate.Server
-	event.Extra.PublicURL = config.ConfigData.Frigate.PublicURL
+	key.Extra.LocalURL = config.ConfigData.Frigate.Server
+	key.Extra.PublicURL = config.ConfigData.Frigate.PublicURL
+
+	// Create list of all detected object (mostly applicable to /reviews)
+	var labelList []string
+	for _, event := range events {
+		if !slices.Contains(labelList, event.Label) {
+			labelList = append(labelList, event.Label)
+		}
+	}
+	key.Extra.LabelList = strings.Join(labelList, ", ")
 
 	// MQTT uses CurrentZones, Web API uses Zones
 	// Combine into one object to use regardless of connection method
-	event.Zones = append(event.Zones, event.CurrentZones...)
+	for _, event := range events {
+		key.Zones = append(key.Zones, event.CurrentZones...)
+	}
 	// Remove duplicates
-	slices.Sort(event.Zones)
-	event.Zones = slices.Compact(event.Zones)
+	slices.Sort(key.Zones)
+	key.Zones = slices.Compact(key.Zones)
 	// Join zones into plain comma-separated string
-	event.Extra.ZoneList = strings.Join(event.Zones, ", ")
+	key.Extra.ZoneList = strings.Join(key.Zones, ", ")
 
 	// If certain time format is provided, re-format date / time string
-	eventTime := time.Unix(int64(event.StartTime), 0)
-	event.Extra.FormattedTime = eventTime.String()
+	eventTime := time.Unix(int64(key.StartTime), 0)
+	key.Extra.FormattedTime = eventTime.String()
 	if config.ConfigData.Alerts.General.TimeFormat != "" {
-		event.Extra.FormattedTime = eventTime.Format(config.ConfigData.Alerts.General.TimeFormat)
+		key.Extra.FormattedTime = eventTime.Format(config.ConfigData.Alerts.General.TimeFormat)
 	}
 
 	// Calc TopScore percentage
-	event.Extra.TopScorePercent = fmt.Sprintf("%v%%", int((event.TopScore * 100)))
+	key.Extra.TopScorePercent = fmt.Sprintf("%v%%", int((key.TopScore * 100)))
 
-	return event
+	return key
 }
 
 // Build notification based on template
 func renderMessage(sourceTemplate string, event models.Event, mtype string, provider string) string {
-	event = setExtras(event)
-
 	// Render template
 	var tmpl *template.Template
 	var err error
@@ -210,8 +229,6 @@ func renderMessage(sourceTemplate string, event models.Event, mtype string, prov
 
 // Build HTTP headers or params based on template
 func renderHTTPKV(list []map[string]string, event models.Event, kvtype string, provider string) []map[string]string {
-	event = setExtras(event)
-
 	var renderedList []map[string]string
 
 	for _, item := range list {

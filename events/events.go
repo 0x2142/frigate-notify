@@ -43,7 +43,7 @@ func processEvent(event models.Event) {
 	}
 
 	// Send alert with snapshot
-	notifier.SendAlert(event)
+	notifier.SendAlert([]models.Event{event})
 }
 
 func recheckEvent(event models.Event) models.Event {

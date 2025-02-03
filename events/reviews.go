@@ -52,7 +52,7 @@ func processReview(review models.Review) {
 			audioEvent.Extra.Audio = strings.Join(review.Data.Audio, ",")
 			audioEvent.Camera = review.Camera
 			audioEvent.Extra.ReviewLink = config.ConfigData.Frigate.PublicURL + "/review?id=" + review.ID
-			notifier.SendAlert(audioEvent)
+			notifier.SendAlert([]models.Event{audioEvent})
 			return
 		} else {
 			log.Info().
@@ -64,7 +64,7 @@ func processReview(review models.Review) {
 
 	// Retrieve detailed detection information
 	reviewFiltered := false
-	var firstDetection models.Event
+	var detections []models.Event
 	for _, id := range review.Data.Detections {
 		url := fmt.Sprintf("%s/api/events/%s", config.ConfigData.Frigate.Server, id)
 
@@ -96,10 +96,10 @@ func processReview(review models.Review) {
 			break
 		}
 
-		// Store first detection for this review, alerts will be based on this event's data
-		if firstDetection.ID == "" {
-			firstDetection = detection
-		}
+		// Add special link to review page
+		detection.Extra.ReviewLink = config.ConfigData.Frigate.PublicURL + "/review?id=" + review.ID
+
+		detections = append(detections, detection)
 	}
 	// If any detection would be filtered, skip notifying on this review
 	if reviewFiltered {
@@ -109,11 +109,8 @@ func processReview(review models.Review) {
 		return
 	}
 
-	// Add special link to review page
-	firstDetection.Extra.ReviewLink = config.ConfigData.Frigate.PublicURL + "/review?id=" + review.ID
-
 	// Send alert with snapshot
-	notifier.SendAlert(firstDetection)
+	notifier.SendAlert(detections)
 }
 
 func recheckReview(review models.Review) models.Review {

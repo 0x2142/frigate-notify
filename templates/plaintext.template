@@ -1,8 +1,8 @@
 Detection at {{ .Extra.FormattedTime }}
 Camera: {{ .Extra.CameraName }}
-{{ if ne .Label "" }}Label: {{ .Label }} ({{ .Extra.TopScorePercent }}) {{ end }}
-{{ if ge (len .Extra.Audio ) 1 }}Audio: {{ .Extra.Audio }} {{ end }}
-{{ if ge (len .Zones ) 1 }}Zone(s): {{ .Extra.ZoneList }}
+{{ if ge (len .Extra.LabelList) 1 }}Label(s): {{ .Extra.LabelList }} {{ end }}
+{{ if ge (len .Extra.Audio) 1 }}Audio: {{ .Extra.Audio }} {{ end }}
+{{ if ge (len .Zones) 1 }}Zone(s): {{ .Extra.ZoneList }}
 {{ end }}
 Links:
 {{if ge .Extra.FrigateMajorVersion 14 }} - Camera: {{ .Extra.PublicURL }}/#{{ .Camera }}{{else}} - Camera: {{ .Extra.PublicURL }}/cameras/{{ .Camera }}{{end}}

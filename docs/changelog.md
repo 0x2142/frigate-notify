@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.4.1](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.1) - In Development
+ - Fix issue with alert-level filters where notification would not be sent if first detected label was filtered
+
 ## [v0.4.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.0) - Jan 27 2025
  - Support for notification based on Alerts & Detections via Frigate Reviews
      - ⚠️ **Note:** Reviews mode is now the default with this release
