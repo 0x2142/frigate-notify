@@ -69,6 +69,33 @@ func SendAlert(events []models.Event) {
 			}
 		}
 	}
+	// Mattermost
+	for id, profile := range config.ConfigData.Alerts.Mattermost {
+		if profile.Enabled {
+			provider := notifMeta{name: "mattermost", index: id}
+			if checkAlertFilters(events, profile.Filters, provider) {
+				go SendMattermost(event, provider)
+			}
+		}
+	}
+	// Ntfy
+	for id, profile := range config.ConfigData.Alerts.Ntfy {
+		if profile.Enabled {
+			provider := notifMeta{name: "ntfy", index: id}
+			if checkAlertFilters(events, profile.Filters, provider) {
+				go SendNtfyPush(event, bytes.NewReader(snap), provider)
+			}
+		}
+	}
+	// Pushover
+	for id, profile := range config.ConfigData.Alerts.Pushover {
+		if profile.Enabled {
+			provider := notifMeta{name: "pushover", index: id}
+			if checkAlertFilters(events, profile.Filters, provider) {
+				go SendPushoverMessage(event, bytes.NewReader(snap), provider)
+			}
+		}
+	}
 	// SMTP
 	for id, profile := range config.ConfigData.Alerts.SMTP {
 		if profile.Enabled {
@@ -84,24 +111,6 @@ func SendAlert(events []models.Event) {
 			provider := notifMeta{name: "telegram", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
 				go SendTelegramMessage(event, bytes.NewReader(snap), provider)
-			}
-		}
-	}
-	// Pushover
-	for id, profile := range config.ConfigData.Alerts.Pushover {
-		if profile.Enabled {
-			provider := notifMeta{name: "pushover", index: id}
-			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendPushoverMessage(event, bytes.NewReader(snap), provider)
-			}
-		}
-	}
-	// Ntfy
-	for id, profile := range config.ConfigData.Alerts.Ntfy {
-		if profile.Enabled {
-			provider := notifMeta{name: "ntfy", index: id}
-			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendNtfyPush(event, bytes.NewReader(snap), provider)
 			}
 		}
 	}

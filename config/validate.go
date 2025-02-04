@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -91,22 +92,23 @@ func (c *Config) Validate() []string {
 		}
 	}
 
-	// Validate SMTP
-	Internal.Status.Notifications.SMTP = make([]models.NotifierStatus, len(c.Alerts.SMTP))
-	for id, profile := range c.Alerts.SMTP {
-		Internal.Status.Notifications.SMTP[id].InitNotifStatus(id, profile.Enabled)
+	// Validate Mattermost
+	Internal.Status.Notifications.Mattermost = make([]models.NotifierStatus, len(c.Alerts.Mattermost))
+	for id, profile := range c.Alerts.Mattermost {
+		Internal.Status.Notifications.Mattermost[id].InitNotifStatus(id, profile.Enabled)
 		if profile.Enabled {
-			if results := c.validateSMTP(id); len(results) > 0 {
+			if results := c.validateMattermost(id); len(results) > 0 {
 				validationErrors = append(validationErrors, results...)
 			}
 		}
 	}
-	// Validate Telegram
-	Internal.Status.Notifications.Telegram = make([]models.NotifierStatus, len(c.Alerts.Telegram))
-	for id, profile := range c.Alerts.Telegram {
-		Internal.Status.Notifications.Telegram[id].InitNotifStatus(id, profile.Enabled)
+
+	// Validate Ntfy
+	Internal.Status.Notifications.Ntfy = make([]models.NotifierStatus, len(c.Alerts.Ntfy))
+	for id, profile := range c.Alerts.Ntfy {
+		Internal.Status.Notifications.Ntfy[id].InitNotifStatus(id, profile.Enabled)
 		if profile.Enabled {
-			if results := c.validateTelegram(id); len(results) > 0 {
+			if results := c.validateNtfy(id); len(results) > 0 {
 				validationErrors = append(validationErrors, results...)
 			}
 		}
@@ -123,12 +125,22 @@ func (c *Config) Validate() []string {
 		}
 	}
 
-	// Validate Ntfy
-	Internal.Status.Notifications.Ntfy = make([]models.NotifierStatus, len(c.Alerts.Ntfy))
-	for id, profile := range c.Alerts.Ntfy {
-		Internal.Status.Notifications.Ntfy[id].InitNotifStatus(id, profile.Enabled)
+	// Validate SMTP
+	Internal.Status.Notifications.SMTP = make([]models.NotifierStatus, len(c.Alerts.SMTP))
+	for id, profile := range c.Alerts.SMTP {
+		Internal.Status.Notifications.SMTP[id].InitNotifStatus(id, profile.Enabled)
 		if profile.Enabled {
-			if results := c.validateNtfy(id); len(results) > 0 {
+			if results := c.validateSMTP(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
+		}
+	}
+	// Validate Telegram
+	Internal.Status.Notifications.Telegram = make([]models.NotifierStatus, len(c.Alerts.Telegram))
+	for id, profile := range c.Alerts.Telegram {
+		Internal.Status.Notifications.Telegram[id].InitNotifStatus(id, profile.Enabled)
+		if profile.Enabled {
+			if results := c.validateTelegram(id); len(results) > 0 {
 				validationErrors = append(validationErrors, results...)
 			}
 		}
@@ -478,6 +490,82 @@ func (c *Config) validateGotify(id int) []string {
 	return gotifyErrors
 }
 
+func (c *Config) validateMattermost(id int) []string {
+	var mattermostErrors []string
+	log.Debug().Msgf("Alerting enabled for Mattermost profile ID %v", id)
+	if c.Alerts.Mattermost[id].Webhook == "" {
+		mattermostErrors = append(mattermostErrors, fmt.Sprintf("No Mattermost webhook specified! Profile ID %v", id))
+	}
+	// Set default priority if not specified
+	if c.Alerts.Mattermost[id].Priority == "" {
+		c.Alerts.Mattermost[id].Priority = "standard"
+	}
+	// Check valid priority if set
+	validPriorities := []string{"standard", "important", "urgent"}
+	if !slices.Contains(validPriorities, strings.ToLower(c.Alerts.Mattermost[id].Priority)) {
+		mattermostErrors = append(mattermostErrors, fmt.Sprintf("Invalid priority for Mattermost (valid: standard, urgent, or important). Profile ID %v", id))
+	}
+	// Check template syntax
+	if msg := validateTemplate("Mattermost", c.Alerts.Mattermost[id].Template); msg != "" {
+		mattermostErrors = append(mattermostErrors, msg+fmt.Sprintf(" Profile ID %v", id))
+	}
+	return mattermostErrors
+}
+
+func (c *Config) validateNtfy(id int) []string {
+	var ntfyErrors []string
+	log.Debug().Msgf("Alerting enabled for Ntfy profile ID %v", id)
+	if c.Alerts.Ntfy[id].Server == "" {
+		ntfyErrors = append(ntfyErrors, fmt.Sprintf("No Ntfy server specified! Profile ID %v", id))
+	}
+	if c.Alerts.Ntfy[id].Topic == "" {
+		ntfyErrors = append(ntfyErrors, fmt.Sprintf("No Ntfy topic specified! Profile ID %v", id))
+	}
+	// Check template syntax
+	if msg := validateTemplate("Ntfy", c.Alerts.Ntfy[id].Template); msg != "" {
+		ntfyErrors = append(ntfyErrors, msg+fmt.Sprintf("Profile ID %v", id))
+	}
+
+	// Check HTTP header template syntax
+	if msg := validateTemplate("Ntfy HTTP Headers", c.Alerts.General.Title); msg != "" {
+		ntfyErrors = append(ntfyErrors, msg+fmt.Sprintf("Profile ID %v", id))
+	}
+
+	return ntfyErrors
+}
+
+func (c *Config) validatePushover(id int) []string {
+	var pushoverErrors []string
+	log.Debug().Msgf("Alerting enabled for Pushover profile ID %v", id)
+	if c.Alerts.Pushover[id].Token == "" {
+		pushoverErrors = append(pushoverErrors, fmt.Sprintf("No Pushover API token specified! Profile ID %v", id))
+	}
+	if c.Alerts.Pushover[id].Userkey == "" {
+		pushoverErrors = append(pushoverErrors, fmt.Sprintf("No Pushover user key specified! Profile ID %v", id))
+	}
+	if c.Alerts.Pushover[id].Priority < -2 || c.Alerts.Pushover[id].Priority > 2 {
+		pushoverErrors = append(pushoverErrors, fmt.Sprintf("Pushover priority must be between -2 and 2! Profile ID %v", id))
+	}
+	// Priority 2 is emergency, needs a retry interval & expiration set
+	if c.Alerts.Pushover[id].Priority == 2 {
+		if c.Alerts.Pushover[id].Retry == 0 || c.Alerts.Pushover[id].Expire == 0 {
+			pushoverErrors = append(pushoverErrors, fmt.Sprintf("Pushover retry interval & expiration must be set with priority 2! Profile ID %v", id))
+		}
+		if c.Alerts.Pushover[id].Retry < 30 {
+			pushoverErrors = append(pushoverErrors, fmt.Sprintf("Pushover retry cannot be less than 30 seconds! Profile ID %v", id))
+		}
+	}
+	if c.Alerts.Pushover[id].TTL < 0 {
+		pushoverErrors = append(pushoverErrors, fmt.Sprintf("Pushover TTL cannot be negative! Profile ID %v", id))
+	}
+
+	// Check template syntax
+	if msg := validateTemplate("Pushover", c.Alerts.Pushover[id].Template); msg != "" {
+		pushoverErrors = append(pushoverErrors, msg+fmt.Sprintf("Profile ID %v", id))
+	}
+	return pushoverErrors
+}
+
 func (c *Config) validateSMTP(id int) []string {
 	var smtpErrors []string
 	log.Debug().Msgf("Alerting enabled for SMTP profile ID %v", id)
@@ -521,60 +609,6 @@ func (c *Config) validateTelegram(id int) []string {
 	return telegramErrors
 }
 
-func (c *Config) validatePushover(id int) []string {
-	var pushoverErrors []string
-	log.Debug().Msgf("Alerting enabled for Pushover profile ID %v", id)
-	if c.Alerts.Pushover[id].Token == "" {
-		pushoverErrors = append(pushoverErrors, fmt.Sprintf("No Pushover API token specified! Profile ID %v", id))
-	}
-	if c.Alerts.Pushover[id].Userkey == "" {
-		pushoverErrors = append(pushoverErrors, fmt.Sprintf("No Pushover user key specified! Profile ID %v", id))
-	}
-	if c.Alerts.Pushover[id].Priority < -2 || c.Alerts.Pushover[id].Priority > 2 {
-		pushoverErrors = append(pushoverErrors, fmt.Sprintf("Pushover priority must be between -2 and 2! Profile ID %v", id))
-	}
-	// Priority 2 is emergency, needs a retry interval & expiration set
-	if c.Alerts.Pushover[id].Priority == 2 {
-		if c.Alerts.Pushover[id].Retry == 0 || c.Alerts.Pushover[id].Expire == 0 {
-			pushoverErrors = append(pushoverErrors, fmt.Sprintf("Pushover retry interval & expiration must be set with priority 2! Profile ID %v", id))
-		}
-		if c.Alerts.Pushover[id].Retry < 30 {
-			pushoverErrors = append(pushoverErrors, fmt.Sprintf("Pushover retry cannot be less than 30 seconds! Profile ID %v", id))
-		}
-	}
-	if c.Alerts.Pushover[id].TTL < 0 {
-		pushoverErrors = append(pushoverErrors, fmt.Sprintf("Pushover TTL cannot be negative! Profile ID %v", id))
-	}
-
-	// Check template syntax
-	if msg := validateTemplate("Pushover", c.Alerts.Pushover[id].Template); msg != "" {
-		pushoverErrors = append(pushoverErrors, msg+fmt.Sprintf("Profile ID %v", id))
-	}
-	return pushoverErrors
-}
-
-func (c *Config) validateNtfy(id int) []string {
-	var ntfyErrors []string
-	log.Debug().Msgf("Alerting enabled for Ntfy profile ID %v", id)
-	if c.Alerts.Ntfy[id].Server == "" {
-		ntfyErrors = append(ntfyErrors, fmt.Sprintf("No Ntfy server specified! Profile ID %v", id))
-	}
-	if c.Alerts.Ntfy[id].Topic == "" {
-		ntfyErrors = append(ntfyErrors, fmt.Sprintf("No Ntfy topic specified! Profile ID %v", id))
-	}
-	// Check template syntax
-	if msg := validateTemplate("Ntfy", c.Alerts.Ntfy[id].Template); msg != "" {
-		ntfyErrors = append(ntfyErrors, msg+fmt.Sprintf("Profile ID %v", id))
-	}
-
-	// Check HTTP header template syntax
-	if msg := validateTemplate("Ntfy HTTP Headers", c.Alerts.General.Title); msg != "" {
-		ntfyErrors = append(ntfyErrors, msg+fmt.Sprintf("Profile ID %v", id))
-	}
-
-	return ntfyErrors
-}
-
 func (c *Config) validateWebhook(id int) []string {
 	var webhookErrors []string
 	log.Debug().Msgf("Alerting enabled for Webhook profile ID %v", id)
@@ -601,6 +635,21 @@ func (c *Config) validateAlertingEnabled() string {
 			return ""
 		}
 	}
+	for _, profile := range c.Alerts.Mattermost {
+		if profile.Enabled {
+			return ""
+		}
+	}
+	for _, profile := range c.Alerts.Ntfy {
+		if profile.Enabled {
+			return ""
+		}
+	}
+	for _, profile := range c.Alerts.Pushover {
+		if profile.Enabled {
+			return ""
+		}
+	}
 	for _, profile := range c.Alerts.SMTP {
 		if profile.Enabled {
 			return ""
@@ -611,21 +660,12 @@ func (c *Config) validateAlertingEnabled() string {
 			return ""
 		}
 	}
-	for _, profile := range c.Alerts.Pushover {
-		if profile.Enabled {
-			return ""
-		}
-	}
-	for _, profile := range c.Alerts.Ntfy {
-		if profile.Enabled {
-			return ""
-		}
-	}
 	for _, profile := range c.Alerts.Webhook {
 		if profile.Enabled {
 			return ""
 		}
 	}
+
 	return "No alerting methods have been configured. Please check config file syntax!"
 }
 

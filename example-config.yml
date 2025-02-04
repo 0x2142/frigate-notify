@@ -152,7 +152,70 @@ alerts:
     ignoressl:
     # Custom notification template, if desired
     template:
-  
+
+  # Mattermost Config
+  mattermost:
+    # Set to true to enable alerting via Mattermost
+    enabled: false
+    # Inbound webhook URL for Mattermost
+    webhook:
+    # Specify target channel, if allowed by Mattermost config
+    channel:
+    # Specify username, if allowed by Mattermost config
+    username:
+    # Set message priority (standard, important, or urgent - default: standard)
+    priority:
+    # Set to true to allow self-signed certificates
+    ignoressl:
+    # List of HTTP headers to send to Mattermost, in format Header: Value
+    headers:
+      # Example:
+      # - Authorization: Basic abcd1234
+    # Custom notification template, if desired
+    # Note that template must be valid JSON
+    template:
+
+  # Ntfy Config
+  ntfy:
+    # Set to true to enable alerting via ntfy
+    enabled: false
+    # URL of Ntfy server
+    server:
+    # Ntfy topic for notifications
+    topic:
+    # Set to true to allow self-signed certificates
+    ignoressl:
+    # List of HTTP headers to send to Ntfy, in format Header: Value
+    headers:
+      # Example:
+      # - Authorization: Basic abcd1234
+    # Custom notification template, if desired
+    template:
+
+  # Pushover Config
+  pushover:
+    # Set to true to enable alerting via Pushover
+    enabled: false
+    # Pushover API token for this application
+    token:
+    # User or Group key for recipients
+    userkey:
+    # Optional list of target devices by name, separated by comma
+    devices:
+    # Specify custom sound for notifications from this app
+    # For available values, see: https://pushover.net/api#sounds
+    sound:
+    # Optional message priority, default is 0
+    priority:
+    # If priority is 2, retry & expiration must be set
+    # Values in seconds. Retry must be 30 or higher
+    retry:
+    expire:
+    # Optional message lifetime
+    ttl:
+    # Custom notification template, if desired
+    template:
+
   smtp:
     # Set to true to enable alerting via SMTP
     enabled: false
@@ -183,47 +246,6 @@ alerts:
     chatid:
     # Bot API token
     token:
-    # Custom notification template, if desired
-    template:
-
-  # Pushover Config
-  pushover:
-    # Set to true to enable alerting via Pushover
-    enabled: false
-    # Pushover API token for this application
-    token:
-    # User or Group key for recipients
-    userkey:
-    # Optional list of target devices by name, separated by comma
-    devices:
-    # Specify custom sound for notifications from this app
-    # For available values, see: https://pushover.net/api#sounds
-    sound:
-    # Optional message priority, default is 0
-    priority:
-    # If priority is 2, retry & expiration must be set
-    # Values in seconds. Retry must be 30 or higher
-    retry:
-    expire:
-    # Optional message lifetime
-    ttl:
-    # Custom notification template, if desired
-    template:
-
-  # Ntfy Config
-  ntfy:
-    # Set to true to enable alerting via ntfy
-    enabled: false
-    # URL of Ntfy server
-    server:
-    # Ntfy topic for notifications
-    topic:
-    # Set to true to allow self-signed certificates
-    ignoressl:
-    # List of HTTP headers to send to Ntfy, in format Header: Value
-    headers:
-      # Example:
-      # - Authorization: Basic abcd1234
     # Custom notification template, if desired
     template:
 
