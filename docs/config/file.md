@@ -585,6 +585,45 @@ alerts:
     template:
 ```
 
+### Mattermost
+
+- **enabled** (Optional - Default: `false`)
+    - Set to `true` to enable alerting via Mattermost webhooks
+- **webhook** (Required)
+    - Full URL of the desired Mattermost webhook to send alerts through
+    - Required if this alerting method is enabled
+    - Check [Mattermost's](https://developers.mattermost.com/integrate/webhooks/incoming/) docs for how to create a webhook
+- **channel** (Optional)
+    - Override destination channel to post messages, if allowed by Mattermost config
+- **username** (Optional)
+    - Override username to post messages as, if allowed by Mattermost config
+- **priority** (Optional - Default: `standard`)
+    - Set message priority
+    - Options: `standard`, `important`, `urgent`
+- **ignoressl** (Optional - Default: `false`)
+    - Set to `true` to allow self-signed certificates
+- **headers** (Optional)
+    - Send additional HTTP headers with Mattermost webhook
+    - Header values can utilize [template variables](./templates.md#available-variables)
+    - Header format: `Header: Value`
+    - Example: `Authorization: Basic abcd1234`
+- **template** (Optional)
+    - Optionally specify a custom notification template
+    - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
+
+
+```yaml title="Config File Snippet"
+  mattermost:
+    enabled: false
+    webhook:
+    channel:
+    username:
+    priority:
+    ignoressl:
+    headers:
+    template:
+```
+
 ## Monitor
 
 If enabled, this application will check in with tools like [HealthChecks](https://github.com/healthchecks/healthchecks) or [Uptime Kuma](https://github.com/louislam/uptime-kuma) on a regular interval for health / status monitoring.

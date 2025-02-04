@@ -130,6 +130,16 @@ alerts:
     headers:
     template:
 
+  mattermost:
+    enabled: false
+    webhook:
+    channel:
+    username:
+    priority:
+    ignoressl:
+    headers:
+    template:
+
 monitor:
   enabled: false
   url: 

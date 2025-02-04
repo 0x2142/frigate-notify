@@ -19,11 +19,12 @@ Frigate-Notify is a simple app designed to send notifications from [Frigate](htt
 
 - Discord
 - Gotify
+- Mattermost
+- Ntfy
+- Pushover
 - SMTP
 - Telegram
-- Pushover
-- Ntfy
-- Generic Webhook
+- Webhook
 
 **Other**
 

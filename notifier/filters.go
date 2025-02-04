@@ -8,13 +8,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var (
-	cameras   []string
-	labels    []string
-	sublabels []string
-	zones     []string
-)
-
 // checkAlertFilters will determine which notification provider is able to send this alert
 func checkAlertFilters(events []models.Event, filters models.AlertFilter, provider notifMeta) bool {
 	log.Trace().
@@ -23,6 +16,7 @@ func checkAlertFilters(events []models.Event, filters models.AlertFilter, provid
 		Msg("Checking alert filters")
 
 	// Collect event details
+	var cameras, labels, sublabels, zones []string
 	for _, event := range events {
 		if !slices.Contains(cameras, event.Camera) {
 			cameras = append(cameras, event.Camera)

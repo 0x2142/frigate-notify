@@ -413,6 +413,28 @@ func TestValidateWebhook(t *testing.T) {
 
 }
 
+func TestValidateMattermost(t *testing.T) {
+	config := Config{Alerts: &models.Alerts{}}
+	config.Alerts.Mattermost = make([]models.Mattermost, 1)
+
+	// Test valid config
+	config.Alerts.Mattermost[0].Webhook = "https://webhook.test"
+	result := config.validateMattermost(0)
+	expected := 0
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+
+	// Test missing server config
+	config.Alerts.Mattermost[0].Webhook = ""
+	result = config.validateMattermost(0)
+	expected = 1
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+
+}
+
 func TestValidateAlertingEnabled(t *testing.T) {
 	config := Config{Alerts: &models.Alerts{}}
 	config.Alerts.Discord = make([]models.Discord, 1)

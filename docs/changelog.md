@@ -1,6 +1,7 @@
 # Changelog
 
 ## [v0.4.1](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.1) - In Development
+ - Add support for notifications via [Mattermost](https://frigate-notify.0x2142.com/latest/config/file/#mattermost)
  - Fix issue with alert-level filters where notification would not be sent if first detected label was filtered
 
 ## [v0.4.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.0) - Jan 27 2025

@@ -114,6 +114,15 @@ func SendAlert(events []models.Event) {
 			}
 		}
 	}
+	// Mattermost
+	for id, profile := range config.ConfigData.Alerts.Mattermost {
+		if profile.Enabled {
+			provider := notifMeta{name: "mattermost", index: id}
+			if checkAlertFilters(events, profile.Filters, provider) {
+				go SendMattermost(event, provider)
+			}
+		}
+	}
 }
 
 // GetSnapshot downloads a snapshot from Frigate

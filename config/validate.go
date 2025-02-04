@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -140,6 +141,17 @@ func (c *Config) Validate() []string {
 		Internal.Status.Notifications.Webhook[id].InitNotifStatus(id, profile.Enabled)
 		if profile.Enabled {
 			if results := c.validateWebhook(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
+		}
+	}
+
+	// Validate Mattermost
+	Internal.Status.Notifications.Mattermost = make([]models.NotifierStatus, len(c.Alerts.Mattermost))
+	for id, profile := range c.Alerts.Mattermost {
+		Internal.Status.Notifications.Mattermost[id].InitNotifStatus(id, profile.Enabled)
+		if profile.Enabled {
+			if results := c.validateMattermost(id); len(results) > 0 {
 				validationErrors = append(validationErrors, results...)
 			}
 		}
@@ -589,6 +601,28 @@ func (c *Config) validateWebhook(id int) []string {
 	return webhookErrors
 }
 
+func (c *Config) validateMattermost(id int) []string {
+	var mattermostErrors []string
+	log.Debug().Msgf("Alerting enabled for Mattermost profile ID %v", id)
+	if c.Alerts.Mattermost[id].Webhook == "" {
+		mattermostErrors = append(mattermostErrors, fmt.Sprintf("No Mattermost webhook specified! Profile ID %v", id))
+	}
+	// Set default priority if not specified
+	if c.Alerts.Mattermost[id].Priority == "" {
+		c.Alerts.Mattermost[id].Priority = "standard"
+	}
+	// Check valid priority if set
+	validPriorities := []string{"standard", "important", "urgent"}
+	if !slices.Contains(validPriorities, strings.ToLower(c.Alerts.Mattermost[id].Priority)) {
+		mattermostErrors = append(mattermostErrors, fmt.Sprintf("Invalid priority for Mattermost (valid: standard, urgent, or important). Profile ID %v", id))
+	}
+	// Check template syntax
+	if msg := validateTemplate("Mattermost", c.Alerts.Mattermost[id].Template); msg != "" {
+		mattermostErrors = append(mattermostErrors, msg+fmt.Sprintf(" Profile ID %v", id))
+	}
+	return mattermostErrors
+}
+
 func (c *Config) validateAlertingEnabled() string {
 	// Check to ensure at least one alert provider is configured
 	for _, profile := range c.Alerts.Discord {
@@ -622,6 +656,11 @@ func (c *Config) validateAlertingEnabled() string {
 		}
 	}
 	for _, profile := range c.Alerts.Webhook {
+		if profile.Enabled {
+			return ""
+		}
+	}
+	for _, profile := range c.Alerts.Mattermost {
 		if profile.Enabled {
 			return ""
 		}

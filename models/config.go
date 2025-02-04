@@ -47,18 +47,19 @@ type Cameras struct {
 }
 
 type Alerts struct {
-	General   General    `fig:"general" json:"general,omitempty" doc:"Common alert settings"`
-	Quiet     Quiet      `fig:"quiet" json:"quiet,omitempty" doc:"Alert quiet periods"`
-	Zones     Zones      `fig:"zones" json:"zones,omitempty" doc:"Allow/Block zones from alerting"`
-	Labels    Labels     `fig:"labels" json:"labels,omitempty" doc:"Allow/Block labels from alerting"`
-	SubLabels Labels     `fig:"sublabels" json:"sublabels,omitempty" doc:"Allow/Block sublabels from alerting"`
-	Discord   []Discord  `fig:"discord" json:"discord,omitempty" doc:"Discord notification settings"`
-	Gotify    []Gotify   `fig:"gotify" json:"gotify,omitempty" doc:"Gotify notification settings"`
-	SMTP      []SMTP     `fig:"smtp" json:"smtp,omitempty" doc:"SMTP notification settings"`
-	Telegram  []Telegram `fig:"telegram" json:"telegram,omitempty" doc:"Telegram notification settings"`
-	Pushover  []Pushover `fig:"pushover" json:"pushover,omitempty" doc:"Pushover notification settings"`
-	Ntfy      []Ntfy     `fig:"ntfy" json:"ntfy,omitempty" doc:"Ntfy notification settings"`
-	Webhook   []Webhook  `fig:"webhook" json:"webhook,omitempty" doc:"Webhook notification settings"`
+	General    General      `fig:"general" json:"general,omitempty" doc:"Common alert settings"`
+	Quiet      Quiet        `fig:"quiet" json:"quiet,omitempty" doc:"Alert quiet periods"`
+	Zones      Zones        `fig:"zones" json:"zones,omitempty" doc:"Allow/Block zones from alerting"`
+	Labels     Labels       `fig:"labels" json:"labels,omitempty" doc:"Allow/Block labels from alerting"`
+	SubLabels  Labels       `fig:"sublabels" json:"sublabels,omitempty" doc:"Allow/Block sublabels from alerting"`
+	Discord    []Discord    `fig:"discord" json:"discord,omitempty" doc:"Discord notification settings"`
+	Gotify     []Gotify     `fig:"gotify" json:"gotify,omitempty" doc:"Gotify notification settings"`
+	SMTP       []SMTP       `fig:"smtp" json:"smtp,omitempty" doc:"SMTP notification settings"`
+	Telegram   []Telegram   `fig:"telegram" json:"telegram,omitempty" doc:"Telegram notification settings"`
+	Pushover   []Pushover   `fig:"pushover" json:"pushover,omitempty" doc:"Pushover notification settings"`
+	Ntfy       []Ntfy       `fig:"ntfy" json:"ntfy,omitempty" doc:"Ntfy notification settings"`
+	Webhook    []Webhook    `fig:"webhook" json:"webhook,omitempty" doc:"Webhook notification settings"`
+	Mattermost []Mattermost `fig:"mattermost" json:"mattermost,omitempty" doc:"Mattermost notification settings"`
 }
 
 type General struct {
@@ -157,6 +158,18 @@ type Ntfy struct {
 	Topic    string              `fig:"topic" json:"topic,omitempty" doc:"Ntfy topic" default:""`
 	Insecure bool                `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
 	Headers  []map[string]string `fig:"headers" json:"headers,omitempty" doc:"HTTP headers to include with Ntfy notifications" default:[]`
+	Template string              `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters  AlertFilter         `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
+}
+
+type Mattermost struct {
+	Enabled  bool                `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Mattermost" default:false`
+	Webhook  string              `fig:"webhook" json:"webhook,omitempty" doc:"Mattermost webhook URL" default:""`
+	Channel  string              `fig:"channel" json:"channel,omitempty" doc:"Mattermost channel" default:""`
+	Priority string              `fig:"priority" json:"priority,omitempty" enum:"standard,important,urgent" doc:"Mattermost message priority" default:"standard"`
+	Username string              `fig:"username" json:"username,omitempty" doc:"Override Mattermost username for messages"`
+	Insecure bool                `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
+	Headers  []map[string]string `fig:"headers" json:"headers,omitempty" doc:"HTTP headers to include with Mattermost notifications" default:[]`
 	Template string              `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
 	Filters  AlertFilter         `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
 }
