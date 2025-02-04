@@ -346,6 +346,112 @@ alerts:
     template:
 ```
 
+### Mattermost
+
+- **enabled** (Optional - Default: `false`)
+    - Set to `true` to enable alerting via Mattermost webhooks
+- **webhook** (Required)
+    - Full URL of the desired Mattermost webhook to send alerts through
+    - Required if this alerting method is enabled
+    - Check [Mattermost's](https://developers.mattermost.com/integrate/webhooks/incoming/) docs for how to create a webhook
+- **channel** (Optional)
+    - Override destination channel to post messages, if allowed by Mattermost config
+- **username** (Optional)
+    - Override username to post messages as, if allowed by Mattermost config
+- **priority** (Optional - Default: `standard`)
+    - Set message priority
+    - Options: `standard`, `important`, `urgent`
+- **ignoressl** (Optional - Default: `false`)
+    - Set to `true` to allow self-signed certificates
+- **headers** (Optional)
+    - Send additional HTTP headers with Mattermost webhook
+    - Header values can utilize [template variables](./templates.md#available-variables)
+    - Header format: `Header: Value`
+    - Example: `Authorization: Basic abcd1234`
+- **template** (Optional)
+    - Optionally specify a custom notification template
+    - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
+
+### Ntfy
+
+- **enabled** (Optional - Default: `false`)
+    - Set to `true` to enable alerting via Ntfy
+- **server** (Required)
+    - Full URL of the desired Ntfy server
+    - Required if this alerting method is enabled
+- **topic** (Required)
+    - Destination topic that will receive alert notifications
+    - Required if this alerting method is enabled
+- **ignoressl** (Optional - Default: `false`)
+    - Set to `true` to allow self-signed certificates
+- **headers** (Optional)
+    - Send additional HTTP headers to Ntfy server
+    - Header values can utilize [template variables](./templates.md#available-variables)
+    - Header format: `Header: Value`
+    - Example: `Authorization: Basic abcd1234`
+    - **Note:** Notifications via Ntfy are sent with a default action button that links to the event clip. This can be overridden by defining a custom `X-Action` header here
+- **template** (Optional)
+    - Optionally specify a custom notification template
+    - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
+
+```yaml title="Config File Snippet"
+alerts: 
+  ntfy:
+    enabled: true
+    server: https://ntfy.your.domain.tld
+    topic: frigate
+    ignoressl: true
+    headers:
+    template:
+```
+
+### Pushover
+
+- **enabled** (Optional - Default: `false`)
+    - Set to `true` to enable alerting via Pushover
+- **token** (Required)
+    - Pushover application API token
+    - Required if this alerting method is enabled
+- **userkey** (Required)
+    - Recipient user or group key from Pushover dashboard
+    - Required if this alerting method is enabled
+- **devices** (Optional)
+    - Optionally specify list of devices to send notifications to
+    - If left empty, all devices will receive the notification
+- **sound** (Optional)
+    - Specify custom sound for notifications from this app
+    - For available values, see the [Pushover Docs](https://pushover.net/api#sounds)
+- **priority** (Optional)
+    - Optionally set message priority
+    - Valid priorities are -2, -1, 0, 1, 2
+- **retry** (Optional)
+    - Message retry in seconds until message is acknowledged
+    - If `priority` is set to 2, this is required
+    - Minimum value is 30 seconds
+- **expire** (Optional)
+    - Expiration timer for message retry
+    - If `priority` is set to 2, this is required
+- **ttl** (Optional)
+    - Optionally set lifetime of message, in seconds
+    - If set, message notifications are deleted from devices after this time
+- **template** (Optional)
+    - Optionally specify a custom notification template
+    - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
+
+```yaml title="Config File Snippet"
+  pushover:
+    enabled: true
+    token: aaaaaaaaaaaaaaaaaaaaaa
+    userkey: bbbbbbbbbbbbbbbbbbbbbb
+    devices: device1,device2
+    sound:
+    priority: 0
+    retry:
+    expire:
+    ttl:
+    template:
+```
+
 ### SMTP
 
 - **enabled** (Optional - Default: `false`)
@@ -444,86 +550,6 @@ alerts:
     template:
 ```
 
-### Pushover
-
-- **enabled** (Optional - Default: `false`)
-    - Set to `true` to enable alerting via Pushover
-- **token** (Required)
-    - Pushover application API token
-    - Required if this alerting method is enabled
-- **userkey** (Required)
-    - Recipient user or group key from Pushover dashboard
-    - Required if this alerting method is enabled
-- **devices** (Optional)
-    - Optionally specify list of devices to send notifications to
-    - If left empty, all devices will receive the notification
-- **sound** (Optional)
-    - Specify custom sound for notifications from this app
-    - For available values, see the [Pushover Docs](https://pushover.net/api#sounds)
-- **priority** (Optional)
-    - Optionally set message priority
-    - Valid priorities are -2, -1, 0, 1, 2
-- **retry** (Optional)
-    - Message retry in seconds until message is acknowledged
-    - If `priority` is set to 2, this is required
-    - Minimum value is 30 seconds
-- **expire** (Optional)
-    - Expiration timer for message retry
-    - If `priority` is set to 2, this is required
-- **ttl** (Optional)
-    - Optionally set lifetime of message, in seconds
-    - If set, message notifications are deleted from devices after this time
-- **template** (Optional)
-    - Optionally specify a custom notification template
-    - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
-
-```yaml title="Config File Snippet"
-  pushover:
-    enabled: true
-    token: aaaaaaaaaaaaaaaaaaaaaa
-    userkey: bbbbbbbbbbbbbbbbbbbbbb
-    devices: device1,device2
-    sound:
-    priority: 0
-    retry:
-    expire:
-    ttl:
-    template:
-```
-
-### Ntfy
-
-- **enabled** (Optional - Default: `false`)
-    - Set to `true` to enable alerting via Ntfy
-- **server** (Required)
-    - Full URL of the desired Ntfy server
-    - Required if this alerting method is enabled
-- **topic** (Required)
-    - Destination topic that will receive alert notifications
-    - Required if this alerting method is enabled
-- **ignoressl** (Optional - Default: `false`)
-    - Set to `true` to allow self-signed certificates
-- **headers** (Optional)
-    - Send additional HTTP headers to Ntfy server
-    - Header values can utilize [template variables](./templates.md#available-variables)
-    - Header format: `Header: Value`
-    - Example: `Authorization: Basic abcd1234`
-    - **Note:** Notifications via Ntfy are sent with a default action button that links to the event clip. This can be overridden by defining a custom `X-Action` header here
-- **template** (Optional)
-    - Optionally specify a custom notification template
-    - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
-
-```yaml title="Config File Snippet"
-alerts: 
-  ntfy:
-    enabled: true
-    server: https://ntfy.your.domain.tld
-    topic: frigate
-    ignoressl: true
-    headers:
-    template:
-```
-
 ### Webhook
 
 !!! note
@@ -584,33 +610,6 @@ alerts:
     headers:
     template:
 ```
-
-### Mattermost
-
-- **enabled** (Optional - Default: `false`)
-    - Set to `true` to enable alerting via Mattermost webhooks
-- **webhook** (Required)
-    - Full URL of the desired Mattermost webhook to send alerts through
-    - Required if this alerting method is enabled
-    - Check [Mattermost's](https://developers.mattermost.com/integrate/webhooks/incoming/) docs for how to create a webhook
-- **channel** (Optional)
-    - Override destination channel to post messages, if allowed by Mattermost config
-- **username** (Optional)
-    - Override username to post messages as, if allowed by Mattermost config
-- **priority** (Optional - Default: `standard`)
-    - Set message priority
-    - Options: `standard`, `important`, `urgent`
-- **ignoressl** (Optional - Default: `false`)
-    - Set to `true` to allow self-signed certificates
-- **headers** (Optional)
-    - Send additional HTTP headers with Mattermost webhook
-    - Header values can utilize [template variables](./templates.md#available-variables)
-    - Header format: `Header: Value`
-    - Example: `Authorization: Basic abcd1234`
-- **template** (Optional)
-    - Optionally specify a custom notification template
-    - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
-
 
 ```yaml title="Config File Snippet"
   mattermost:

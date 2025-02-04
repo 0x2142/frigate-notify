@@ -116,6 +116,42 @@ type Gotify struct {
 	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
 }
 
+type Mattermost struct {
+	Enabled  bool                `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Mattermost" default:false`
+	Webhook  string              `fig:"webhook" json:"webhook,omitempty" doc:"Mattermost webhook URL" default:""`
+	Channel  string              `fig:"channel" json:"channel,omitempty" doc:"Mattermost channel" default:""`
+	Priority string              `fig:"priority" json:"priority,omitempty" enum:"standard,important,urgent" doc:"Mattermost message priority" default:"standard"`
+	Username string              `fig:"username" json:"username,omitempty" doc:"Override Mattermost username for messages"`
+	Insecure bool                `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
+	Headers  []map[string]string `fig:"headers" json:"headers,omitempty" doc:"HTTP headers to include with Mattermost notifications" default:[]`
+	Template string              `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters  AlertFilter         `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
+}
+
+type Ntfy struct {
+	Enabled  bool                `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Ntfy" default:false`
+	Server   string              `fig:"server" json:"server,omitempty" doc:"Ntfy Server address" default:""`
+	Topic    string              `fig:"topic" json:"topic,omitempty" doc:"Ntfy topic" default:""`
+	Insecure bool                `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
+	Headers  []map[string]string `fig:"headers" json:"headers,omitempty" doc:"HTTP headers to include with Ntfy notifications" default:[]`
+	Template string              `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters  AlertFilter         `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
+}
+
+type Pushover struct {
+	Enabled  bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Pushover" default:false`
+	Token    string      `fig:"token" json:"token,omitempty" doc:"Pushover app token" default:""`
+	Userkey  string      `fig:"userkey" json:"userkey,omitempty" doc:"Pushover user key" default:""`
+	Devices  string      `fig:"devices" json:"devices,omitempty" doc:"Pushover devices to target for notification" default:""`
+	Sound    string      `fig:"sound" json:"sound,omitempty" doc:"Pushover notification sound" default:"pushover"`
+	Priority int         `fig:"priority" json:"priority,omitempty" minimum:"-2" maximum:"2" doc:"Pushover message priority" default:"0"`
+	Retry    int         `fig:"retry" json:"retry,omitempty" doc:"Retry interval for emergency notifications (Priority 2)" default:"0"`
+	Expire   int         `fig:"expire" json:"expire,omitempty" doc:"Expiration timer for emergency notifications (Priority 2)" default:"0"`
+	TTL      int         `fig:"ttl" json:"ttl,omitempty" doc:"Time to Live for notification messages" default:"0"`
+	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
+}
+
 type SMTP struct {
 	Enabled   bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via SMTP" default:false`
 	Server    string      `fig:"server" json:"server,omitempty" doc:"SMTP server hostname or IP address" default:""`
@@ -136,42 +172,6 @@ type Telegram struct {
 	Token    string      `fig:"token" json:"token,omitempty" doc:"Telegram bot token" default:""`
 	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
 	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
-}
-
-type Pushover struct {
-	Enabled  bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Pushover" default:false`
-	Token    string      `fig:"token" json:"token,omitempty" doc:"Pushover app token" default:""`
-	Userkey  string      `fig:"userkey" json:"userkey,omitempty" doc:"Pushover user key" default:""`
-	Devices  string      `fig:"devices" json:"devices,omitempty" doc:"Pushover devices to target for notification" default:""`
-	Sound    string      `fig:"sound" json:"sound,omitempty" doc:"Pushover notification sound" default:"pushover"`
-	Priority int         `fig:"priority" json:"priority,omitempty" minimum:"-2" maximum:"2" doc:"Pushover message priority" default:"0"`
-	Retry    int         `fig:"retry" json:"retry,omitempty" doc:"Retry interval for emergency notifications (Priority 2)" default:"0"`
-	Expire   int         `fig:"expire" json:"expire,omitempty" doc:"Expiration timer for emergency notifications (Priority 2)" default:"0"`
-	TTL      int         `fig:"ttl" json:"ttl,omitempty" doc:"Time to Live for notification messages" default:"0"`
-	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
-	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
-}
-
-type Ntfy struct {
-	Enabled  bool                `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Ntfy" default:false`
-	Server   string              `fig:"server" json:"server,omitempty" doc:"Ntfy Server address" default:""`
-	Topic    string              `fig:"topic" json:"topic,omitempty" doc:"Ntfy topic" default:""`
-	Insecure bool                `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
-	Headers  []map[string]string `fig:"headers" json:"headers,omitempty" doc:"HTTP headers to include with Ntfy notifications" default:[]`
-	Template string              `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
-	Filters  AlertFilter         `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
-}
-
-type Mattermost struct {
-	Enabled  bool                `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Mattermost" default:false`
-	Webhook  string              `fig:"webhook" json:"webhook,omitempty" doc:"Mattermost webhook URL" default:""`
-	Channel  string              `fig:"channel" json:"channel,omitempty" doc:"Mattermost channel" default:""`
-	Priority string              `fig:"priority" json:"priority,omitempty" enum:"standard,important,urgent" doc:"Mattermost message priority" default:"standard"`
-	Username string              `fig:"username" json:"username,omitempty" doc:"Override Mattermost username for messages"`
-	Insecure bool                `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
-	Headers  []map[string]string `fig:"headers" json:"headers,omitempty" doc:"HTTP headers to include with Mattermost notifications" default:[]`
-	Template string              `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
-	Filters  AlertFilter         `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
 }
 
 type Webhook struct {

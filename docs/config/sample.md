@@ -85,6 +85,36 @@ alerts:
     ignoressl:
     template:
   
+  mattermost:
+    enabled: false
+    webhook:
+    channel:
+    username:
+    priority:
+    ignoressl:
+    headers:
+    template:
+
+  ntfy:
+    enabled: false
+    server:
+    topic:
+    ignoressl:
+    headers:
+    template:
+
+  pushover:
+    enabled: false
+    token:
+    userkey:
+    devices:
+    sound:
+    priority:
+    retry:
+    expire:
+    ttl:
+    template:
+
   smtp:
     enabled: false
     server: 
@@ -101,26 +131,6 @@ alerts:
     token:
     template:
 
-  pushover:
-    enabled: false
-    token:
-    userkey:
-    devices:
-    sound:
-    priority:
-    retry:
-    expire:
-    ttl:
-    template:
-
-  ntfy:
-    enabled: false
-    server:
-    topic:
-    ignoressl:
-    headers:
-    template:
-
   webhook:
     enabled: false
     server: 
@@ -130,15 +140,6 @@ alerts:
     headers:
     template:
 
-  mattermost:
-    enabled: false
-    webhook:
-    channel:
-    username:
-    priority:
-    ignoressl:
-    headers:
-    template:
 
 monitor:
   enabled: false
