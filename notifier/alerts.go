@@ -96,6 +96,15 @@ func SendAlert(events []models.Event) {
 			}
 		}
 	}
+	// Signal
+	for id, profile := range config.ConfigData.Alerts.Signal {
+		if profile.Enabled {
+			provider := notifMeta{name: "signal", index: id}
+			if checkAlertFilters(events, profile.Filters, provider) {
+				go SendSignalMessage(event, bytes.NewReader(snap), provider)
+			}
+		}
+	}
 	// SMTP
 	for id, profile := range config.ConfigData.Alerts.SMTP {
 		if profile.Enabled {

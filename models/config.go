@@ -54,12 +54,13 @@ type Alerts struct {
 	SubLabels  Labels       `fig:"sublabels" json:"sublabels,omitempty" doc:"Allow/Block sublabels from alerting"`
 	Discord    []Discord    `fig:"discord" json:"discord,omitempty" doc:"Discord notification settings"`
 	Gotify     []Gotify     `fig:"gotify" json:"gotify,omitempty" doc:"Gotify notification settings"`
+	Mattermost []Mattermost `fig:"mattermost" json:"mattermost,omitempty" doc:"Mattermost notification settings"`
+	Ntfy       []Ntfy       `fig:"ntfy" json:"ntfy,omitempty" doc:"Ntfy notification settings"`
+	Pushover   []Pushover   `fig:"pushover" json:"pushover,omitempty" doc:"Pushover notification settings"`
+	Signal     []Signal     `fig:"signal" json:"signal,omitempty" doc:"Signal notification settings`
 	SMTP       []SMTP       `fig:"smtp" json:"smtp,omitempty" doc:"SMTP notification settings"`
 	Telegram   []Telegram   `fig:"telegram" json:"telegram,omitempty" doc:"Telegram notification settings"`
-	Pushover   []Pushover   `fig:"pushover" json:"pushover,omitempty" doc:"Pushover notification settings"`
-	Ntfy       []Ntfy       `fig:"ntfy" json:"ntfy,omitempty" doc:"Ntfy notification settings"`
 	Webhook    []Webhook    `fig:"webhook" json:"webhook,omitempty" doc:"Webhook notification settings"`
-	Mattermost []Mattermost `fig:"mattermost" json:"mattermost,omitempty" doc:"Mattermost notification settings"`
 }
 
 type General struct {
@@ -150,6 +151,16 @@ type Pushover struct {
 	TTL      int         `fig:"ttl" json:"ttl,omitempty" doc:"Time to Live for notification messages" default:"0"`
 	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
 	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
+}
+
+type Signal struct {
+	Enabled    bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Signal" default:false`
+	Server     string      `fig:"server" json:"server,omitempty" doc:"Signal REST API server hostname or IP address" default:""`
+	Account    string      `fig:"account" json:"account,omitempty" doc:"Number of account used to send messages" default:""`
+	Recipients []string    `fig:"recipients" json:"recipients,omitempty" doc:"List of recipients to receive messages" default:[]`
+	Insecure   bool        `fig:"ignoressl" enum:"true,false" json:"ignoressl,omitempty" default:false`
+	Template   string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters    AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
 }
 
 type SMTP struct {

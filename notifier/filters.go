@@ -122,7 +122,7 @@ func checkAlertFilters(events []models.Event, filters models.AlertFilter, provid
 	if len(filters.Labels) >= 1 {
 		match := false
 		for _, label := range labels {
-			if !slices.Contains(filters.Labels, label) {
+			if slices.Contains(filters.Labels, label) {
 				match = true
 				break
 			}
