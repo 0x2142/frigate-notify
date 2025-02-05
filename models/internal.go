@@ -30,6 +30,7 @@ type Notifiers struct {
 	Gotify     []NotifierStatus `json:"gotify" doc:"Status of Gotify notifications"`
 	Ntfy       []NotifierStatus `json:"ntfy" doc:"Status of Ntfy notifications"`
 	Pushover   []NotifierStatus `json:"pushover" doc:"Status of Pushover notifications"`
+	Signal     []NotifierStatus `json:"signal" doc:"Status of Signal notifications"`
 	SMTP       []NotifierStatus `json:"smtp" doc:"Status of SMTP notifications"`
 	Telegram   []NotifierStatus `json:"telegram" doc:"Status of Telegram notifications"`
 	Webhook    []NotifierStatus `json:"webhook" doc:"Status of Webhook notifications"`

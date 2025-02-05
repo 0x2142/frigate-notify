@@ -115,6 +115,14 @@ alerts:
     ttl:
     template:
 
+  signal:
+    enabled: false
+    server:
+    account:
+    recipients:
+    ignoressl:
+    template:
+
   smtp:
     enabled: false
     server: 

@@ -372,6 +372,18 @@ alerts:
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
 
+```yaml title="Config File Snippet"
+  mattermost:
+    enabled: false
+    webhook: https://mattermost.your.domain.tld
+    channel: frigate-notifications
+    username: frigate-notify
+    priority: standard
+    ignoressl: true
+    headers:
+    template:
+```
+
 ### Ntfy
 
 - **enabled** (Optional - Default: `false`)
@@ -451,6 +463,45 @@ alerts:
     ttl:
     template:
 ```
+
+### Signal
+
+!!!important
+    Signal notifications rely on an external service to handle communication to Signal: https://github.com/bbernhard/signal-cli-rest-api
+
+    Please follow the instructions on the [signal-cli-rest-api](https://github.com/bbernhard/signal-cli-rest-api) repo for set up & configuration. This service exposes a REST API that Frigate-Notify uses to forward notifications to Signal.
+
+- **enabled** (Optional - Default: `false`)
+    - Set to `true` to enable alerting via Ntfy
+- **server** (Required)
+    - Full URL of the desired [signal-cli-rest-api](https://github.com/bbernhard/signal-cli-rest-api) container
+    - Required if this alerting method is enabled
+- **account** (Required)
+    - Signal account used to send notifications
+    - This is the full phone number including country code (ex. `+12223334444`)
+    - Required if this alerting method is enabled
+- **recipients** (Required)
+    - One or more Signal recipients that will receive notifications
+    - This is the full phone number including country code (ex. `+12223334444`)
+    - Required if this alerting method is enabled
+- **ignoressl** (Optional - Default: `false`)
+    - Set to `true` to allow self-signed certificates
+- **template** (Optional)
+    - Optionally specify a custom notification template
+    - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
+
+```yaml title="Config File Snippet"
+alerts:
+  signal:
+    enabled: false
+    server: https://signal-cli-rest-api.your.domain.tld
+    account: +12223334444
+    recipients:
+     - +15556667777
+    ignoressl: true
+    template:
+```
+
 
 ### SMTP
 
@@ -607,18 +658,6 @@ alerts:
     ignoressl:
     method:
     params:
-    headers:
-    template:
-```
-
-```yaml title="Config File Snippet"
-  mattermost:
-    enabled: false
-    webhook:
-    channel:
-    username:
-    priority:
-    ignoressl:
     headers:
     template:
 ```

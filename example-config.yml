@@ -216,6 +216,23 @@ alerts:
     # Custom notification template, if desired
     template:
 
+  # Signal Config
+  signal:
+    # Set to true to enable alerting via Signal
+    enabled: false
+    # IP or hostname of signal-cli-rest-api container (See docs for more info)
+    server:
+    # Signal number to use for sending messages (ex. +12223334444)
+    account:
+    # List of recipients to send messages to
+    recipients:
+      # Example:
+      # - +15556667777
+    # Set to true to allow self-signed certificates
+    ignoressl:
+    # Custom notification template, if desired
+    template:
+
   smtp:
     # Set to true to enable alerting via SMTP
     enabled: false

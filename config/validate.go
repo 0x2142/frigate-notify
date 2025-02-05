@@ -125,6 +125,17 @@ func (c *Config) Validate() []string {
 		}
 	}
 
+	// Validate Signal
+	Internal.Status.Notifications.Signal = make([]models.NotifierStatus, len(c.Alerts.Signal))
+	for id, profile := range c.Alerts.Signal {
+		Internal.Status.Notifications.Signal[id].InitNotifStatus(id, profile.Enabled)
+		if profile.Enabled {
+			if results := c.validateSignal(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
+		}
+	}
+
 	// Validate SMTP
 	Internal.Status.Notifications.SMTP = make([]models.NotifierStatus, len(c.Alerts.SMTP))
 	for id, profile := range c.Alerts.SMTP {
@@ -135,6 +146,7 @@ func (c *Config) Validate() []string {
 			}
 		}
 	}
+
 	// Validate Telegram
 	Internal.Status.Notifications.Telegram = make([]models.NotifierStatus, len(c.Alerts.Telegram))
 	for id, profile := range c.Alerts.Telegram {
@@ -566,6 +578,31 @@ func (c *Config) validatePushover(id int) []string {
 	return pushoverErrors
 }
 
+func (c *Config) validateSignal(id int) []string {
+	var signalErrors []string
+	log.Debug().Msgf("Alerting enabled for Signal profile ID %v", id)
+	if c.Alerts.Signal[id].Server == "" {
+		signalErrors = append(signalErrors, fmt.Sprintf("No Signal server specified! Profile ID %v", id))
+	}
+	if c.Alerts.Signal[id].Account == "" {
+		signalErrors = append(signalErrors, fmt.Sprintf("No Signal account specified! Profile ID %v", id))
+	}
+	// Check if Signal server URL contains protocol, assume HTTP if not specified
+	if !strings.Contains(c.Alerts.Signal[id].Server, "http://") && !strings.Contains(c.Alerts.Signal[id].Server, "https://") {
+		log.Debug().Msgf("No protocol specified on Signal Server. Assuming http://. If this is incorrect, please adjust the config file. Profile ID %v", id)
+		c.Alerts.Signal[id].Server = fmt.Sprintf("http://%s", c.Alerts.Signal[id].Server)
+	}
+	// Check recipients list
+	if len(c.Alerts.Signal[id].Recipients) == 0 {
+		log.Debug().Msgf("No message recipients configured for Signal. Profile ID %v", id)
+	}
+	// Check template syntax
+	if msg := validateTemplate("Signal", c.Alerts.Signal[id].Template); msg != "" {
+		signalErrors = append(signalErrors, msg+fmt.Sprintf(" Profile ID %v", id))
+	}
+	return signalErrors
+}
+
 func (c *Config) validateSMTP(id int) []string {
 	var smtpErrors []string
 	log.Debug().Msgf("Alerting enabled for SMTP profile ID %v", id)
@@ -646,6 +683,11 @@ func (c *Config) validateAlertingEnabled() string {
 		}
 	}
 	for _, profile := range c.Alerts.Pushover {
+		if profile.Enabled {
+			return ""
+		}
+	}
+	for _, profile := range c.Alerts.Signal {
 		if profile.Enabled {
 			return ""
 		}
