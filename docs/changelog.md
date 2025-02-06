@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.4.1](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.1) - Feb 06 2025
+ - Add support for notifications via [Signal](https://frigate-notify.0x2142.com/latest/config/file/#signal)
+ - Add support for notifications via [Mattermost](https://frigate-notify.0x2142.com/latest/config/file/#mattermost)
+ - Fix issue with alert-level filters where filters may prevent notifications on reviews with multiple object detections
+
 ## [v0.4.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.0) - Jan 27 2025
  - Support for notification based on Alerts & Detections via Frigate Reviews
      - ⚠️ **Note:** Reviews mode is now the default with this release

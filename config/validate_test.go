@@ -226,6 +226,113 @@ func TestValidateGotify(t *testing.T) {
 	}
 }
 
+func TestValidateMattermost(t *testing.T) {
+	config := Config{Alerts: &models.Alerts{}}
+	config.Alerts.Mattermost = make([]models.Mattermost, 1)
+
+	// Test valid config
+	config.Alerts.Mattermost[0].Webhook = "https://webhook.test"
+	result := config.validateMattermost(0)
+	expected := 0
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+
+	// Test missing server config
+	config.Alerts.Mattermost[0].Webhook = ""
+	result = config.validateMattermost(0)
+	expected = 1
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+}
+
+func TestValidateNtfy(t *testing.T) {
+	config := Config{Alerts: &models.Alerts{}}
+	config.Alerts.Ntfy = make([]models.Ntfy, 1)
+
+	// Test valid config
+	config.Alerts.Ntfy[0].Server = "https://ntfy.test"
+	config.Alerts.Ntfy[0].Topic = "frigate"
+	result := config.validateNtfy(0)
+	expected := 0
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+
+	// Test missing server config
+	config.Alerts.Ntfy[0].Server = ""
+	result = config.validateNtfy(0)
+	expected = 1
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+
+	// Test missing topic config
+	config.Alerts.Ntfy[0].Topic = ""
+	result = config.validateNtfy(0)
+	expected = 2
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+}
+
+func TestValidatePushover(t *testing.T) {
+	config := Config{Alerts: &models.Alerts{}}
+	config.Alerts.Pushover = make([]models.Pushover, 1)
+
+	// Test valid config
+	config.Alerts.Pushover[0].Token = "abcd"
+	config.Alerts.Pushover[0].Userkey = "abcd"
+	config.Alerts.Pushover[0].Priority = 1
+	result := config.validatePushover(0)
+	expected := 0
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+
+	// Test missing token
+	config.Alerts.Pushover[0].Token = ""
+	result = config.validatePushover(0)
+	expected = 1
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+
+	// Test missing Userkey
+	config.Alerts.Pushover[0].Userkey = ""
+	result = config.validatePushover(0)
+	expected = 2
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+
+	// Test priority 2 missing retry / expiration config
+	config.Alerts.Pushover[0].Priority = 2
+	result = config.validatePushover(0)
+	expected = 4
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+
+	// Test priority 2 with low retry interval
+	config.Alerts.Pushover[0].Retry = 2
+	config.Alerts.Pushover[0].Expire = 10
+	result = config.validatePushover(0)
+	expected = 3
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+
+	// Test negative TTL
+	config.Alerts.Pushover[0].TTL = -2
+	result = config.validatePushover(0)
+	expected = 4
+	if len(result) != expected {
+		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
+	}
+}
+
 func TestValidateSMTP(t *testing.T) {
 	config := Config{Alerts: &models.Alerts{}}
 	config.Alerts.SMTP = make([]models.SMTP, 1)
@@ -306,91 +413,6 @@ func TestValidateTelegram(t *testing.T) {
 	}
 }
 
-func TestValidatePushover(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
-	config.Alerts.Pushover = make([]models.Pushover, 1)
-
-	// Test valid config
-	config.Alerts.Pushover[0].Token = "abcd"
-	config.Alerts.Pushover[0].Userkey = "abcd"
-	config.Alerts.Pushover[0].Priority = 1
-	result := config.validatePushover(0)
-	expected := 0
-	if len(result) != expected {
-		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
-	}
-
-	// Test missing token
-	config.Alerts.Pushover[0].Token = ""
-	result = config.validatePushover(0)
-	expected = 1
-	if len(result) != expected {
-		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
-	}
-
-	// Test missing Userkey
-	config.Alerts.Pushover[0].Userkey = ""
-	result = config.validatePushover(0)
-	expected = 2
-	if len(result) != expected {
-		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
-	}
-
-	// Test priority 2 missing retry / expiration config
-	config.Alerts.Pushover[0].Priority = 2
-	result = config.validatePushover(0)
-	expected = 4
-	if len(result) != expected {
-		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
-	}
-
-	// Test priority 2 with low retry interval
-	config.Alerts.Pushover[0].Retry = 2
-	config.Alerts.Pushover[0].Expire = 10
-	result = config.validatePushover(0)
-	expected = 3
-	if len(result) != expected {
-		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
-	}
-
-	// Test negative TTL
-	config.Alerts.Pushover[0].TTL = -2
-	result = config.validatePushover(0)
-	expected = 4
-	if len(result) != expected {
-		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
-	}
-}
-
-func TestValidateNtfy(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
-	config.Alerts.Ntfy = make([]models.Ntfy, 1)
-
-	// Test valid config
-	config.Alerts.Ntfy[0].Server = "https://ntfy.test"
-	config.Alerts.Ntfy[0].Topic = "frigate"
-	result := config.validateNtfy(0)
-	expected := 0
-	if len(result) != expected {
-		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
-	}
-
-	// Test missing server config
-	config.Alerts.Ntfy[0].Server = ""
-	result = config.validateNtfy(0)
-	expected = 1
-	if len(result) != expected {
-		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
-	}
-
-	// Test missing topic config
-	config.Alerts.Ntfy[0].Topic = ""
-	result = config.validateNtfy(0)
-	expected = 2
-	if len(result) != expected {
-		t.Errorf("Expected: %v error(s), Got: %v", expected, result)
-	}
-}
 func TestValidateWebhook(t *testing.T) {
 	config := Config{Alerts: &models.Alerts{}}
 	config.Alerts.Webhook = make([]models.Webhook, 1)

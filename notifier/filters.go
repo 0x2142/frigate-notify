@@ -9,11 +9,30 @@ import (
 )
 
 // checkAlertFilters will determine which notification provider is able to send this alert
-func checkAlertFilters(event models.Event, filters models.AlertFilter, provider notifMeta) bool {
+func checkAlertFilters(events []models.Event, filters models.AlertFilter, provider notifMeta) bool {
 	log.Trace().
 		Str("provider", provider.name).
 		Int("provider_id", provider.index).
 		Msg("Checking alert filters")
+
+	// Collect event details
+	var cameras, labels, sublabels, zones []string
+	for _, event := range events {
+		if !slices.Contains(cameras, event.Camera) {
+			cameras = append(cameras, event.Camera)
+		}
+		if !slices.Contains(labels, event.Label) {
+			labels = append(labels, event.Label)
+		}
+		if !slices.Contains(sublabels, event.SubLabel) {
+			sublabels = append(sublabels, event.SubLabel)
+		}
+		for _, zone := range event.CurrentZones {
+			if !slices.Contains(zones, zone) {
+				zones = append(zones, zone)
+			}
+		}
+	}
 
 	// Check against quiet hours
 	currentTime, _ := time.Parse("15:04:05", time.Now().Format("15:04:05"))
@@ -49,11 +68,18 @@ func checkAlertFilters(event models.Event, filters models.AlertFilter, provider 
 	log.Trace().
 		Str("provider", provider.name).
 		Int("provider_id", provider.index).
-		Str("camera", event.Camera).
+		Strs("cameras", cameras).
 		Strs("allowed", filters.Cameras).
 		Msg("Check allowed cameras")
 	if len(filters.Cameras) >= 1 {
-		if !slices.Contains(filters.Cameras, event.Camera) {
+		match := false
+		for _, camera := range cameras {
+			if slices.Contains(filters.Cameras, camera) {
+				match = true
+				break
+			}
+		}
+		if !match {
 			log.Debug().
 				Str("provider", provider.name).
 				Int("provider_id", provider.index).
@@ -66,17 +92,18 @@ func checkAlertFilters(event models.Event, filters models.AlertFilter, provider 
 	log.Trace().
 		Str("provider", provider.name).
 		Int("provider_id", provider.index).
-		Strs("zones", event.CurrentZones).
+		Strs("zones", zones).
 		Strs("allowed", filters.Zones).
 		Msg("Check allowed zone")
 	if len(filters.Zones) >= 1 {
-		matchzone := false
-		for _, zone := range event.CurrentZones {
+		match := false
+		for _, zone := range zones {
 			if slices.Contains(filters.Zones, zone) {
-				matchzone = true
+				match = true
+				break
 			}
 		}
-		if !matchzone {
+		if !match {
 			log.Debug().
 				Str("provider", provider.name).
 				Int("provider_id", provider.index).
@@ -89,11 +116,18 @@ func checkAlertFilters(event models.Event, filters models.AlertFilter, provider 
 	log.Trace().
 		Str("provider", provider.name).
 		Int("provider_id", provider.index).
-		Str("label", event.Label).
+		Strs("labels", labels).
 		Strs("allowed", filters.Labels).
 		Msg("Check allowed label")
 	if len(filters.Labels) >= 1 {
-		if !slices.Contains(filters.Labels, event.Label) {
+		match := false
+		for _, label := range labels {
+			if slices.Contains(filters.Labels, label) {
+				match = true
+				break
+			}
+		}
+		if !match {
 			log.Debug().
 				Str("provider", provider.name).
 				Int("provider_id", provider.index).
@@ -106,15 +140,18 @@ func checkAlertFilters(event models.Event, filters models.AlertFilter, provider 
 	log.Trace().
 		Str("provider", provider.name).
 		Int("provider_id", provider.index).
-		Str("sublabel", event.SubLabel).
+		Strs("sublabels", sublabels).
 		Strs("allowed", filters.Sublabels).
 		Msg("Check allowed sublabel")
 	if len(filters.Sublabels) >= 1 {
-		matchsublabel := false
-		if slices.Contains(filters.Sublabels, event.SubLabel) {
-			matchsublabel = true
+		match := false
+		for _, sublabel := range sublabels {
+			if slices.Contains(filters.Sublabels, sublabel) {
+				match = true
+				break
+			}
 		}
-		if !matchsublabel {
+		if !match {
 			log.Debug().
 				Str("provider", provider.name).
 				Int("provider_id", provider.index).
