@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
-	"strings"
+	"regexp"
 
 	"github.com/rs/zerolog/log"
 
@@ -34,23 +34,29 @@ func SendSignalMessage(event models.Event, snapshot io.Reader, provider notifMet
 		message = renderMessage("plaintext", event, "message", "Signal")
 	}
 
-	if !strings.HasPrefix(profile.Account, "+") {
-		profile.Account = "+" + profile.Account
-	}
+	// Process recipients list & prefix + to numbers that don't include it
 	var recipients []string
+	r, _ := regexp.Compile(`^\d+$`)
 	for _, recipient := range profile.Recipients {
-		if !strings.HasPrefix(recipient, "+") {
+		if r.Match([]byte(recipient)) {
 			recipients = append(recipients, "+"+recipient)
 		} else {
 			recipients = append(recipients, recipient)
 		}
 	}
 
+	// Check if sending account has + prefix if needed
+	if r.Match([]byte(profile.Account)) {
+		profile.Account = "+" + profile.Account
+	}
+
 	// Build payload
 	payload := SignalPayload{Message: message, Number: profile.Account, Recipients: recipients}
-	img, _ := io.ReadAll(snapshot)
-	attach := base64.StdEncoding.EncodeToString(img)
-	payload.Attachments = append(payload.Attachments, attach)
+	if event.HasSnapshot {
+		img, _ := io.ReadAll(snapshot)
+		attach := base64.StdEncoding.EncodeToString(img)
+		payload.Attachments = append(payload.Attachments, attach)
+	}
 
 	data, err := json.Marshal(payload)
 	if err != nil {
