@@ -48,6 +48,8 @@ func SendAlert(events []models.Event) {
 	var snap []byte
 	if snapshot != nil {
 		snap, _ = io.ReadAll(snapshot)
+	} else {
+		event.HasSnapshot = false
 	}
 
 	// Send Alerts
@@ -154,7 +156,7 @@ func GetSnapshot(eventID string) io.Reader {
 		log.Warn().
 			Str("event_id", eventID).
 			Err(err).
-			Msgf("Could not access snaphot")
+			Msgf("Could not access snapshot")
 		return nil
 	}
 

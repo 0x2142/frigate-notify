@@ -49,8 +49,11 @@ func SendMattermost(event models.Event, provider notifMeta) {
 
 	payload := MattermostPayload{Text: message, Channel: profile.Channel, Username: profile.Username}
 	payload.Priority.Priority = profile.Priority
-	attach := MattermostAttachment{ImageURL: snapshotURL}
-	payload.Attachments = append(payload.Attachments, attach)
+
+	if event.HasSnapshot {
+		attach := MattermostAttachment{ImageURL: snapshotURL}
+		payload.Attachments = append(payload.Attachments, attach)
+	}
 
 	data, err := json.Marshal(payload)
 	if err != nil {

@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.4.2](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.2) - Feb 10 2025
+ - Fix issue with Signal notifications when no snapshot image is available
+ - Fix issue with sending Signal notifications to groups or usernames
+
 ## [v0.4.1](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.1) - Feb 06 2025
  - Add support for notifications via [Signal](https://frigate-notify.0x2142.com/latest/config/file/#signal)
  - Add support for notifications via [Mattermost](https://frigate-notify.0x2142.com/latest/config/file/#mattermost)
