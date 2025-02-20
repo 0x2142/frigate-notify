@@ -101,6 +101,15 @@ func processReview(review models.Review) {
 
 		detections = append(detections, detection)
 	}
+
+	// Check to make sure at least 1 detection passed filters
+	if len(detections) == 0 {
+		log.Info().
+			Str("review_id", review.ID).
+			Msgf("Review dropped - No events eligable for notification")
+		return
+	}
+
 	// If any detection would be filtered, skip notifying on this review
 	if reviewFiltered {
 		log.Info().
