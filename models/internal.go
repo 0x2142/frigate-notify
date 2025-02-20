@@ -26,6 +26,7 @@ type FrigateConnection struct {
 
 type Notifiers struct {
 	Enabled    bool             `json:"enabled" example:"true" doc:"State of whether Frigate-Notify is enabled for notifications"`
+	AppriseAPI []NotifierStatus `json:"apprise-api" doc:"Status of Apprise API notifications"`
 	Discord    []NotifierStatus `json:"discord" doc:"Status of Discord notifications"`
 	Gotify     []NotifierStatus `json:"gotify" doc:"Status of Gotify notifications"`
 	Ntfy       []NotifierStatus `json:"ntfy" doc:"Status of Ntfy notifications"`
