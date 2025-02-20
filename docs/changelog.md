@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.4.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.3) - In Development
+- Add support for notifications via Apprise API
+
 ## [v0.4.2](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.2) - Feb 10 2025
  - Fix issue with Signal notifications when no snapshot image is available
  - Fix issue with sending Signal notifications to groups or usernames

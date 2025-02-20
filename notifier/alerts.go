@@ -53,6 +53,15 @@ func SendAlert(events []models.Event) {
 	}
 
 	// Send Alerts
+	// Apprise API
+	for id, profile := range config.ConfigData.Alerts.AppriseAPI {
+		if profile.Enabled {
+			provider := notifMeta{name: "apprise-api", index: id}
+			if checkAlertFilters(events, profile.Filters, provider) {
+				go SendAppriseAPI(event, bytes.NewReader(snap), provider)
+			}
+		}
+	}
 	// Discord
 	for id, profile := range config.ConfigData.Alerts.Discord {
 		if profile.Enabled {
