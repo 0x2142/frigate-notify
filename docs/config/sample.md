@@ -43,6 +43,7 @@ alerts:
     snap_bbox:
     snap_timestamp:
     snap_crop:
+    max_snap_retry:
     notify_once:
     notify_detections:
     recheck_delay:
