@@ -86,6 +86,10 @@ alerts:
     snap_timestamp:
     # Set to `true` to crop snapshot
     snap_crop:
+    # Maximum number of retry attempts when pulling snapshot from Frigate at 2 second intervals
+    # Enabling additional Frigate features, like facial recognition, may delay availability of snapshot image
+    # By default, max_snap_retry is 10 - which means waiting up to 20 seconds for a snapshot image
+    max_snap_retry:
     # By default, each Frigate event may generate several notifications as the object changes zones, etc
     # Set this to `true` to only notify once per event
     notify_once:

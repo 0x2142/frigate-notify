@@ -165,6 +165,12 @@ All alert providers (Discord, Gotify, etc) also support optional filters & the a
 - **snap_crop** (Optional - Default: `false`)
     - Crops snapshot when retrieved from Frigate
     - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
+- **max_snap_retry** (Optional - Default: `10`)
+    - Max number of retry attempts when waiting for snapshot to become available
+    - Enabling additional Frigate features, like facial recognition, may delay availability of snapshot image
+    - Retries are every 2 seconds
+    - Default is 10, which means waiting up to 20 seconds for snapshot
+    - Note: Does not apply if event received from Frigate contains `has_snapshot: false`
 - **notify_once** (Optional - Default: `false`)
     - By default, each Frigate event may generate several notifications as the object changes zones, etc
     - Set this to `true` to only notify once per event
@@ -191,6 +197,7 @@ alerts:
     snap_bbox:
     snap_timestamp:
     snap_crop:
+    max_snap_retry:
     notify_once:
     notify_detections:
     audio_only:
