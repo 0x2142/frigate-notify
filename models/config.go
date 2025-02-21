@@ -52,6 +52,7 @@ type Alerts struct {
 	Zones      Zones        `fig:"zones" json:"zones,omitempty" doc:"Allow/Block zones from alerting"`
 	Labels     Labels       `fig:"labels" json:"labels,omitempty" doc:"Allow/Block labels from alerting"`
 	SubLabels  Labels       `fig:"sublabels" json:"sublabels,omitempty" doc:"Allow/Block sublabels from alerting"`
+	AppriseAPI []AppriseAPI `fig:"apprise-api" json:"apprise-api,omitempty" doc:"Apprise API notification settings"`
 	Discord    []Discord    `fig:"discord" json:"discord,omitempty" doc:"Discord notification settings"`
 	Gotify     []Gotify     `fig:"gotify" json:"gotify,omitempty" doc:"Gotify notification settings"`
 	Mattermost []Mattermost `fig:"mattermost" json:"mattermost,omitempty" doc:"Mattermost notification settings"`
@@ -100,6 +101,17 @@ type AlertFilter struct {
 	Quiet     Quiet    `fig:"quiet" json:"quiet,omitempty" doc:"Quiet period for this alert provider"`
 	Labels    []string `fig:"labels" json:"labels,omitempty" doc:"List of labels that will use this alert provider"`
 	Sublabels []string `fig:"sublabels" json:"sublabels,omitempty" doc:"List of sublabels that will use this alert provider"`
+}
+
+type AppriseAPI struct {
+	Enabled  bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Apprise API" default:false`
+	Server   string      `fig:"server" json:"server,omitempty" doc:"Apprise API URL to send alerts" default:""`
+	Token    string      `fig:"token" json:"token,omitempty" doc:"Apprise API config token"`
+	Tags     []string    `fig:"tags" json:"tags,omitempty" doc:"Notification group tags to receive alert"`
+	URLs     []string    `fig:"urls" json:"urls,omitempty" doc:"Apprise notification URLs to send alerts to"`
+	Insecure bool        `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
+	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
 }
 
 type Discord struct {
