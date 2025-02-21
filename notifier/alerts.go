@@ -160,15 +160,37 @@ func GetSnapshot(eventID string) io.Reader {
 		q.Add("crop", "1")
 	}
 	url.RawQuery = q.Encode()
-	response, err := util.HTTPGet(url.String(), config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
-	if err != nil {
-		log.Warn().
-			Str("event_id", eventID).
-			Err(err).
-			Msgf("Could not access snapshot")
+	var response []byte
+
+	attempts := 0
+	max_attempts := config.ConfigData.Alerts.General.MaxSnapRetry
+	for attempts < max_attempts {
+		var err error
+		response, err = util.HTTPGet(url.String(), config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
+		if err != nil {
+			attempts += 1
+			if err.Error() == "404" {
+				time.Sleep(2 * time.Second)
+				log.Info().
+					Str("event_id", eventID).
+					Int("attempt", attempts).
+					Int("max_attempts", max_attempts).
+					Msgf("Waiting for snapshot to be available")
+				continue
+			} else {
+				log.Warn().
+					Str("event_id", eventID).
+					Err(err).
+					Msgf("Could not access snapshot")
+				return nil
+			}
+		} else {
+			break
+		}
+	}
+	if attempts == max_attempts {
 		return nil
 	}
-
 	return bytes.NewReader(response)
 }
 

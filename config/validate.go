@@ -405,6 +405,12 @@ func (c *Config) validateAlertGeneral() []string {
 		alertErrors = append(alertErrors, msg)
 	}
 
+	// Set default for max snap retry
+	if c.Alerts.General.MaxSnapRetry == 0 {
+		c.Alerts.General.MaxSnapRetry = 10
+	}
+	log.Debug().Msgf("Max retry attempts for snapshots: %v", c.Alerts.General.MaxSnapRetry)
+
 	return alertErrors
 }
 
