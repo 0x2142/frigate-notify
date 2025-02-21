@@ -30,7 +30,6 @@ Frigate-Notify is a simple app designed to send notifications from [Frigate](htt
 - Webhook
 - And many others via the [Apprise API](https://github.com/caronc/apprise-api)
 
-
 ### Other
 
 - Aliveness monitor via HTTP GET (for use with tools like [HealthChecks](https://github.com/healthchecks/healthchecks) or [Uptime Kuma](https://github.com/louislam/uptime-kuma))
