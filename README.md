@@ -28,6 +28,8 @@ Frigate-Notify is a simple app designed to send notifications from [Frigate](htt
 - SMTP
 - Telegram
 - Webhook
+- And many others via the [Apprise API](https://github.com/caronc/apprise-api)
+
 
 ### Other
 
