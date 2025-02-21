@@ -215,12 +215,17 @@ func setExtras(events []models.Event) models.Event {
 
 	// Create list of all detected object (mostly applicable to /reviews)
 	var labelList []string
+	var sublabelList []string
 	for _, event := range events {
 		if !slices.Contains(labelList, event.Label) {
 			labelList = append(labelList, event.Label)
 		}
+		if !slices.Contains(sublabelList, event.SubLabel) {
+			sublabelList = append(sublabelList, event.SubLabel)
+		}
 	}
 	key.Extra.LabelList = strings.Join(labelList, ", ")
+	key.Extra.SubLabelList = strings.Join(sublabelList, ", ")
 
 	// MQTT uses CurrentZones, Web API uses Zones
 	// Combine into one object to use regardless of connection method

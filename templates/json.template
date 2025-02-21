@@ -3,6 +3,7 @@
     "id": "{{ .ID }}",
     "camera": "{{ .Extra.CameraName }}",
     "label": "{{ .Label }}", 
+    "sublabel": "{{ .SubLabel }},
     "score": "{{ .Extra.TopScorePercent }}",
     "audio": "{{ .Extra.Audio }}",
     "current_zones": "{{ .CurrentZones }}",
