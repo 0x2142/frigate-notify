@@ -165,6 +165,12 @@ All alert providers (Discord, Gotify, etc) also support optional filters & the a
 - **snap_crop** (Optional - Default: `false`)
     - Crops snapshot when retrieved from Frigate
     - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
+- **max_snap_retry** (Optional - Default: `10`)
+    - Max number of retry attempts when waiting for snapshot to become available
+    - Enabling additional Frigate features, like facial recognition, may delay availability of snapshot image
+    - Retries are every 2 seconds
+    - Default is 10, which means waiting up to 20 seconds for snapshot
+    - Note: Does not apply if event received from Frigate contains `has_snapshot: false`
 - **notify_once** (Optional - Default: `false`)
     - By default, each Frigate event may generate several notifications as the object changes zones, etc
     - Set this to `true` to only notify once per event
@@ -191,6 +197,7 @@ alerts:
     snap_bbox:
     snap_timestamp:
     snap_crop:
+    max_snap_retry:
     notify_once:
     notify_detections:
     audio_only:
@@ -298,6 +305,49 @@ alerts:
      - EFGH
     block:
      - XYZ
+```
+
+### Apprise-API
+
+!!!important
+    Notifications via Apprise require an external service: [https://github.com/caronc/apprise-api](https://github.com/caronc/apprise-api)
+
+    Please follow the instructions on the [apprise-api](https://github.com/caronc/apprise-api) repo for set up & configuration. This service exposes a REST API that Frigate-Notify uses to forward notifications to various notification providers.
+
+    ⚠️ Not all Apprise notification providers support sending attachments. See the full list [here](https://github.com/caronc/apprise/wiki).
+
+- **enabled** (Optional - Default: `false`)
+    - Set to `true` to enable alerting via Apprise-API
+- **server** (Required)
+    - Full URL of the desired [apprise-api](https://github.com/caronc/apprise-api) container
+    - Required if this alerting method is enabled
+- **token** (Required - Unless `urls` is used)
+    - Config token in apprise-api
+    - Required if this alerting method is enabled
+- **urls** (Required - Unless `token` is used)
+    - Destination Apprise URLs to forward notifications to
+    - See supported providers & example URL formats [here](https://github.com/caronc/apprise?tab=readme-ov-file#supported-notifications)
+- **tags** (Optional - Required if `token` is used)
+    - If using a config token, specify target tags to notify
+- **ignoressl** (Optional - Default: `false`)
+    - Set to `true` to allow self-signed certificates
+- **template** (Optional)
+    - Optionally specify a custom notification template
+    - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
+
+```yaml title="Config File Snippet"
+alerts:
+  apprise-api:
+    enabled: false
+    server:
+    token:
+    urls:
+      - ntfy://xxxxxxxx/frigate
+      - discord://xxxxxxxxxxx
+    tags:
+      - ntfy
+    ignoressl: true
+    template:
 ```
 
 ### Discord
@@ -467,7 +517,7 @@ alerts:
 ### Signal
 
 !!!important
-    Signal notifications rely on an external service to handle communication to Signal: https://github.com/bbernhard/signal-cli-rest-api
+    Signal notifications rely on an external service to handle communication to Signal: [https://github.com/bbernhard/signal-cli-rest-api](https://github.com/bbernhard/signal-cli-rest-api)
 
     Please follow the instructions on the [signal-cli-rest-api](https://github.com/bbernhard/signal-cli-rest-api) repo for set up & configuration. This service exposes a REST API that Frigate-Notify uses to forward notifications to Signal.
 

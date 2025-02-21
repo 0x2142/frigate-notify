@@ -53,6 +53,15 @@ func SendAlert(events []models.Event) {
 	}
 
 	// Send Alerts
+	// Apprise API
+	for id, profile := range config.ConfigData.Alerts.AppriseAPI {
+		if profile.Enabled {
+			provider := notifMeta{name: "apprise-api", index: id}
+			if checkAlertFilters(events, profile.Filters, provider) {
+				go SendAppriseAPI(event, bytes.NewReader(snap), provider)
+			}
+		}
+	}
 	// Discord
 	for id, profile := range config.ConfigData.Alerts.Discord {
 		if profile.Enabled {
@@ -151,15 +160,37 @@ func GetSnapshot(eventID string) io.Reader {
 		q.Add("crop", "1")
 	}
 	url.RawQuery = q.Encode()
-	response, err := util.HTTPGet(url.String(), config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
-	if err != nil {
-		log.Warn().
-			Str("event_id", eventID).
-			Err(err).
-			Msgf("Could not access snapshot")
+	var response []byte
+
+	attempts := 0
+	max_attempts := config.ConfigData.Alerts.General.MaxSnapRetry
+	for attempts < max_attempts {
+		var err error
+		response, err = util.HTTPGet(url.String(), config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
+		if err != nil {
+			attempts += 1
+			if err.Error() == "404" {
+				time.Sleep(2 * time.Second)
+				log.Info().
+					Str("event_id", eventID).
+					Int("attempt", attempts).
+					Int("max_attempts", max_attempts).
+					Msgf("Waiting for snapshot to be available")
+				continue
+			} else {
+				log.Warn().
+					Str("event_id", eventID).
+					Err(err).
+					Msgf("Could not access snapshot")
+				return nil
+			}
+		} else {
+			break
+		}
+	}
+	if attempts == max_attempts {
 		return nil
 	}
-
 	return bytes.NewReader(response)
 }
 
@@ -184,12 +215,17 @@ func setExtras(events []models.Event) models.Event {
 
 	// Create list of all detected object (mostly applicable to /reviews)
 	var labelList []string
+	var sublabelList []string
 	for _, event := range events {
 		if !slices.Contains(labelList, event.Label) {
 			labelList = append(labelList, event.Label)
 		}
+		if !slices.Contains(sublabelList, event.SubLabel) {
+			sublabelList = append(sublabelList, event.SubLabel)
+		}
 	}
 	key.Extra.LabelList = strings.Join(labelList, ", ")
+	key.Extra.SubLabelList = strings.Join(sublabelList, ", ")
 
 	// MQTT uses CurrentZones, Web API uses Zones
 	// Combine into one object to use regardless of connection method

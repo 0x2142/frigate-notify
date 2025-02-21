@@ -49,6 +49,7 @@ type ExtraFields struct {
 	FormattedTime       string
 	TopScorePercent     string
 	LabelList           string
+	SubLabelList        string
 	ZoneList            string
 	LocalURL            string
 	PublicURL           string

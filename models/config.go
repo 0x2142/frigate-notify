@@ -52,6 +52,7 @@ type Alerts struct {
 	Zones      Zones        `fig:"zones" json:"zones,omitempty" doc:"Allow/Block zones from alerting"`
 	Labels     Labels       `fig:"labels" json:"labels,omitempty" doc:"Allow/Block labels from alerting"`
 	SubLabels  Labels       `fig:"sublabels" json:"sublabels,omitempty" doc:"Allow/Block sublabels from alerting"`
+	AppriseAPI []AppriseAPI `fig:"apprise-api" json:"apprise-api,omitempty" doc:"Apprise API notification settings"`
 	Discord    []Discord    `fig:"discord" json:"discord,omitempty" doc:"Discord notification settings"`
 	Gotify     []Gotify     `fig:"gotify" json:"gotify,omitempty" doc:"Gotify notification settings"`
 	Mattermost []Mattermost `fig:"mattermost" json:"mattermost,omitempty" doc:"Mattermost notification settings"`
@@ -70,6 +71,7 @@ type General struct {
 	SnapBbox         bool   `fig:"snap_bbox,omitempty" json:"snap_bbox" enum:"true,false" doc:"Include bounding box on snapshots" default:false`
 	SnapTimestamp    bool   `fig:"snap_timestamp,omitempty" json:"snap_timestamp" enum:"true,false" doc:"Include timestamp on snapshots" default:false`
 	SnapCrop         bool   `fig:"snap_crop,omitempty"  json:"snap_crop" enum:"true,false" doc:"Crop snapshots" default:false`
+	MaxSnapRetry     int    `fig:"max_snap_retry,omitempty" json:"max_snap_retry" doc:"Maximum number of retry attempts when snapshot is not ready yet" default:"10"`
 	NotifyOnce       bool   `fig:"notify_once,omitempty"  json:"notify_once" enum:"true,false" doc:"Only notify once per event (For app mode: events)" default:false`
 	NotifyDetections bool   `fig:"notify_detections,omitempty" json:"notify_detections" enum:"true,false" doc:"Enable notifications on detection (For app mode: reviews)" default:false`
 	RecheckDelay     int    `fig:"recheck_delay" json:"recheck_delay" default:"0" doc:"Delay before re-checking event details from Frigate"`
@@ -99,6 +101,17 @@ type AlertFilter struct {
 	Quiet     Quiet    `fig:"quiet" json:"quiet,omitempty" doc:"Quiet period for this alert provider"`
 	Labels    []string `fig:"labels" json:"labels,omitempty" doc:"List of labels that will use this alert provider"`
 	Sublabels []string `fig:"sublabels" json:"sublabels,omitempty" doc:"List of sublabels that will use this alert provider"`
+}
+
+type AppriseAPI struct {
+	Enabled  bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Apprise API" default:false`
+	Server   string      `fig:"server" json:"server,omitempty" doc:"Apprise API URL to send alerts" default:""`
+	Token    string      `fig:"token" json:"token,omitempty" doc:"Apprise API config token"`
+	Tags     []string    `fig:"tags" json:"tags,omitempty" doc:"Notification group tags to receive alert"`
+	URLs     []string    `fig:"urls" json:"urls,omitempty" doc:"Apprise notification URLs to send alerts to"`
+	Insecure bool        `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
+	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
 }
 
 type Discord struct {

@@ -70,6 +70,17 @@ func (c *Config) Validate() []string {
 		validationErrors = append(validationErrors, results...)
 	}
 
+	// Validate Apprise API
+	Internal.Status.Notifications.AppriseAPI = make([]models.NotifierStatus, len(c.Alerts.AppriseAPI))
+	for id, profile := range c.Alerts.AppriseAPI {
+		Internal.Status.Notifications.AppriseAPI[id].InitNotifStatus(id, profile.Enabled)
+		if profile.Enabled {
+			if results := c.validateAppriseAPI(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
+		}
+	}
+
 	// Validate Discord
 	Internal.Status.Notifications.Discord = make([]models.NotifierStatus, len(c.Alerts.Discord))
 	for id, profile := range c.Alerts.Discord {
@@ -394,6 +405,12 @@ func (c *Config) validateAlertGeneral() []string {
 		alertErrors = append(alertErrors, msg)
 	}
 
+	// Set default for max snap retry
+	if c.Alerts.General.MaxSnapRetry == 0 {
+		c.Alerts.General.MaxSnapRetry = 10
+	}
+	log.Debug().Msgf("Max retry attempts for snapshots: %v", c.Alerts.General.MaxSnapRetry)
+
 	return alertErrors
 }
 
@@ -466,6 +483,34 @@ func (c *Config) validateLabelFiltering() []string {
 		log.Debug().Msg("No Sublabels excluded")
 	}
 	return labelErrors
+}
+
+func (c *Config) validateAppriseAPI(id int) []string {
+	var appriseapiErrors []string
+	log.Debug().Msgf("Alerting enabled for Apprise API profile ID %v", id)
+	if c.Alerts.AppriseAPI[id].Server == "" {
+		appriseapiErrors = append(appriseapiErrors, fmt.Sprintf("No Apprise API server specified! Profile ID %v", id))
+	}
+	if c.Alerts.AppriseAPI[id].Token == "" && len(c.Alerts.AppriseAPI[id].URLs) == 0 {
+		appriseapiErrors = append(appriseapiErrors, fmt.Sprintf("No Apprise API token or notification URLs specified! Profile ID %v", id))
+	}
+	if c.Alerts.AppriseAPI[id].Token != "" && len(c.Alerts.AppriseAPI[id].URLs) != 0 {
+		appriseapiErrors = append(appriseapiErrors, fmt.Sprintf("Only Apprise API token or notification URLs may be configured, not both! Profile ID %v", id))
+	}
+	if c.Alerts.AppriseAPI[id].Token != "" && len(c.Alerts.AppriseAPI[id].Tags) == 0 {
+		appriseapiErrors = append(appriseapiErrors, fmt.Sprintf("If using Apprise API token, tags must also be configured! Profile ID %v", id))
+	}
+
+	// Check if Apprise API server URL contains protocol, assume HTTP if not specified
+	if !strings.Contains(c.Alerts.AppriseAPI[id].Server, "http://") && !strings.Contains(c.Alerts.AppriseAPI[id].Server, "https://") {
+		log.Debug().Msgf("No protocol specified on Apprise API Server. Assuming http://. If this is incorrect, please adjust the config file. Profile ID %v", id)
+		c.Alerts.AppriseAPI[id].Server = fmt.Sprintf("http://%s", c.Alerts.AppriseAPI[id].Server)
+	}
+	// Check template syntax
+	if msg := validateTemplate("Apprise API", c.Alerts.AppriseAPI[id].Template); msg != "" {
+		appriseapiErrors = append(appriseapiErrors, msg+fmt.Sprintf(" Profile ID %v", id))
+	}
+	return appriseapiErrors
 }
 
 func (c *Config) validateDiscord(id int) []string {
@@ -662,6 +707,11 @@ func (c *Config) validateWebhook(id int) []string {
 
 func (c *Config) validateAlertingEnabled() string {
 	// Check to ensure at least one alert provider is configured
+	for _, profile := range c.Alerts.AppriseAPI {
+		if profile.Enabled {
+			return ""
+		}
+	}
 	for _, profile := range c.Alerts.Discord {
 		if profile.Enabled {
 			return ""

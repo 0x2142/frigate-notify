@@ -86,6 +86,10 @@ alerts:
     snap_timestamp:
     # Set to `true` to crop snapshot
     snap_crop:
+    # Maximum number of retry attempts when pulling snapshot from Frigate at 2 second intervals
+    # Enabling additional Frigate features, like facial recognition, may delay availability of snapshot image
+    # By default, max_snap_retry is 10 - which means waiting up to 20 seconds for a snapshot image
+    max_snap_retry:
     # By default, each Frigate event may generate several notifications as the object changes zones, etc
     # Set this to `true` to only notify once per event
     notify_once:
@@ -132,6 +136,25 @@ alerts:
     allow:
     # List of sublabels to never generate notifications
     block:
+
+  apprise-api:
+    # Set to true to enable alerting via Discord messages
+    enabled: false
+    # Server URL (ex. https://apprise.yourdomain.tld)
+    server:
+    # Apprise config token (or specify individual URLs below)
+    token:
+    # Target Apprise URL(s) (or specify a config token above)
+    urls:
+      - ntfy://xxxxxxxx/frigate
+      - discord://xxxxxxxxxxx
+    # Apprise Tags to notify (if using config token)
+    tags:
+      - ntfy
+    # Set to true to allow self-signed certificates
+    ignoressl: true
+    # Custom notification template, if desired
+    template:
 
   discord:
     # Set to true to enable alerting via Discord messages
