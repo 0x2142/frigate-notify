@@ -1,8 +1,9 @@
 # Changelog
 
-## [v0.4.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.3) - In Development
+## [v0.4.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.3) - Feb 21 2025
  - Add support for notifications via [Apprise API](https://frigate-notify.0x2142.com/latest/config/file/#apprise-api)
  - Add retry interval for collecting snapshots from Frigate
+ - Updated notification templates to include sublabel information, if available
  - Fix app crash when no items in a review were eligible for notification
 
 ## [v0.4.2](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.2) - Feb 10 2025
