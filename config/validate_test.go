@@ -7,7 +7,7 @@ import (
 )
 
 func TestValidateAppMode(t *testing.T) {
-	config := Config{Frigate: &models.Frigate{}}
+	config := Config{Frigate: models.Frigate{}}
 
 	// Check good config
 	config.App.Mode = "reviews"
@@ -66,7 +66,7 @@ func TestValidateAPI(t *testing.T) {
 }
 
 func TestValidateFrigatePolling(t *testing.T) {
-	config := Config{Frigate: &models.Frigate{}}
+	config := Config{Frigate: models.Frigate{}}
 
 	// Test one method configured
 	config.Frigate.MQTT.Enabled = true
@@ -94,7 +94,7 @@ func TestValidateFrigatePolling(t *testing.T) {
 }
 
 func TestValidateMQTT(t *testing.T) {
-	config := Config{Frigate: &models.Frigate{}}
+	config := Config{Frigate: models.Frigate{}}
 
 	// Test correct config
 	config.Frigate.MQTT.Enabled = true
@@ -126,7 +126,7 @@ func TestValidateMQTT(t *testing.T) {
 }
 
 func TestValidateQuietHours(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
+	config := Config{Alerts: models.Alerts{}}
 
 	// Test valid config
 	config.Alerts.Quiet.Start = "03:50"
@@ -155,7 +155,7 @@ func TestValidateQuietHours(t *testing.T) {
 }
 
 func TestValidateAlertGeneral(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
+	config := Config{Alerts: models.Alerts{}}
 
 	// Test valid config
 	config.Alerts.General.NoSnap = "allow"
@@ -176,7 +176,7 @@ func TestValidateAlertGeneral(t *testing.T) {
 }
 
 func TestValidateDiscord(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
+	config := Config{Alerts: models.Alerts{}}
 	config.Alerts.Discord = make([]models.Discord, 1)
 
 	// Test valid config
@@ -197,7 +197,7 @@ func TestValidateDiscord(t *testing.T) {
 }
 
 func TestValidateGotify(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
+	config := Config{Alerts: models.Alerts{}}
 	config.Alerts.Gotify = make([]models.Gotify, 1)
 
 	// Test valid config
@@ -227,7 +227,7 @@ func TestValidateGotify(t *testing.T) {
 }
 
 func TestValidateMattermost(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
+	config := Config{Alerts: models.Alerts{}}
 	config.Alerts.Mattermost = make([]models.Mattermost, 1)
 
 	// Test valid config
@@ -248,7 +248,7 @@ func TestValidateMattermost(t *testing.T) {
 }
 
 func TestValidateNtfy(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
+	config := Config{Alerts: models.Alerts{}}
 	config.Alerts.Ntfy = make([]models.Ntfy, 1)
 
 	// Test valid config
@@ -278,7 +278,7 @@ func TestValidateNtfy(t *testing.T) {
 }
 
 func TestValidatePushover(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
+	config := Config{Alerts: models.Alerts{}}
 	config.Alerts.Pushover = make([]models.Pushover, 1)
 
 	// Test valid config
@@ -334,7 +334,7 @@ func TestValidatePushover(t *testing.T) {
 }
 
 func TestValidateSMTP(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
+	config := Config{Alerts: models.Alerts{}}
 	config.Alerts.SMTP = make([]models.SMTP, 1)
 
 	// Test valid config
@@ -384,7 +384,7 @@ func TestValidateSMTP(t *testing.T) {
 }
 
 func TestValidateTelegram(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
+	config := Config{Alerts: models.Alerts{}}
 	config.Alerts.Telegram = make([]models.Telegram, 1)
 
 	// Test valid config
@@ -414,7 +414,7 @@ func TestValidateTelegram(t *testing.T) {
 }
 
 func TestValidateWebhook(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
+	config := Config{Alerts: models.Alerts{}}
 	config.Alerts.Webhook = make([]models.Webhook, 1)
 
 	// Test valid config
@@ -436,7 +436,7 @@ func TestValidateWebhook(t *testing.T) {
 }
 
 func TestValidateAlertingEnabled(t *testing.T) {
-	config := Config{Alerts: &models.Alerts{}}
+	config := Config{Alerts: models.Alerts{}}
 	config.Alerts.Discord = make([]models.Discord, 1)
 
 	// Test valid config

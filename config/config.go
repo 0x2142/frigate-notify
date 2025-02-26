@@ -15,10 +15,10 @@ import (
 )
 
 type Config struct {
-	App     models.App      `fig:"app" json:"app" required:"false"`
-	Frigate *models.Frigate `fig:"frigate" json:"frigate" validate:"required" required:"true"`
-	Alerts  *models.Alerts  `fig:"alerts" json:"alerts" validate:"required" required:"true"`
-	Monitor models.Monitor  `fig:"monitor" json:"monitor" required:"false"`
+	App     models.App     `fig:"app" json:"app" required:"false"`
+	Frigate models.Frigate `fig:"frigate" json:"frigate" required:"true"`
+	Alerts  models.Alerts  `fig:"alerts" json:"alerts" required:"true"`
+	Monitor models.Monitor `fig:"monitor" json:"monitor" required:"false"`
 }
 
 var ConfigData Config

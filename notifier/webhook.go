@@ -1,6 +1,7 @@
 package notifier
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/disgoorg/json"
@@ -10,6 +11,26 @@ import (
 	"github.com/0x2142/frigate-notify/models"
 	"github.com/0x2142/frigate-notify/util"
 )
+
+type WebhookPayload struct {
+	Time         string   `json:"time"`
+	ID           string   `json:"id"`
+	Camera       string   `json:"camera"`
+	Label        string   `json:"label"`
+	SubLabel     string   `json:"sublabel"`
+	Score        string   `json:"score"`
+	Audio        string   `json:"audio"`
+	CurrentZones []string `json:"current_zones"`
+	EnteredZones []string `json:"entered_zones"`
+	HasClip      bool     `json:"has_clip"`
+	HasSnap      bool     `json:"has_snapshot"`
+	Links        struct {
+		Camera string `json:"camera"`
+		Clip   string `json:"clip,omitempty"`
+		Review string `json:"review,omitempty"`
+		Snap   string `json:"snapshot,omitempty"`
+	} `json:"links"`
+}
 
 // SendWebhook sends alert through HTTP POST to target webhook
 func SendWebhook(event models.Event, provider notifMeta) {
@@ -32,7 +53,35 @@ func SendWebhook(event models.Event, provider notifMeta) {
 	if string(payload) != "null" {
 		message = renderMessage(string(payload), event, "message", "Webhook")
 	} else {
-		message = renderMessage("json", event, "message", "Webhook")
+		defaultTemplate := WebhookPayload{
+			Time:         event.Extra.FormattedTime,
+			ID:           event.ID,
+			Camera:       event.Extra.CameraName,
+			Label:        event.Label,
+			SubLabel:     event.SubLabel,
+			Score:        event.Extra.TopScorePercent,
+			Audio:        event.Extra.Audio,
+			CurrentZones: event.CurrentZones,
+			EnteredZones: event.EnteredZones,
+			HasClip:      event.HasClip,
+			HasSnap:      event.HasSnapshot,
+		}
+		if event.Extra.FrigateMajorVersion >= 14 {
+			defaultTemplate.Links.Camera = fmt.Sprintf("%s/#%s", event.Extra.PublicURL, event.Camera)
+		} else {
+			defaultTemplate.Links.Camera = fmt.Sprintf("%s/cameras/%s", event.Extra.PublicURL, event.Camera)
+		}
+		if event.HasClip {
+			defaultTemplate.Links.Clip = event.Extra.EventLink
+		}
+		if event.HasSnapshot {
+			defaultTemplate.Links.Snap = fmt.Sprintf("%s/api/events/%s/snapshot.jpg", event.Extra.PublicURL, event.ID)
+		}
+		if event.Extra.ReviewLink != "" {
+			defaultTemplate.Links.Review = event.Extra.ReviewLink
+		}
+		payload, _ = json.Marshal(defaultTemplate)
+		message = string(payload)
 	}
 
 	headers := renderHTTPKV(profile.Headers, event, "headers", "Webhook")
