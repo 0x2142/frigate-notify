@@ -5,11 +5,11 @@ go 1.23
 toolchain go1.23.5
 
 require (
+	github.com/OvyFlash/telegram-bot-api v0.0.0-20241219171906-3f2ca0c14ada
 	github.com/danielgtaylor/huma/v2 v2.27.0
 	github.com/disgoorg/disgo v0.18.14
 	github.com/disgoorg/json v1.2.0
 	github.com/eclipse/paho.mqtt.golang v1.5.0
-	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/gregdel/pushover v1.3.1
 	github.com/kkyr/fig v0.4.0
 	github.com/maypok86/otter v1.2.4
