@@ -191,11 +191,12 @@ type SMTP struct {
 }
 
 type Telegram struct {
-	Enabled  bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Telegram" default:false`
-	ChatID   int64       `fig:"chatid" json:"chatid,omitempty" minimum:"1" doc:"Telegram chat ID" default:"0"`
-	Token    string      `fig:"token" json:"token,omitempty" doc:"Telegram bot token" default:""`
-	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
-	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
+	Enabled         bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Telegram" default:false`
+	ChatID          int64       `fig:"chatid" json:"chatid,omitempty" minimum:"1" doc:"Telegram chat ID" default:"0"`
+	MessageThreadID int         `fig:"message_thread_id" json:"message_thread_id,omitempty" doc:"Send message to thread by ID" default:"0`
+	Token           string      `fig:"token" json:"token,omitempty" doc:"Telegram bot token" default:""`
+	Template        string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters         AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
 }
 
 type Webhook struct {

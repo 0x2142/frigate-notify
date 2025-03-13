@@ -638,6 +638,8 @@ Within the response, locate your message to the bot, then grab the ID under `mes
 - **token** (Required)
     - Bot token generated from [@BotFather](https://core.telegram.org/bots#how-do-i-create-a-bot)
     - Required if this alerting method is enabled
+- **message_thread_id** (Optional)
+    - Optionally send notification to a message thread by ID
 - **template** (Optional)
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
@@ -647,6 +649,7 @@ alerts:
   telegram:
     enabled: true
     chatid: 123456789
+    message_thread_id: 100
     token: 987654321:ABCDEFGHIJKLMNOP
     template:
 ```

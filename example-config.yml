@@ -284,6 +284,8 @@ alerts:
     enabled: false
     # Chat ID of alert recipient
     chatid:
+    # Message Thead ID
+    message_thread_id:
     # Bot API token
     token:
     # Custom notification template, if desired
