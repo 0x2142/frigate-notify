@@ -40,6 +40,15 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader, provider notifM
 		TTL:      time.Duration(profile.TTL) * time.Second,
 	}
 
+	// Add links
+	if event.Extra.ReviewLink != "" {
+		notif.URL = event.Extra.ReviewLink
+		notif.URLTitle = "Review Event"
+	} else {
+		notif.URL = event.Extra.EventLink
+		notif.URLTitle = "View Clip"
+	}
+
 	// If emergency priority, set retry / expiration
 	if notif.Priority == 2 {
 		notif.Retry = time.Duration(profile.Retry) * time.Second
