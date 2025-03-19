@@ -159,7 +159,9 @@ alerts:
     # Set to true to enable alerting via Discord messages
     enabled: false
     # Insert full webhook URL below
-    webhook: 
+    webhook:
+    # Set to true to disable notifications being sent as Discord embedded message
+    disable_embed:
     # Custom notification template, if desired
     template:
   

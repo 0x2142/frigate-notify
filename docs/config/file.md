@@ -357,6 +357,9 @@ alerts:
     - Full URL of the desired Discord webhook to send alerts through
     - Required if this alerting method is enabled
     - Check [Discord's](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) docs for how to create a webhook
+- **disable_embed** (Optional)
+    - By default, notifications are sent as Discord embedded message
+    - Set to `true` to disable this
 - **template** (Optional)
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
