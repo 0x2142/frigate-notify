@@ -436,6 +436,9 @@ alerts:
 
 ### Ntfy
 
+!!!note
+    If you're self-hosting Ntfy, you'll need to ensure support for [attachments](https://docs.ntfy.sh/config/#attachments) is enabled.
+
 - **enabled** (Optional - Default: `false`)
     - Set to `true` to enable alerting via Ntfy
 - **server** (Required)
