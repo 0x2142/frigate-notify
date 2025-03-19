@@ -2,6 +2,7 @@
 
 ## [v0.4.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.4) - TBD
  - Add support for `message_thread_id` to [Telegram](https://frigate-notify.0x2142.com/latest/config/file/#telegram) notifications
+ - Add review/event link for Pushover action button
  - Fix issue with Webhook default message template
 
 ## [v0.4.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.3) - Feb 21 2025
