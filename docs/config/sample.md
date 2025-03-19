@@ -137,6 +137,7 @@ alerts:
   telegram:
     enabled: false
     chatid:
+    message_thread_id:
     token:
     template:
 
