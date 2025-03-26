@@ -76,7 +76,8 @@ alerts:
 
   discord:
     enabled: false
-    webhook: 
+    webhook:
+    disable_embed:
     template:
   
   gotify:

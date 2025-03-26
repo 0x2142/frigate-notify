@@ -167,7 +167,6 @@ All alert providers (Discord, Gotify, etc) also support optional filters & the a
     - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
 - **max_snap_retry** (Optional - Default: `10`)
     - Max number of retry attempts when waiting for snapshot to become available
-    - Enabling additional Frigate features, like facial recognition, may delay availability of snapshot image
     - Retries are every 2 seconds
     - Default is 10, which means waiting up to 20 seconds for snapshot
     - Note: Does not apply if event received from Frigate contains `has_snapshot: false`
@@ -358,6 +357,9 @@ alerts:
     - Full URL of the desired Discord webhook to send alerts through
     - Required if this alerting method is enabled
     - Check [Discord's](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) docs for how to create a webhook
+- **disable_embed** (Optional)
+    - By default, notifications are sent as Discord embedded message
+    - Set to `true` to disable this
 - **template** (Optional)
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
@@ -435,6 +437,9 @@ alerts:
 ```
 
 ### Ntfy
+
+!!!note
+    If you're self-hosting Ntfy, you'll need to ensure support for [attachments](https://docs.ntfy.sh/config/#attachments) is enabled.
 
 - **enabled** (Optional - Default: `false`)
     - Set to `true` to enable alerting via Ntfy

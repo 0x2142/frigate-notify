@@ -48,17 +48,24 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader, provider notifMe
 	var msg *discord.Message
 	if event.HasSnapshot {
 		image := discord.NewFile("snapshot.jpg", "", snapshot)
-		embed := discord.NewEmbedBuilder().SetDescription(message).SetTitle(title).SetImage("attachment://snapshot.jpg").SetColor(5793266).Build()
-		msg, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetEmbeds(embed).SetFiles(image).Build())
+		if profile.DisableEmbed {
+			msg, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetContent(message).SetFiles(image).Build())
+		} else {
+			embed := discord.NewEmbedBuilder().SetDescription(message).SetTitle(title).SetImage("attachment://snapshot.jpg").SetColor(5793266).Build()
+			msg, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetEmbeds(embed).SetFiles(image).Build())
+		}
 		log.Trace().
 			Str("event_id", event.ID).
 			Int("provider_id", provider.index).
 			Interface("payload", msg).
 			Msg("Send Discord Alert")
-
 	} else {
-		embed := discord.NewEmbedBuilder().SetDescription(message).SetTitle(title).SetColor(5793266).Build()
-		msg, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetEmbeds(embed).Build())
+		if profile.DisableEmbed {
+			msg, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetContent(message).Build())
+		} else {
+			embed := discord.NewEmbedBuilder().SetDescription(message).SetTitle(title).SetColor(5793266).Build()
+			msg, err = client.CreateMessage(discord.NewWebhookMessageCreateBuilder().SetEmbeds(embed).Build())
+		}
 		log.Trace().
 			Str("event_id", event.ID).
 			Int("provider_id", provider.index).

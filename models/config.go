@@ -115,10 +115,11 @@ type AppriseAPI struct {
 }
 
 type Discord struct {
-	Enabled  bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Discord" default:false`
-	Webhook  string      `fig:"webhook" json:"webhook,omitempty" doc:"Discord webhook URL to send alerts" default:""`
-	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
-	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
+	Enabled      bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Discord" default:false`
+	Webhook      string      `fig:"webhook" json:"webhook,omitempty" doc:"Discord webhook URL to send alerts" default:""`
+	DisableEmbed bool        `fig:"disable_embed" json:"disable_embed,omitempty" doc:"Disable sending notification as Discord embedded message"`
+	Template     string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters      AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
 }
 
 type Gotify struct {
