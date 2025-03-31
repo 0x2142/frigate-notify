@@ -87,6 +87,15 @@ alerts:
     ignoressl:
     template:
   
+  matrix:
+    enabled: false
+    server:
+    username:
+    password:
+    roomid:
+    ignoressl:
+    template:
+
   mattermost:
     enabled: false
     webhook:

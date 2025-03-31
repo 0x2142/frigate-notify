@@ -103,6 +103,17 @@ func (c *Config) Validate() []string {
 		}
 	}
 
+	// Validate Matrix
+	Internal.Status.Notifications.Matrix = make([]models.NotifierStatus, len(c.Alerts.Matrix))
+	for id, profile := range c.Alerts.Matrix {
+		Internal.Status.Notifications.Matrix[id].InitNotifStatus(id, profile.Enabled)
+		if profile.Enabled {
+			if results := c.validateMatrix(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
+		}
+	}
+
 	// Validate Mattermost
 	Internal.Status.Notifications.Mattermost = make([]models.NotifierStatus, len(c.Alerts.Mattermost))
 	for id, profile := range c.Alerts.Mattermost {
@@ -547,6 +558,29 @@ func (c *Config) validateGotify(id int) []string {
 	return gotifyErrors
 }
 
+func (c *Config) validateMatrix(id int) []string {
+	var matrixErrors []string
+	log.Debug().Msgf("Alerting enabled for Matrix profile ID %v", id)
+	if c.Alerts.Matrix[id].Server == "" {
+		matrixErrors = append(matrixErrors, fmt.Sprintf("No Matrix homeserver specified! Profile ID %v", id))
+	}
+	// Check username / auth token
+	if c.Alerts.Matrix[id].Username == "" {
+		matrixErrors = append(matrixErrors, fmt.Sprintf("No Matrix username specified! Profile ID %v", id))
+	}
+	if c.Alerts.Matrix[id].Password == "" {
+		matrixErrors = append(matrixErrors, fmt.Sprintf("No Matrix password specified! Profile ID %v", id))
+	}
+	if c.Alerts.Matrix[id].RoomID == "" {
+		matrixErrors = append(matrixErrors, fmt.Sprintf("No Matrix room ID specified! Profile ID %v", id))
+	}
+	// Check template syntax
+	if msg := validateTemplate("Matrix", c.Alerts.Matrix[id].Template); msg != "" {
+		matrixErrors = append(matrixErrors, msg+fmt.Sprintf(" Profile ID %v", id))
+	}
+	return matrixErrors
+}
+
 func (c *Config) validateMattermost(id int) []string {
 	var mattermostErrors []string
 	log.Debug().Msgf("Alerting enabled for Mattermost profile ID %v", id)
@@ -718,6 +752,11 @@ func (c *Config) validateAlertingEnabled() string {
 		}
 	}
 	for _, profile := range c.Alerts.Gotify {
+		if profile.Enabled {
+			return ""
+		}
+	}
+	for _, profile := range c.Alerts.Matrix {
 		if profile.Enabled {
 			return ""
 		}

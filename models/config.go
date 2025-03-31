@@ -55,10 +55,11 @@ type Alerts struct {
 	AppriseAPI []AppriseAPI `fig:"apprise-api" json:"apprise-api,omitempty" doc:"Apprise API notification settings"`
 	Discord    []Discord    `fig:"discord" json:"discord,omitempty" doc:"Discord notification settings"`
 	Gotify     []Gotify     `fig:"gotify" json:"gotify,omitempty" doc:"Gotify notification settings"`
+	Matrix     []Matrix     `fig:"matrix" json:"matrix,omitempty" doc:"Matrix notification settings"`
 	Mattermost []Mattermost `fig:"mattermost" json:"mattermost,omitempty" doc:"Mattermost notification settings"`
 	Ntfy       []Ntfy       `fig:"ntfy" json:"ntfy,omitempty" doc:"Ntfy notification settings"`
 	Pushover   []Pushover   `fig:"pushover" json:"pushover,omitempty" doc:"Pushover notification settings"`
-	Signal     []Signal     `fig:"signal" json:"signal,omitempty" doc:"Signal notification settings`
+	Signal     []Signal     `fig:"signal" json:"signal,omitempty" doc:"Signal notification settings"`
 	SMTP       []SMTP       `fig:"smtp" json:"smtp,omitempty" doc:"SMTP notification settings"`
 	Telegram   []Telegram   `fig:"telegram" json:"telegram,omitempty" doc:"Telegram notification settings"`
 	Webhook    []Webhook    `fig:"webhook" json:"webhook,omitempty" doc:"Webhook notification settings"`
@@ -126,6 +127,17 @@ type Gotify struct {
 	Enabled  bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Gotify" default:false`
 	Server   string      `fig:"server" json:"server,omitempty" doc:"Gotify server URL" default:""`
 	Token    string      `fig:"token" json:"token,omitempty" doc:"Gotify app token" default:""`
+	Insecure bool        `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
+	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
+}
+
+type Matrix struct {
+	Enabled  bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Matrix" default:false`
+	Server   string      `fig:"server" json:"server,omitempty" doc:"Matrix Homeserver address" default:""`
+	Username string      `fig:"username" json:"username,omitempty" doc:"Matrix username" default:""`
+	Password string      `fig:"password" json:"password,omitempty" doc:"Matrix password" default:""`
+	RoomID   string      `fig:"roomid" json:"roomid,omitempty" doc:"Room ID to send notifications to" default:""`
 	Insecure bool        `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
 	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
 	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
