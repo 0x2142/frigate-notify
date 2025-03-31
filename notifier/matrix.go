@@ -56,9 +56,6 @@ func SendMatrix(event models.Event, snapshot io.Reader, provider notifMeta) {
 
 	// Handle login
 	m.StateStore = mautrix.NewMemoryStateStore()
-	//	x := crypto.NewMemoryStore(func() error { return nil })
-
-	//cs := crypto.NewSQLCryptoStore(&dbutil.Database{}, nil, profile.Username, "asdf", []byte("asdf"))
 	ch, err := cryptohelper.NewCryptoHelper(m, []byte("asdf"), "./matrix.db")
 	if err != nil {
 		log.Warn().
