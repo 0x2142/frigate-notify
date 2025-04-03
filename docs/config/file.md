@@ -398,6 +398,40 @@ alerts:
     template:
 ```
 
+### Matrix
+
+- **enabled** (Optional - Default: `false`)
+    - Set to `true` to enable alerting via Matrix webhooks
+- **server** (Required)
+    - Full URL of the desired Matrix homeserver
+    - Required if this alerting method is enabled
+- **username** (Required)
+    - Username of Matrix user
+- **password** (Required)
+    - Password for Matrix user
+- **roomid** (Required)
+    - Target Room ID to send notifications
+    - Format: `"!<roomid>:<matrixhomeserver>"`
+        - Note: This **must** be wrapped in quotes
+    - Notification user must be invited to this room
+- **ignoressl** (Optional - Default: `false`)
+    - Set to `true` to allow self-signed certificates
+- **template** (Optional)
+    - Optionally specify a custom notification template
+    - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
+
+```yaml title="Config File Snippet"
+  matrix:
+    enabled: false
+    server: https://matrix.your.domain.tld
+    username: someuser
+    password: somepass
+    roomid: "!abcd1234:matrix.your.domain.tld"
+    ignoressl: true
+    template:
+```
+
+
 ### Mattermost
 
 - **enabled** (Optional - Default: `false`)

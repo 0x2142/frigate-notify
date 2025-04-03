@@ -177,6 +177,22 @@ alerts:
     # Custom notification template, if desired
     template:
 
+  # Matrix Config
+  matrix:
+  - enabled: false
+    # URL of Matrix homeserver
+    server: http://10.122.2.3:8008
+    # Matrix username
+    username:
+    # Matrix user's password
+    password:
+    # Target Room ID to receive notifications
+    roomid:
+    # Set to true to allow self-signed certificates
+    ignoressl:
+    # Custom notification template, if desired
+    template:
+
   # Mattermost Config
   mattermost:
     # Set to true to enable alerting via Mattermost

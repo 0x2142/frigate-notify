@@ -1,6 +1,7 @@
 # Changelog
 
 ## [v0.4.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.4) - TBD
+ - Add support for notifications via [Matrix](https://frigate-notify.0x2142.com/latest/config/file/#matrix)
  - Add support for `message_thread_id` to [Telegram](https://frigate-notify.0x2142.com/latest/config/file/#telegram) notifications
  - Add review/event link for Pushover action button
  - Add ability to disable Discord notifications being sent as embedded message

@@ -5,12 +5,14 @@ WORKDIR /app
 COPY go.mod /app/
 COPY go.sum /app/
 
-RUN apk --no-cache add tzdata ca-certificates
+# gcc & musl-dev required for matrix support
+RUN apk --no-cache add tzdata ca-certificates gcc musl-dev
 RUN go mod download
 
 COPY . /app/
 
-RUN go build -o /frigate-notify .
+# Tag goolm & ldflags required for matrix support
+RUN go build -tags "goolm" -a -ldflags '-linkmode external -extldflags "-static"' -o /frigate-notify .
 
 FROM scratch
 

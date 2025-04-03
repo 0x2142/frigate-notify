@@ -21,6 +21,7 @@ Frigate-Notify is a simple app designed to send notifications from [Frigate](htt
 
 - Discord
 - Gotify
+- Matrix
 - Mattermost
 - Ntfy
 - Pushover

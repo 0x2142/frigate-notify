@@ -80,6 +80,15 @@ func SendAlert(events []models.Event) {
 			}
 		}
 	}
+	// Matrix
+	for id, profile := range config.ConfigData.Alerts.Matrix {
+		if profile.Enabled {
+			provider := notifMeta{name: "matrix", index: id}
+			if checkAlertFilters(events, profile.Filters, provider) {
+				go SendMatrix(event, bytes.NewReader(snap), provider)
+			}
+		}
+	}
 	// Mattermost
 	for id, profile := range config.ConfigData.Alerts.Mattermost {
 		if profile.Enabled {
