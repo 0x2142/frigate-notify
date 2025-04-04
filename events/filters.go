@@ -116,6 +116,11 @@ func checkEventFilters(event models.Event) bool {
 
 	}
 
+	// Check license plate filterd
+	if !isAllowedLabel(event.ID, event.Data.RecognizedLicensePlate, "license_plate") {
+		return false
+	}
+
 	// Default
 	return true
 }
@@ -190,7 +195,7 @@ func isAllowedZone(id string, zones []string) bool {
 	return false
 }
 
-// isAllowedLabel verifies whether a label or sublabel should be allowed to generate a notification
+// isAllowedLabel verifies whether a label, sublabel, or license plate should be allowed to generate a notification
 func isAllowedLabel(id string, label string, kind string) bool {
 	var blocked []string
 	var allowed []string
@@ -214,6 +219,17 @@ func isAllowedLabel(id string, label string, kind string) bool {
 			Strs("allowed", allowed).
 			Msg("Check allowed sublabel")
 	}
+	if kind == "license_plate" {
+		blocked = config.ConfigData.Alerts.LicensePlate.Block
+		allowed = config.ConfigData.Alerts.LicensePlate.Allow
+		log.Trace().
+			Str("event_id", id).
+			Str("license_plate", label).
+			Strs("blocked", blocked).
+			Strs("allowed", allowed).
+			Msg("Check allowed license_plate")
+	}
+
 	// Check block list
 	if slices.Contains(blocked, label) {
 		log.Info().

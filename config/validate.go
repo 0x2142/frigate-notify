@@ -411,9 +411,6 @@ func (c *Config) validateAlertGeneral() []string {
 	// Notify_Detections
 	log.Debug().Msgf("Notify on Detections: %v", c.Alerts.General.NotifyDetections)
 
-	// Wait for license plates
-	log.Debug().Msgf("Wait for license plate recognition: %v", c.Alerts.General.WaitforLPR)
-
 	// Check title template syntax
 	if msg := validateTemplate("Alert Title", c.Alerts.General.Title); msg != "" {
 		alertErrors = append(alertErrors, msg)
@@ -496,6 +493,26 @@ func (c *Config) validateLabelFiltering() []string {
 	} else {
 		log.Debug().Msg("No Sublabels excluded")
 	}
+
+	// Check license plate filtering config
+	log.Debug().Msgf("Wait for license plate recognition: %v", c.Alerts.LicensePlate.Enabled)
+	if len(c.Alerts.LicensePlate.Allow) > 0 {
+		log.Debug().Msg("license plates to generate alerts for:")
+		for _, c := range c.Alerts.LicensePlate.Allow {
+			log.Debug().Msgf(" - %v", c)
+		}
+	} else {
+		log.Debug().Msg("All license plates included in alerts")
+	}
+	if len(c.Alerts.LicensePlate.Block) > 0 {
+		log.Debug().Msg("License plates to exclude from alerting:")
+		for _, c := range c.Alerts.LicensePlate.Block {
+			log.Debug().Msgf(" - %v", c)
+		}
+	} else {
+		log.Debug().Msg("No license plates excluded")
+	}
+
 	return labelErrors
 }
 

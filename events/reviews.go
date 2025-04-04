@@ -89,16 +89,16 @@ func processReview(review models.Review) {
 			detection.TopScore = detection.Data.TopScore
 		}
 
+		// Wait for license plate data before notifying, if set
+		if config.ConfigData.Alerts.LicensePlate.Enabled {
+			waitforLPR(&detection)
+		}
+
 		// Check that event passes configured filters
 		detection.CurrentZones = detection.Zones
 		if !checkEventFilters(detection) {
 			reviewFiltered = true
 			break
-		}
-
-		// Wait for license plate data before notifying, if set
-		if config.ConfigData.Alerts.General.WaitforLPR {
-			waitforLPR(&detection)
 		}
 
 		// Add special link to review page

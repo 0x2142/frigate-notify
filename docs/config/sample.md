@@ -48,7 +48,6 @@ alerts:
     notify_detections:
     recheck_delay:
     audio_only:
-    wait_for_lpr:
 
   quiet:
     start:
@@ -74,6 +73,20 @@ alerts:
      - ABCD
     block:
      - EFGH
+
+  license_plate:
+    enabled: false
+    allow:
+    block:
+
+  apprise-api:
+    enabled: false
+    server:
+    token:
+    urls:
+    tags:
+    ignoressl:
+    template:
 
   discord:
     enabled: false

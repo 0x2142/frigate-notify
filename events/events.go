@@ -38,7 +38,7 @@ func processEvent(event models.Event) {
 		Msgf("Event start time: %s", eventTime)
 
 	// Wait for license plate data before notifying, if set
-	if config.ConfigData.Alerts.General.WaitforLPR {
+	if config.ConfigData.Alerts.LicensePlate.Enabled {
 		waitforLPR(&event)
 	}
 

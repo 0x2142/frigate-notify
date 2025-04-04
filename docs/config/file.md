@@ -186,9 +186,6 @@ All alert providers (Discord, Gotify, etc) also support optional filters & the a
     - Specify what to do with events that only contain audio detection
     - By default, these events will generate notifications
     - Set to `drop` to silently drop these events & not send notifications
-- **wait_for_lpr** (Optional - Default: `false`)
-    - Specify whether to wait for license plate recognition data when cars & license plates are detected
-    - This will re-check the Frigate for license plate information every 2 seconds with a 10 second maximum
 
 ```yaml title="Config File Snippet"
 alerts:
@@ -203,7 +200,6 @@ alerts:
     notify_once:
     notify_detections:
     audio_only:
-    wait_for_lpr:
 ```
 
 ### Quiet Hours
@@ -303,6 +299,32 @@ Filter by sublabels, just like normal [labels](#labels).
 ```yaml title="Config File Snippet"
 alerts:
   sublabels:
+    allow:
+     - ABCD
+     - EFGH
+    block:
+     - XYZ
+```
+
+### License Plate
+
+Include license plate recognition data in notifications, if enabled in Frigate.
+
+- **enabled** (Optional - Default: `false`)
+    - Specify whether to wait for license plate recognition data when cars & license plates are detected
+    - This will re-check the Frigate for license plate information every 2 seconds with a 10 second maximum
+- **allow** (Optional)
+    - Specify a list of license plates to allow notifications
+    - If set, all other license plates will be ignored
+    - If not set, all license plates will generate notifications
+- **block** (Optional)
+    - Specify a list of license plates to always ignore
+    - This takes precedence over the `allow` list
+
+```yaml title="Config File Snippet"
+alerts:
+  license_plate:
+    enabled: true
     allow:
      - ABCD
      - EFGH
