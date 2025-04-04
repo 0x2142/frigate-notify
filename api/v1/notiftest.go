@@ -41,6 +41,7 @@ func PostNotifTest(ctx context.Context, input *struct{}) (*NotifTestOutput, erro
 			log.Error().
 				Err(err).
 				Msgf("Cannot get event from %s", url)
+			return
 		}
 		json.Unmarshal([]byte(response), &events)
 

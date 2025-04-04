@@ -103,7 +103,6 @@ alerts:
     # Set to `drop` to disallow this
     audio_only: allow
 
-
   # If configured, ignore events between times below
   quiet:
     # Start / end times in 24 hour format (ex. 4:00 or 22:30)
@@ -134,6 +133,15 @@ alerts:
     # Filter notifications to only specific sublabels allowed here
     allow:
     # List of sublabels to never generate notifications
+    block:
+
+  license_plate:
+    # Set to `true` to wait for license plate recognition when car & license plate are detected
+    # By default, this is disabled. Re-checks Frigate up to 10 seconds after event is received for license plate data
+    enabled:
+    # Filter notifications to only specific license plates allowed here
+    allow:
+    # List of license plates to never generate notifications
     block:
 
   apprise-api:

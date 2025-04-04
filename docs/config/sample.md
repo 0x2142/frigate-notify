@@ -74,6 +74,20 @@ alerts:
     block:
      - EFGH
 
+  license_plate:
+    enabled: false
+    allow:
+    block:
+
+  apprise-api:
+    enabled: false
+    server:
+    token:
+    urls:
+    tags:
+    ignoressl:
+    template:
+
   discord:
     enabled: false
     webhook:

@@ -306,6 +306,32 @@ alerts:
      - XYZ
 ```
 
+### License Plate
+
+Include license plate recognition data in notifications, if enabled in Frigate.
+
+- **enabled** (Optional - Default: `false`)
+    - Specify whether to wait for license plate recognition data when cars & license plates are detected
+    - This will re-check the Frigate for license plate information every 2 seconds with a 10 second maximum
+- **allow** (Optional)
+    - Specify a list of license plates to allow notifications
+    - If set, all other license plates will be ignored
+    - If not set, all license plates will generate notifications
+- **block** (Optional)
+    - Specify a list of license plates to always ignore
+    - This takes precedence over the `allow` list
+
+```yaml title="Config File Snippet"
+alerts:
+  license_plate:
+    enabled: true
+    allow:
+     - ABCD
+     - EFGH
+    block:
+     - XYZ
+```
+
 ### Apprise-API
 
 !!!important

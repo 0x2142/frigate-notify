@@ -17,6 +17,7 @@ type WebhookPayload struct {
 	ID           string   `json:"id"`
 	Camera       string   `json:"camera"`
 	Label        string   `json:"label"`
+	LicensePlate string   `json:"license_plate"`
 	SubLabel     string   `json:"sublabel"`
 	Score        string   `json:"score"`
 	Audio        string   `json:"audio"`
@@ -58,6 +59,7 @@ func SendWebhook(event models.Event, provider notifMeta) {
 			ID:           event.ID,
 			Camera:       event.Extra.CameraName,
 			Label:        event.Label,
+			LicensePlate: event.Data.RecognizedLicensePlate,
 			SubLabel:     event.SubLabel,
 			Score:        event.Extra.TopScorePercent,
 			Audio:        event.Extra.Audio,

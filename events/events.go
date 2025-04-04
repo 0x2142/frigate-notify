@@ -37,6 +37,11 @@ func processEvent(event models.Event) {
 		Str("event_id", event.ID).
 		Msgf("Event start time: %s", eventTime)
 
+	// Wait for license plate data before notifying, if set
+	if config.ConfigData.Alerts.LicensePlate.Enabled {
+		waitforLPR(&event)
+	}
+
 	// Check that event passes configured filters
 	if !checkEventFilters(event) {
 		return
@@ -66,6 +71,7 @@ func recheckEvent(event models.Event) models.Event {
 		log.Error().
 			Err(err).
 			Msgf("Cannot get event from %s", url)
+		return event
 	}
 	config.Internal.Status.Health = "ok"
 	config.Internal.Status.Frigate.API = "ok"

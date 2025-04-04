@@ -78,3 +78,60 @@ func QueryAPI() {
 	}
 
 }
+
+// Recheck Frigate event & wait for license plate recognition data
+func waitforLPR(event *models.Event) models.Event {
+	if event.Label == "car" {
+		for _, attr := range event.Data.Attributes {
+			if attr.Label == "license_plate" {
+				log.Debug().
+					Str("event_id", event.ID).
+					Msg("Detected car & license plate - Waiting for license plate recognition...")
+				max := 5
+				current := 0
+				for current < max {
+					time.Sleep(2 * time.Second)
+					current += 1
+
+					log.Debug().
+						Str("event_id", event.ID).
+						Int("max_attempts", max).
+						Int("current_attempts", current).
+						Msg("Re-checking event details")
+
+					url := config.ConfigData.Frigate.Server + "/api/events/" + event.ID
+					response, err := util.HTTPGet(url, config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
+					if err != nil {
+						config.Internal.Status.Health = "frigate webapi unreachable"
+						config.Internal.Status.Frigate.API = "unreachable"
+						log.Error().
+							Err(err).
+							Msgf("Cannot get event from %s", url)
+						return *event
+					}
+					config.Internal.Status.Health = "ok"
+					config.Internal.Status.Frigate.API = "ok"
+
+					json.Unmarshal([]byte(response), &event)
+
+					if event.Data.RecognizedLicensePlate != "" {
+						log.Debug().
+							Str("event_id", event.ID).
+							Msg("License plate data received")
+						return *event
+					} else {
+						log.Debug().
+							Str("event_id", event.ID).
+							Msg("No license plate data yet")
+						continue
+					}
+				}
+				log.Debug().
+					Str("event_id", event.ID).
+					Msg("No license plate data yet & out of attempts")
+				return *event
+			}
+		}
+	}
+	return *event
+}

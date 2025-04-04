@@ -17,12 +17,16 @@ type Event struct {
 	Box    interface{} `json:"box"`
 	Camera string      `json:"camera"`
 	Data   struct {
-		Attributes []interface{} `json:"attributes"`
-		Box        []float64     `json:"box"`
-		Region     []float64     `json:"region"`
-		Score      float64       `json:"score"`
-		TopScore   float64       `json:"top_score"`
-		Type       string        `json:"type"`
+		Attributes []struct {
+			Label string `json:"label"`
+		} `json:"attributes"`
+		Box                         []float64 `json:"box"`
+		Region                      []float64 `json:"region"`
+		Score                       float64   `json:"score"`
+		TopScore                    float64   `json:"top_score"`
+		Type                        string    `json:"type"`
+		RecognizedLicensePlate      string    `json:"recognized_license_plate"`
+		RecognizedLicensePlateScore float64   `json:"recognized_license_plate_score"`
 	} `json:"data"`
 	EndTime            interface{} `json:"end_time"`
 	FalsePositive      interface{} `json:"false_positive"`
@@ -48,8 +52,10 @@ type Event struct {
 type ExtraFields struct {
 	FormattedTime       string
 	TopScorePercent     string
+	LicensePlatePercent string
 	LabelList           string
 	SubLabelList        string
+	LicensePlateList    string
 	ZoneList            string
 	LocalURL            string
 	PublicURL           string
