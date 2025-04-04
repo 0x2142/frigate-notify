@@ -96,6 +96,11 @@ func processReview(review models.Review) {
 			break
 		}
 
+		// Wait for license plate data before notifying, if set
+		if config.ConfigData.Alerts.General.WaitforLPR {
+			waitforLPR(&detection)
+		}
+
 		// Add special link to review page
 		detection.Extra.ReviewLink = config.ConfigData.Frigate.PublicURL + "/review?id=" + review.ID
 
@@ -142,6 +147,7 @@ func recheckReview(review models.Review) models.Review {
 		log.Error().
 			Err(err).
 			Msgf("Cannot get event from %s", url)
+		return review
 	}
 	config.Internal.Status.Health = "ok"
 	config.Internal.Status.Frigate.API = "ok"

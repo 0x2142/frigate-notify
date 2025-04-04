@@ -102,6 +102,9 @@ alerts:
     # Allow audio-only events (no object detection)
     # Set to `drop` to disallow this
     audio_only: allow
+    # Wait for license plate recognition when car & license plate are detected
+    # By default, this is disabled. Re-checks Frigate up to 10 seconds after event is received for license plate data
+    wait_for_lpr:
 
 
   # If configured, ignore events between times below

@@ -48,6 +48,7 @@ alerts:
     notify_detections:
     recheck_delay:
     audio_only:
+    wait_for_lpr:
 
   quiet:
     start:

@@ -75,8 +75,9 @@ type General struct {
 	MaxSnapRetry     int    `fig:"max_snap_retry,omitempty" json:"max_snap_retry" doc:"Maximum number of retry attempts when snapshot is not ready yet" default:"10"`
 	NotifyOnce       bool   `fig:"notify_once,omitempty"  json:"notify_once" enum:"true,false" doc:"Only notify once per event (For app mode: events)" default:false`
 	NotifyDetections bool   `fig:"notify_detections,omitempty" json:"notify_detections" enum:"true,false" doc:"Enable notifications on detection (For app mode: reviews)" default:false`
-	RecheckDelay     int    `fig:"recheck_delay" json:"recheck_delay" default:"0" doc:"Delay before re-checking event details from Frigate"`
-	AudioOnly        string `fig:"audio_only" json:"audio_only" enum:"allow,drop" doc:"Allow/Drop events that only contain audio detections" default:"allow"`
+	RecheckDelay     int    `fig:"recheck_delay" json:"recheck_delay,omitempty" default:"0" doc:"Delay before re-checking event details from Frigate"`
+	AudioOnly        string `fig:"audio_only" json:"audio_only,omitempty" enum:"allow,drop" doc:"Allow/Drop events that only contain audio detections" default:"allow"`
+	WaitforLPR       bool   `fig:"wait_for_lpr" json:"wait_for_lpr,omitempty" enum:"true,false" doc:"Wait for license plate recognition when car & license plate are detected" default:false`
 }
 
 type Quiet struct {

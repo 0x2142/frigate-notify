@@ -411,6 +411,9 @@ func (c *Config) validateAlertGeneral() []string {
 	// Notify_Detections
 	log.Debug().Msgf("Notify on Detections: %v", c.Alerts.General.NotifyDetections)
 
+	// Wait for license plates
+	log.Debug().Msgf("Wait for license plate recognition: %v", c.Alerts.General.WaitforLPR)
+
 	// Check title template syntax
 	if msg := validateTemplate("Alert Title", c.Alerts.General.Title); msg != "" {
 		alertErrors = append(alertErrors, msg)
