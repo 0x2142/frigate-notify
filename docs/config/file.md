@@ -311,7 +311,7 @@ alerts:
 Include license plate recognition data in notifications, if enabled in Frigate.
 
 - **enabled** (Optional - Default: `false`)
-    - Specify whether to wait for license plate recognition data when cars & license plates are detected
+    - Specify whether to wait for license plate recognition data when Frigate detects a car & license plate
     - This will re-check the Frigate for license plate information every 2 seconds with a 10 second maximum
 - **allow** (Optional)
     - Specify a list of license plates to allow notifications
@@ -456,7 +456,6 @@ alerts:
     ignoressl: true
     template:
 ```
-
 
 ### Mattermost
 
