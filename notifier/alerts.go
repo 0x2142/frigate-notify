@@ -80,6 +80,15 @@ func SendAlert(events []models.Event) {
 			}
 		}
 	}
+	// Matrix
+	for id, profile := range config.ConfigData.Alerts.Matrix {
+		if profile.Enabled {
+			provider := notifMeta{name: "matrix", index: id}
+			if checkAlertFilters(events, profile.Filters, provider) {
+				go SendMatrix(event, bytes.NewReader(snap), provider)
+			}
+		}
+	}
 	// Mattermost
 	for id, profile := range config.ConfigData.Alerts.Mattermost {
 		if profile.Enabled {
@@ -213,9 +222,10 @@ func setExtras(events []models.Event) models.Event {
 	key.Extra.LocalURL = config.ConfigData.Frigate.Server
 	key.Extra.PublicURL = config.ConfigData.Frigate.PublicURL
 
-	// Create list of all detected object (mostly applicable to /reviews)
+	// Create list of all detected objects / license plates (mostly applicable to /reviews)
 	var labelList []string
 	var sublabelList []string
+	var licenseplateList []string
 	for _, event := range events {
 		if !slices.Contains(labelList, event.Label) {
 			labelList = append(labelList, event.Label)
@@ -223,9 +233,13 @@ func setExtras(events []models.Event) models.Event {
 		if !slices.Contains(sublabelList, event.SubLabel) {
 			sublabelList = append(sublabelList, event.SubLabel)
 		}
+		if !slices.Contains(licenseplateList, event.Data.RecognizedLicensePlate) {
+			licenseplateList = append(licenseplateList, event.Data.RecognizedLicensePlate)
+		}
 	}
 	key.Extra.LabelList = strings.Join(labelList, ", ")
 	key.Extra.SubLabelList = strings.Join(sublabelList, ", ")
+	key.Extra.LicensePlateList = strings.Join(licenseplateList, ", ")
 
 	// MQTT uses CurrentZones, Web API uses Zones
 	// Combine into one object to use regardless of connection method
@@ -247,6 +261,9 @@ func setExtras(events []models.Event) models.Event {
 
 	// Calc TopScore percentage
 	key.Extra.TopScorePercent = fmt.Sprintf("%v%%", int((key.TopScore * 100)))
+
+	// Calc License Plate score percentage
+	key.Extra.LicensePlatePercent = fmt.Sprintf("%v%%", int((key.Data.RecognizedLicensePlateScore * 100)))
 
 	return key
 }

@@ -167,7 +167,6 @@ All alert providers (Discord, Gotify, etc) also support optional filters & the a
     - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
 - **max_snap_retry** (Optional - Default: `10`)
     - Max number of retry attempts when waiting for snapshot to become available
-    - Enabling additional Frigate features, like facial recognition, may delay availability of snapshot image
     - Retries are every 2 seconds
     - Default is 10, which means waiting up to 20 seconds for snapshot
     - Note: Does not apply if event received from Frigate contains `has_snapshot: false`
@@ -307,6 +306,32 @@ alerts:
      - XYZ
 ```
 
+### License Plate
+
+Include license plate recognition data in notifications, if enabled in Frigate.
+
+- **enabled** (Optional - Default: `false`)
+    - Specify whether to wait for license plate recognition data when Frigate detects a car & license plate
+    - This will re-check the Frigate for license plate information every 2 seconds with a 10 second maximum
+- **allow** (Optional)
+    - Specify a list of license plates to allow notifications
+    - If set, all other license plates will be ignored
+    - If not set, all license plates will generate notifications
+- **block** (Optional)
+    - Specify a list of license plates to always ignore
+    - This takes precedence over the `allow` list
+
+```yaml title="Config File Snippet"
+alerts:
+  license_plate:
+    enabled: true
+    allow:
+     - ABCD
+     - EFGH
+    block:
+     - XYZ
+```
+
 ### Apprise-API
 
 !!!important
@@ -358,6 +383,9 @@ alerts:
     - Full URL of the desired Discord webhook to send alerts through
     - Required if this alerting method is enabled
     - Check [Discord's](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) docs for how to create a webhook
+- **disable_embed** (Optional)
+    - By default, notifications are sent as Discord embedded message
+    - Set to `true` to disable this
 - **template** (Optional)
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
@@ -392,6 +420,39 @@ alerts:
     enabled: false
     server: gotify.your.domain.tld
     token: ABCDEF
+    ignoressl: true
+    template:
+```
+
+### Matrix
+
+- **enabled** (Optional - Default: `false`)
+    - Set to `true` to enable alerting via Matrix webhooks
+- **server** (Required)
+    - Full URL of the desired Matrix homeserver
+    - Required if this alerting method is enabled
+- **username** (Required)
+    - Username of Matrix user
+- **password** (Required)
+    - Password for Matrix user
+- **roomid** (Required)
+    - Target Room ID to send notifications
+    - Format: `"!<roomid>:<matrixhomeserver>"`
+        - Note: This **must** be wrapped in quotes
+    - Notification user must be invited to this room
+- **ignoressl** (Optional - Default: `false`)
+    - Set to `true` to allow self-signed certificates
+- **template** (Optional)
+    - Optionally specify a custom notification template
+    - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
+
+```yaml title="Config File Snippet"
+  matrix:
+    enabled: false
+    server: https://matrix.your.domain.tld
+    username: someuser
+    password: somepass
+    roomid: "!abcd1234:matrix.your.domain.tld"
     ignoressl: true
     template:
 ```
@@ -435,6 +496,9 @@ alerts:
 ```
 
 ### Ntfy
+
+!!!note
+    If you're self-hosting Ntfy, you'll need to ensure support for [attachments](https://docs.ntfy.sh/config/#attachments) is enabled.
 
 - **enabled** (Optional - Default: `false`)
     - Set to `true` to enable alerting via Ntfy
@@ -638,6 +702,8 @@ Within the response, locate your message to the bot, then grab the ID under `mes
 - **token** (Required)
     - Bot token generated from [@BotFather](https://core.telegram.org/bots#how-do-i-create-a-bot)
     - Required if this alerting method is enabled
+- **message_thread_id** (Optional)
+    - Optionally send notification to a message thread by ID
 - **template** (Optional)
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
@@ -647,6 +713,7 @@ alerts:
   telegram:
     enabled: true
     chatid: 123456789
+    message_thread_id: 100
     token: 987654321:ABCDEFGHIJKLMNOP
     template:
 ```

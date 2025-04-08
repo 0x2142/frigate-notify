@@ -47,21 +47,23 @@ type Cameras struct {
 }
 
 type Alerts struct {
-	General    General      `fig:"general" json:"general,omitempty" doc:"Common alert settings"`
-	Quiet      Quiet        `fig:"quiet" json:"quiet,omitempty" doc:"Alert quiet periods"`
-	Zones      Zones        `fig:"zones" json:"zones,omitempty" doc:"Allow/Block zones from alerting"`
-	Labels     Labels       `fig:"labels" json:"labels,omitempty" doc:"Allow/Block labels from alerting"`
-	SubLabels  Labels       `fig:"sublabels" json:"sublabels,omitempty" doc:"Allow/Block sublabels from alerting"`
-	AppriseAPI []AppriseAPI `fig:"apprise-api" json:"apprise-api,omitempty" doc:"Apprise API notification settings"`
-	Discord    []Discord    `fig:"discord" json:"discord,omitempty" doc:"Discord notification settings"`
-	Gotify     []Gotify     `fig:"gotify" json:"gotify,omitempty" doc:"Gotify notification settings"`
-	Mattermost []Mattermost `fig:"mattermost" json:"mattermost,omitempty" doc:"Mattermost notification settings"`
-	Ntfy       []Ntfy       `fig:"ntfy" json:"ntfy,omitempty" doc:"Ntfy notification settings"`
-	Pushover   []Pushover   `fig:"pushover" json:"pushover,omitempty" doc:"Pushover notification settings"`
-	Signal     []Signal     `fig:"signal" json:"signal,omitempty" doc:"Signal notification settings`
-	SMTP       []SMTP       `fig:"smtp" json:"smtp,omitempty" doc:"SMTP notification settings"`
-	Telegram   []Telegram   `fig:"telegram" json:"telegram,omitempty" doc:"Telegram notification settings"`
-	Webhook    []Webhook    `fig:"webhook" json:"webhook,omitempty" doc:"Webhook notification settings"`
+	General      General      `fig:"general" json:"general,omitempty" doc:"Common alert settings"`
+	Quiet        Quiet        `fig:"quiet" json:"quiet,omitempty" doc:"Alert quiet periods"`
+	Zones        Zones        `fig:"zones" json:"zones,omitempty" doc:"Allow/Block zones from alerting"`
+	Labels       Labels       `fig:"labels" json:"labels,omitempty" doc:"Allow/Block labels from alerting"`
+	SubLabels    Labels       `fig:"sublabels" json:"sublabels,omitempty" doc:"Allow/Block sublabels from alerting"`
+	LicensePlate LicensePlate `fig:"license_plate" json:"license_plate,omitempty" doc:"License plate recognition settings"`
+	AppriseAPI   []AppriseAPI `fig:"apprise-api" json:"apprise-api,omitempty" doc:"Apprise API notification settings"`
+	Discord      []Discord    `fig:"discord" json:"discord,omitempty" doc:"Discord notification settings"`
+	Gotify       []Gotify     `fig:"gotify" json:"gotify,omitempty" doc:"Gotify notification settings"`
+	Matrix       []Matrix     `fig:"matrix" json:"matrix,omitempty" doc:"Matrix notification settings"`
+	Mattermost   []Mattermost `fig:"mattermost" json:"mattermost,omitempty" doc:"Mattermost notification settings"`
+	Ntfy         []Ntfy       `fig:"ntfy" json:"ntfy,omitempty" doc:"Ntfy notification settings"`
+	Pushover     []Pushover   `fig:"pushover" json:"pushover,omitempty" doc:"Pushover notification settings"`
+	Signal       []Signal     `fig:"signal" json:"signal,omitempty" doc:"Signal notification settings"`
+	SMTP         []SMTP       `fig:"smtp" json:"smtp,omitempty" doc:"SMTP notification settings"`
+	Telegram     []Telegram   `fig:"telegram" json:"telegram,omitempty" doc:"Telegram notification settings"`
+	Webhook      []Webhook    `fig:"webhook" json:"webhook,omitempty" doc:"Webhook notification settings"`
 }
 
 type General struct {
@@ -74,8 +76,14 @@ type General struct {
 	MaxSnapRetry     int    `fig:"max_snap_retry,omitempty" json:"max_snap_retry" doc:"Maximum number of retry attempts when snapshot is not ready yet" default:"10"`
 	NotifyOnce       bool   `fig:"notify_once,omitempty"  json:"notify_once" enum:"true,false" doc:"Only notify once per event (For app mode: events)" default:false`
 	NotifyDetections bool   `fig:"notify_detections,omitempty" json:"notify_detections" enum:"true,false" doc:"Enable notifications on detection (For app mode: reviews)" default:false`
-	RecheckDelay     int    `fig:"recheck_delay" json:"recheck_delay" default:"0" doc:"Delay before re-checking event details from Frigate"`
-	AudioOnly        string `fig:"audio_only" json:"audio_only" enum:"allow,drop" doc:"Allow/Drop events that only contain audio detections" default:"allow"`
+	RecheckDelay     int    `fig:"recheck_delay" json:"recheck_delay,omitempty" default:"0" doc:"Delay before re-checking event details from Frigate"`
+	AudioOnly        string `fig:"audio_only" json:"audio_only,omitempty" enum:"allow,drop" doc:"Allow/Drop events that only contain audio detections" default:"allow"`
+}
+
+type LicensePlate struct {
+	Enabled bool     `fig:"enabled" json:"enabled,omitempty" enum:"true,false" doc:"Enable waiting for license plate recognition when car & license plate are detected" default:false`
+	Allow   []string `fig:"allow" json:"allow,omitempty" doc:"List of license plates to allow alerts from" default:[]`
+	Block   []string `fig:"block" json:"block,omitempty" doc:"List of license plates to always block" default:[]`
 }
 
 type Quiet struct {
@@ -115,16 +123,28 @@ type AppriseAPI struct {
 }
 
 type Discord struct {
-	Enabled  bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Discord" default:false`
-	Webhook  string      `fig:"webhook" json:"webhook,omitempty" doc:"Discord webhook URL to send alerts" default:""`
-	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
-	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
+	Enabled      bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Discord" default:false`
+	Webhook      string      `fig:"webhook" json:"webhook,omitempty" doc:"Discord webhook URL to send alerts" default:""`
+	DisableEmbed bool        `fig:"disable_embed" json:"disable_embed,omitempty" doc:"Disable sending notification as Discord embedded message"`
+	Template     string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters      AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
 }
 
 type Gotify struct {
 	Enabled  bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Gotify" default:false`
 	Server   string      `fig:"server" json:"server,omitempty" doc:"Gotify server URL" default:""`
 	Token    string      `fig:"token" json:"token,omitempty" doc:"Gotify app token" default:""`
+	Insecure bool        `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
+	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
+}
+
+type Matrix struct {
+	Enabled  bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Matrix" default:false`
+	Server   string      `fig:"server" json:"server,omitempty" doc:"Matrix Homeserver address" default:""`
+	Username string      `fig:"username" json:"username,omitempty" doc:"Matrix username" default:""`
+	Password string      `fig:"password" json:"password,omitempty" doc:"Matrix password" default:""`
+	RoomID   string      `fig:"roomid" json:"roomid,omitempty" doc:"Room ID to send notifications to" default:""`
 	Insecure bool        `fig:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:false`
 	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
 	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
@@ -191,11 +211,12 @@ type SMTP struct {
 }
 
 type Telegram struct {
-	Enabled  bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Telegram" default:false`
-	ChatID   int64       `fig:"chatid" json:"chatid,omitempty" minimum:"1" doc:"Telegram chat ID" default:"0"`
-	Token    string      `fig:"token" json:"token,omitempty" doc:"Telegram bot token" default:""`
-	Template string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
-	Filters  AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
+	Enabled         bool        `fig:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Telegram" default:false`
+	ChatID          int64       `fig:"chatid" json:"chatid,omitempty" minimum:"1" doc:"Telegram chat ID" default:"0"`
+	MessageThreadID int         `fig:"message_thread_id" json:"message_thread_id,omitempty" doc:"Send message to thread by ID" default:"0`
+	Token           string      `fig:"token" json:"token,omitempty" doc:"Telegram bot token" default:""`
+	Template        string      `fig:"template" json:"template,omitempty" doc:"Custom message template" default:""`
+	Filters         AlertFilter `fig:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
 }
 
 type Webhook struct {

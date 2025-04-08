@@ -74,9 +74,24 @@ alerts:
     block:
      - EFGH
 
+  license_plate:
+    enabled: false
+    allow:
+    block:
+
+  apprise-api:
+    enabled: false
+    server:
+    token:
+    urls:
+    tags:
+    ignoressl:
+    template:
+
   discord:
     enabled: false
-    webhook: 
+    webhook:
+    disable_embed:
     template:
   
   gotify:
@@ -86,6 +101,15 @@ alerts:
     ignoressl:
     template:
   
+  matrix:
+    enabled: false
+    server:
+    username:
+    password:
+    roomid:
+    ignoressl:
+    template:
+
   mattermost:
     enabled: false
     webhook:
@@ -137,6 +161,7 @@ alerts:
   telegram:
     enabled: false
     chatid:
+    message_thread_id:
     token:
     template:
 
