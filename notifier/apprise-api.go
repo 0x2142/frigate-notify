@@ -71,7 +71,7 @@ func SendAppriseAPI(event models.Event, snapshot io.Reader, provider notifMeta) 
 	if err != nil {
 		log.Warn().
 			Str("event_id", event.ID).
-			Str("provider", "Apprise-API").
+			Str("provider", "apprise_api").
 			Err(err).
 			Int("provider_id", provider.index).
 			Msg("Unable to send alert")

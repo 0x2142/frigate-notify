@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.5.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.5.0) - TBD
+ - Updated configuration management system
+     - ⚠️ Environment variable keys are now separated by double-underscore. See [docs](https://frigate-notify.0x2142.com/latest/config/file) for examples
+     - ⚠️ Please note that the `apprise-api` config is now `apprise_api`
+
 ## [v0.4.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.4) - Apr 08 2025
  - Add support for notifications via [Matrix](https://frigate-notify.0x2142.com/latest/config/file/#matrix)
  - Add support for `message_thread_id` to [Telegram](https://frigate-notify.0x2142.com/latest/config/file/#telegram) notifications

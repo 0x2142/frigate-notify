@@ -144,7 +144,7 @@ alerts:
     # List of license plates to never generate notifications
     block:
 
-  apprise-api:
+  apprise_api:
     # Set to true to enable alerting via Discord messages
     enabled: false
     # Server URL (ex. https://apprise.yourdomain.tld)

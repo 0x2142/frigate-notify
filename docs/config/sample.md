@@ -79,7 +79,7 @@ alerts:
     allow:
     block:
 
-  apprise-api:
+  apprise_api:
     enabled: false
     server:
     token:
