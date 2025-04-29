@@ -193,6 +193,15 @@ All alert providers (Discord, Gotify, etc) also support optional filters & the a
     - Env: `FN_ALERTS__GENERAL__SNAP_CROP`
     - Crops snapshot when retrieved from Frigate
     - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
+- **snap_hires** (Optional - Default: `false`)
+    - Env: `FN_ALERTS__GENERAL__SNAP_HIRES`
+    - By default, snapshots are collected from Frigate detect stream which may be lower resolution
+    - Set this to `true` to collect snapshot from camera recording stream
+    - **Note**: If enabled, the above settings for `snap_bbox`, `snap_timestamp`, and `snap_crop` settings have no effect
+    - **Note**: Snapshot generated via this method is based on the event start time provided by Frigate
+        - This means that the snapshot collected may differ from the snapshot Frigate choses to use for the event
+        - This may also mean that, depending on the timing of the detection, this snapshot *may* not include the detected object
+        - If it is a priority to ensure that snapshots always include the detected object, then it is recommended to leave this option disabled
 - **max_snap_retry** (Optional - Default: `10`)
     - Env: `FN_ALERTS__GENERAL__MAX_SNAP_RETRY`
     - Max number of retry attempts when waiting for snapshot to become available
@@ -229,6 +238,7 @@ alerts:
     snap_bbox:
     snap_timestamp:
     snap_crop:
+    snap_hires:
     max_snap_retry:
     notify_once:
     notify_detections:
@@ -823,6 +833,10 @@ Within the response, locate your message to the bot, then grab the ID under `mes
     - Env: `FN_ALERTS__TELEGRAM__TOKEN`
     - Bot token generated from [@BotFather](https://core.telegram.org/bots#how-do-i-create-a-bot)
     - Required if this alerting method is enabled
+- **send_clip** (Optional - Default: `false`)
+    - Env: `FN_ALERTS__TELEGRAM__SEND_CLIP`
+    - Optionally send event video clip instead of snapshot image
+    - **Note**: Clips may take a short while to become available. Use [`max_snap_retry`](#general) to control how long frigate-notify will wait for the clip to become available
 - **message_thread_id** (Optional)
     - Env: `FN_ALERTS__TELEGRAM__MESSAGE_THREAD_ID`
     - Optionally send notification to a message thread by ID
@@ -837,6 +851,7 @@ alerts:
     enabled: true
     chatid: 123456789
     message_thread_id: 100
+    send_clip:
     token: 987654321:ABCDEFGHIJKLMNOP
     template:
 ```
