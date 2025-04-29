@@ -833,6 +833,10 @@ Within the response, locate your message to the bot, then grab the ID under `mes
     - Env: `FN_ALERTS__TELEGRAM__TOKEN`
     - Bot token generated from [@BotFather](https://core.telegram.org/bots#how-do-i-create-a-bot)
     - Required if this alerting method is enabled
+- **send_clip** (Optional - Default: `false`)
+    - Env: `FN_ALERTS__TELEGRAM__SEND_CLIP`
+    - Optionally send event video clip instead of snapshot image
+    - **Note**: Clips may take a short while to become available. Use [`max_snap_retry`](#general) to control how long frigate-notify will wait for the clip to become available
 - **message_thread_id** (Optional)
     - Env: `FN_ALERTS__TELEGRAM__MESSAGE_THREAD_ID`
     - Optionally send notification to a message thread by ID
@@ -847,6 +851,7 @@ alerts:
     enabled: true
     chatid: 123456789
     message_thread_id: 100
+    send_clip:
     token: 987654321:ABCDEFGHIJKLMNOP
     template:
 ```

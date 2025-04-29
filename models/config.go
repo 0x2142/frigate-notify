@@ -213,9 +213,10 @@ type SMTP struct {
 
 type Telegram struct {
 	Enabled         bool        `koanf:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via Telegram" default:"false"`
-	ChatID          int64       `koanf:"chatid" json:"chatid,omitempty" minimum:"1" doc:"Telegram chat ID" default:"0"`
+	ChatID          int64       `koanf:"chatid" json:"chatid,omitempty" doc:"Telegram chat ID" default:"0"`
 	MessageThreadID int         `koanf:"message_thread_id" json:"message_thread_id,omitempty" doc:"Send message to thread by ID" default:"0`
 	Token           string      `koanf:"token" json:"token,omitempty" doc:"Telegram bot token" default:""`
+	SendClip        bool        `koanf:"send_clip", json:"send_clip,omitempty" doc:"Send event video clip instead of snapshot image" default:"false"`
 	Template        string      `koanf:"template" json:"template,omitempty" doc:"Custom message template" default:""`
 	Filters         AlertFilter `koanf:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`
 }

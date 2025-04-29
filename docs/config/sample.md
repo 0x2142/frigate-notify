@@ -43,6 +43,7 @@ alerts:
     snap_bbox:
     snap_timestamp:
     snap_crop:
+    snap_hires:
     max_snap_retry:
     notify_once:
     notify_detections:
@@ -161,6 +162,7 @@ alerts:
   telegram:
     enabled: false
     chatid:
+    send_clip:
     message_thread_id:
     token:
     template:

@@ -313,6 +313,8 @@ alerts:
     enabled: false
     # Chat ID of alert recipient
     chatid:
+    # Set to `true` to send short event video clip instead of snapshot image
+    send_clip:
     # Message Thead ID
     message_thread_id:
     # Bot API token

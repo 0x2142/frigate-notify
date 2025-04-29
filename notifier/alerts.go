@@ -210,6 +210,43 @@ func GetSnapshot(event models.Event) io.Reader {
 	return bytes.NewReader(response)
 }
 
+// GetClip downloads a event video clip from Frigate
+func GetClip(event models.Event) io.Reader {
+	clipurl := config.ConfigData.Frigate.Server + "/api/events/" + event.ID + "/clip.mp4"
+	var response []byte
+
+	attempts := 0
+	max_attempts := config.ConfigData.Alerts.General.MaxSnapRetry
+	for attempts < max_attempts {
+		var err error
+		response, err = util.HTTPGet(clipurl, config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
+		if err != nil {
+			attempts += 1
+			if err.Error() == "404" {
+				time.Sleep(2 * time.Second)
+				log.Info().
+					Str("event_id", event.ID).
+					Int("attempt", attempts).
+					Int("max_attempts", max_attempts).
+					Msgf("Waiting for clip to be available")
+				continue
+			} else {
+				log.Warn().
+					Str("event_id", event.ID).
+					Err(err).
+					Msgf("Could not access clip")
+				return nil
+			}
+		} else {
+			break
+		}
+	}
+	if attempts == max_attempts {
+		return nil
+	}
+	return bytes.NewReader(response)
+}
+
 // setExtras adds additional data into the event model to be used for templates
 func setExtras(events []models.Event) models.Event {
 	// Pull first event, which will be used to store info relevant to notifications
