@@ -86,6 +86,10 @@ alerts:
     snap_timestamp:
     # Set to `true` to crop snapshot
     snap_crop:
+    # By default snapshot is collected from detect stream which may be lower quality
+    # Set this to `true` to collect snapshot from camera recording stream
+    # Note: If enabled, `snap_bbox`, `snap_timestamp`, and `snap_crop` settings have no effect
+    snap_hires:
     # Maximum number of retry attempts when pulling snapshot from Frigate at 2 second intervals
     # By default, max_snap_retry is 10 - which means waiting up to 20 seconds for a snapshot image
     max_snap_retry:

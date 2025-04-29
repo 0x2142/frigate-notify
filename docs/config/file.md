@@ -193,6 +193,15 @@ All alert providers (Discord, Gotify, etc) also support optional filters & the a
     - Env: `FN_ALERTS__GENERAL__SNAP_CROP`
     - Crops snapshot when retrieved from Frigate
     - Note: Per [Frigate docs](https://docs.frigate.video/integrations/api/#get-apieventsidsnapshotjpg), only applied when event is in progress
+- **snap_hires** (Optional - Default: `false`)
+    - Env: `FN_ALERTS__GENERAL__SNAP_HIRES`
+    - By default, snapshots are collected from Frigate detect stream which may be lower resolution
+    - Set this to `true` to collect snapshot from camera recording stream
+    - **Note**: If enabled, the above settings for `snap_bbox`, `snap_timestamp`, and `snap_crop` settings have no effect
+    - **Note**: Snapshot generated via this method is based on the event start time provided by Frigate
+        - This means that the snapshot collected may differ from the snapshot Frigate choses to use for the event
+        - This may also mean that, depending on the timing of the detection, this snapshot *may* not include the detected object
+        - If it is a priority to ensure that snapshots always include the detected object, then it is recommended to leave this option disabled
 - **max_snap_retry** (Optional - Default: `10`)
     - Env: `FN_ALERTS__GENERAL__MAX_SNAP_RETRY`
     - Max number of retry attempts when waiting for snapshot to become available
@@ -229,6 +238,7 @@ alerts:
     snap_bbox:
     snap_timestamp:
     snap_crop:
+    snap_hires:
     max_snap_retry:
     notify_once:
     notify_detections:

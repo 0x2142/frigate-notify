@@ -73,6 +73,7 @@ type General struct {
 	SnapBbox         bool   `koanf:"snap_bbox,omitempty" json:"snap_bbox" enum:"true,false" doc:"Include bounding box on snapshots" default:"false"`
 	SnapTimestamp    bool   `koanf:"snap_timestamp,omitempty" json:"snap_timestamp" enum:"true,false" doc:"Include timestamp on snapshots" default:"false"`
 	SnapCrop         bool   `koanf:"snap_crop,omitempty"  json:"snap_crop" enum:"true,false" doc:"Crop snapshots" default:"false"`
+	SnapHiRes        bool   `koanf:"snap_hires", json:"snap_hires,omitempty", enum:"true,false" doc:"Collect snapshot from camera recording stream" default:"false"`
 	MaxSnapRetry     int    `koanf:"max_snap_retry,omitempty" json:"max_snap_retry" doc:"Maximum number of retry attempts when snapshot is not ready yet" default:"10"`
 	NotifyOnce       bool   `koanf:"notify_once,omitempty"  json:"notify_once" enum:"true,false" doc:"Only notify once per event (For app mode: events)" default:"false"`
 	NotifyDetections bool   `koanf:"notify_detections,omitempty" json:"notify_detections" enum:"true,false" doc:"Enable notifications on detection (For app mode: reviews)" default:"false"`
