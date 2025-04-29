@@ -7,7 +7,8 @@ import (
 	"strings"
 	"time"
 
-	envconfig "github.com/0x2142/frigate-notify/config/providers"
+	envconfig "github.com/0x2142/frigate-notify/config/providers/env"
+	secretsconfig "github.com/0x2142/frigate-notify/config/providers/secrets"
 	"github.com/0x2142/frigate-notify/models"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -44,38 +45,25 @@ func Load() {
 	k.Load(structs.Provider(DefaultConfig, "koanf"), nil)
 
 	// Attempt to load config from file
-	log.Debug().Msgf("Attempting to load config file: %v", ConfigFile)
+	log.Debug().Msgf("Loading config from file: %v", ConfigFile)
 	if err := k.Load(file.Provider(ConfigFile), yaml.Parser()); err != nil {
-		log.Warn().Msg("Failed to load config from file!")
+		log.Warn().Msg("Unable to load config from file")
 	}
 
 	// Attempt to load config from env var
-	log.Debug().Msg("Attempting to load environment variables")
-	if err := k.Load(envconfig.ProviderWithValue("FN_", "__", func(s, v string) (string, interface{}) {
-		key := strings.ToLower(strings.TrimPrefix(s, "FN_"))
-
-		// Split multiple values separated by semicolon into slice
-		// for example FN_FRIGATE__CAMERAS__EXCLUDE="camera1 camera2"
-		if strings.Contains(v, ";") {
-			if strings.Contains(strings.ToLower(key), "headers") {
-				var headers []map[string]string
-				for _, header := range strings.Split(v, ";") {
-					split := strings.Split(header, ":")
-					if len(split) != 2 {
-						continue
-					}
-					newHeader := map[string]string{split[0]: split[1]}
-					headers = append(headers, newHeader)
-				}
-				return key, headers
-			}
-			return key, strings.Split(v, ";")
-		}
-		return key, v
-	}), json.Parser()); err != nil {
-		log.Warn().
+	log.Debug().Msg("Checking for environment variables")
+	if err := k.Load(envconfig.ProviderWithValue("FN_", "__", processENV), json.Parser()); err != nil {
+		log.Debug().
 			Err(err).
-			Msg("Failed to load config from environment!")
+			Msg("Unable to load environment variables")
+	}
+
+	// Attempt to load config from docker secrets
+	log.Debug().Msg("Checking for docker secrets")
+	if err := k.Load(secretsconfig.ProviderWithValue("FN_", "__", processENV), json.Parser()); err != nil {
+		log.Debug().
+			Err(err).
+			Msg("Unable to load docker secrets")
 	}
 
 	k.Unmarshal("", &ConfigData)
@@ -142,4 +130,27 @@ func Save(skipBackup bool) {
 	}
 
 	log.Info().Msg("Config file saved")
+}
+
+func processENV(s, v string) (string, interface{}) {
+	key := strings.ToLower(strings.TrimPrefix(s, "FN_"))
+
+	// Split multiple values separated by semicolon into slice
+	// for example FN_FRIGATE__CAMERAS__EXCLUDE="camera1;camera2"
+	if strings.Contains(v, ";") {
+		if strings.Contains(strings.ToLower(key), "headers") {
+			var headers []map[string]string
+			for _, header := range strings.Split(v, ";") {
+				split := strings.Split(header, ":")
+				if len(split) != 2 {
+					continue
+				}
+				newHeader := map[string]string{split[0]: split[1]}
+				headers = append(headers, newHeader)
+			}
+			return key, headers
+		}
+		return key, strings.Split(v, ";")
+	}
+	return key, v
 }
