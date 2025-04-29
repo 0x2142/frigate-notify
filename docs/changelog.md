@@ -4,6 +4,7 @@
  - Updated configuration management system
      - ⚠️ Environment variable keys are now separated by double-underscore. See [docs](https://frigate-notify.0x2142.com/latest/config/file) for examples
      - ⚠️ Please note that the `apprise-api` config is now `apprise_api`
+     - Docker secrets are now automatically detected & added to configuration
 
 ## [v0.4.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.4) - Apr 08 2025
  - Add support for notifications via [Matrix](https://frigate-notify.0x2142.com/latest/config/file/#matrix)

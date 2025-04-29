@@ -4,7 +4,7 @@ The following section details options available via the `config.yml` file. Confi
 
 Config may also be provided via environment variables. Frigate-notify will load environment variables prefixed with `FN_`. Environment variables follow the same structure as the config file below, with heirarchy separated by two underscores (`__`). For example, setting the Frigate server address would be `FN_FRIGATE__SERVER`, or enabling Discord alerts would use `FN_ALERTS__DISCORD__ENABLED`. If multiple alert profiles are configured, they are specified by index starting at zero - for example: `FN_ALERTS__DISCORD__0__ENABLED`, `FN_ALERTS__DISCORD__1__ENABLED`, etc. Environment variable keys are shown alongside config file keys below.
 
-Config is loaded & merged in the following order: Config file > Environment Variables. This allows most configuration to be provided via config file, but provide secrets via environment variable.
+Config is loaded & merged in the following order: Config file > Environment Variables > Docker secrets . This allows most configuration to be provided via config file, but provide secrets via environment variables or docker secrets.
 
 ## App
 
