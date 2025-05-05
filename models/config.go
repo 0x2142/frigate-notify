@@ -14,6 +14,8 @@ type Frigate struct {
 	Server       string              `koanf:"server" json:"server" validate:"required" example:"http://192.0.2.10:5000" doc:"Server hostname, IP address, or URL for Frigate"`
 	Insecure     bool                `koanf:"ignoressl" json:"ignoressl,omitempty" enum:"true,false" doc:"Ignore TLS/SSL errors" default:"false"`
 	PublicURL    string              `koanf:"public_url" json:"public_url,omitempty" example:"https://frigate.test" doc:"Public/External-reachable URL for Frigate" default:""`
+	Username     string              `koanf:"username" json:"username,omitempty" doc:"Frigate username" default:""`
+	Password     string              `koanf:"password" json:"password,omitempty" doc:"Frigate password" default:""`
 	Headers      []map[string]string `koanf:"headers" json:"headers,omitempty" doc:"HTTP headers to include with requests to Frigate"`
 	StartupCheck StartupCheck        `koanf:"startup_check" json:"startup_check,omitempty" doc:"Check connectivity to Frigate at app startup"`
 	WebAPI       WebAPI              `koanf:"webapi" json:"webapi,omitempty" doc:"Event collection via Frigate API"`

@@ -24,6 +24,9 @@ frigate:
   ignoressl: false
   # Public / internet-facing Frigate URL, if different from above server address
   public_url:
+  # Frigate username & password, if using authentication
+  username:
+  password:
 
   # List of HTTP headers to send to Frigate, in format Header: Value
   headers:
