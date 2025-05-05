@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    assignees: "0x2142"
+    target-branch: "dev"
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    assignees: "0x2142"
+    target-branch: "dev"
