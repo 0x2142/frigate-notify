@@ -48,6 +48,13 @@ app:
     - Should be set if Frigate is available via an external, public URL
     - This value is used for the links used in notifications
     - Format should be full URL (example: `https://nvr.your.public.domain.tld`)
+- **username** (Optional)
+    - Frigate username to log in with, if using authenticated UI on port 8971
+    - If username is configured, password must also be configured
+    - Recommended to create a unique user for frigate-notify with **viewer** role
+- **password** (Optional)
+    - Frigate password to log in with, if using authenticated UI on port 8971
+    - If password is configured, username must also be configured
 - **headers** (Optional)
     - Env: `FN_FRIGATE__HEADERS`
     - Send additional HTTP headers to Frigate

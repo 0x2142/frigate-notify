@@ -1,11 +1,9 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
 
@@ -19,7 +17,7 @@ func (c *Config) Validate() []string {
 	log.Debug().Msg("Starting config validation...")
 
 	// Check Frigate Connectivity
-	if results := c.validateFrigateConnectivity(); len(results) > 0 {
+	if results := c.validateFrigateServer(); len(results) > 0 {
 		validationErrors = append(validationErrors, results...)
 	}
 
@@ -254,8 +252,7 @@ func (c *Config) validateFrigatePolling() []string {
 	return pollingErrors
 }
 
-func (c *Config) validateFrigateConnectivity() []string {
-	var response []byte
+func (c *Config) validateFrigateServer() []string {
 	var err error
 	var connectivityErrors []string
 
@@ -284,6 +281,21 @@ func (c *Config) validateFrigateConnectivity() []string {
 		// If Public URL not explicitly set, use local Frigate URL
 		c.Frigate.PublicURL = c.Frigate.Server
 	}
+	// Save Frigate server for auth checks
+	util.FrigateServer = c.Frigate.Server
+	util.FrigateInsecure = c.Frigate.Insecure
+
+	// Check username & password set
+	if c.Frigate.Username != "" && c.Frigate.Password == "" {
+		connectivityErrors = append(connectivityErrors, "Frigate username & password must be specified")
+		return connectivityErrors
+	}
+	if c.Frigate.Username != "" && c.Frigate.Password != "" {
+		log.Debug().Msg("Frigate authentication: enabled")
+		util.AuthEnabled = true
+		util.FrigateUser = c.Frigate.Username
+		util.FrigatePass = c.Frigate.Password
+	}
 
 	// Check HTTP header template syntax
 	if msg := validateTemplate("Frigate HTTP Headers", c.Alerts.General.Title); msg != "" {
@@ -292,10 +304,10 @@ func (c *Config) validateFrigateConnectivity() []string {
 
 	// Test connectivity to Frigate
 	log.Debug().Msg("Checking connection to Frigate server...")
-	statsAPI := fmt.Sprintf("%s/api/stats", url)
 	current_attempt := 1
+	var version int
 	for current_attempt < max_attempts {
-		response, err = util.HTTPGet(statsAPI, c.Frigate.Insecure, "", c.Frigate.Headers...)
+		version, err = util.GetFrigateVersion(c.Frigate.Headers)
 		if err != nil {
 			Internal.Status.Frigate.API = "unreachable"
 			log.Warn().
@@ -307,6 +319,7 @@ func (c *Config) validateFrigateConnectivity() []string {
 			time.Sleep(time.Duration(interval) * time.Second)
 			current_attempt += 1
 		} else {
+			Internal.FrigateVersion = version
 			break
 		}
 	}
@@ -317,15 +330,10 @@ func (c *Config) validateFrigateConnectivity() []string {
 			Msgf("Max attempts reached - Cannot reach Frigate server at %v", url)
 		connectivityErrors = append(connectivityErrors, "Max attempts reached - Cannot reach Frigate server at "+url)
 	}
-	var stats models.FrigateStats
-	json.Unmarshal([]byte(response), &stats)
+
 	log.Info().Msgf("Successfully connected to %v", url)
 	Internal.Status.Frigate.API = "ok"
-	if stats.Service.Version != "" {
-		log.Debug().Msgf("Frigate server is running version %v", stats.Service.Version)
-		// Save major version number
-		Internal.FrigateVersion, _ = strconv.Atoi(strings.Split(stats.Service.Version, ".")[1])
-	}
+	log.Debug().Msgf("Frigate server version: %v", Internal.FrigateVersion)
 	return connectivityErrors
 }
 
