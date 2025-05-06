@@ -305,6 +305,8 @@ alerts:
     from:
     # Email alerts sent to any addresses listed below, separated by comma
     recipient:
+    # Specify email threading method - `day` or `camera` (Default: `day`)
+    thread:
     # Custom notification template, if desired
     template:
     # Set to true to allow self-signed certificates

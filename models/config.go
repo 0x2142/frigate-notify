@@ -202,12 +202,13 @@ type Signal struct {
 type SMTP struct {
 	Enabled   bool        `koanf:"enabled" json:"enabled" enum:"true,false" doc:"Enable notifications via SMTP" default:"false"`
 	Server    string      `koanf:"server" json:"server,omitempty" doc:"SMTP server hostname or IP address" default:""`
-	Port      int         `koanf:"port" json:"port,omitempty" minimum:"1" maximum:"65535" doc:"SMTP server port" default:25`
+	Port      int         `koanf:"port" json:"port,omitempty" minimum:"1" maximum:"65535" doc:"SMTP server port" default:"25"`
 	TLS       bool        `koanf:"tls" json:"tls,omitempty" enum:"true,false" doc:"Enable/Disable TLS connection" default:"false"`
 	User      string      `koanf:"user" json:"user,omitempty" doc:"SMTP user for authentication" default:""`
 	Password  string      `koanf:"password" json:"password,omitempty" doc:"SMTP password for authentication" default:""`
 	From      string      `koanf:"from" json:"from,omitempty" format:"email" doc:"SMTP sender" default:""`
 	Recipient string      `koanf:"recipient" json:"recipient,omitempty" format:"email" doc:"SMTP recipient" default:""`
+	Thread    string      `koanf:"thread" json:"thread" enum:"day,camera" doc:"Specify method of email threading" default:"day"`
 	Template  string      `koanf:"template" json:"template,omitempty" doc:"Custom message template" default:""`
 	Insecure  bool        `koanf:"ignoressl" enum:"true,false" json:"ignoressl,omitempty" default:"false"`
 	Filters   AlertFilter `koanf:"filters" json:"filters,omitempty" doc:"Filter notifications sent via this provider"`

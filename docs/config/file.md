@@ -774,6 +774,11 @@ alerts:
     - Env: `FN_ALERTS__SMTP__RECIPIENT`
     - Comma-separated list of email recipients
     - Required if this alerting method is enabled
+- **thread** (Optional - Default: `day`)
+    - Control how SMTP notifications are threaded, if your email client supports it
+    - Valid threading options are `day` or `camera`
+    - **Note:** per `camera` threads will still roll-over each day
+    - **Note:** If you modify the default frigate-notify message title, you may break threading if the subject changes between notifications
 - **template** (Optional)
     - Env: `FN_ALERTS__SMTP__TEMPLATE`
     - Optionally specify a custom notification template

@@ -694,6 +694,7 @@ func (c *Config) validateSignal(id int) []string {
 
 func (c *Config) validateSMTP(id int) []string {
 	var smtpErrors []string
+	validThreading := []string{"day", "camera", "zone"}
 	log.Debug().Msgf("Alerting enabled for SMTP profile ID %v", id)
 	if c.Alerts.SMTP[id].Server == "" {
 		smtpErrors = append(smtpErrors, fmt.Sprintf("No SMTP server specified! Profile ID %v", id))
@@ -706,6 +707,12 @@ func (c *Config) validateSMTP(id int) []string {
 	}
 	if c.Alerts.SMTP[id].Port == 0 {
 		c.Alerts.SMTP[id].Port = 25
+	}
+	if c.Alerts.SMTP[id].Thread == "" {
+		c.Alerts.SMTP[id].Thread = "day"
+	}
+	if !slices.Contains(validThreading, c.Alerts.SMTP[id].Thread) {
+		smtpErrors = append(smtpErrors, fmt.Sprintf("SMTP threading must be `day` or `camera`. Profile ID %v", id))
 	}
 	// Copy `user` to `from` if `from` not explicitly configured
 	if c.Alerts.SMTP[id].From == "" && c.Alerts.SMTP[id].User != "" {
