@@ -40,7 +40,13 @@ func SendDiscordMessage(event models.Event, snapshot io.Reader, provider notifMe
 	}
 	defer client.Close(context.TODO())
 
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "Discord")
+	var title string
+	if profile.Title != "" {
+		title = renderMessage(profile.Title, event, "title", "discord")
+	} else {
+		title = renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "discord")
+	}
+
 	title = fmt.Sprintf("**%v**\n\n", title)
 	message = title + message
 

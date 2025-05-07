@@ -43,8 +43,15 @@ func SendAppriseAPI(event models.Event, snapshot io.Reader, provider notifMeta) 
 		message = renderMessage("markdown", event, "message", "Apprise API")
 	}
 
+	var title string
+	if profile.Title != "" {
+		title = renderMessage(profile.Title, event, "title", "apprise_api")
+	} else {
+		title = renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "apprise_api")
+	}
+
 	payload := AppriseAPIPayload{
-		Title: renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "Apprise API"),
+		Title: title,
 		Body:  message}
 
 	if len(profile.URLs) != 0 {

@@ -157,6 +157,7 @@ alerts:
     user:
     password:
     recipient:
+    thread:
     template:
 
   telegram:

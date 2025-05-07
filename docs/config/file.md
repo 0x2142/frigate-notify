@@ -432,6 +432,9 @@ alerts:
     - Env: `FN_ALERTS__APPRISE_API__TAGS`
     - If using a config token, specify target tags to notify
     - If configuring via environment variable, separate tags by semicolon
+- **title** (Optional)
+    - Optionally overrride global message title for this notification provider
+    - Title value can utilize [template variables](./templates.md#available-variables)
 - **ignoressl** (Optional - Default: `false`)
     - Env: `FN_ALERTS__APPRISE_API__IGNORESSL`
     - Set to `true` to allow self-signed certificates
@@ -451,6 +454,7 @@ alerts:
       - discord://xxxxxxxxxxx
     tags:
       - ntfy
+    title:
     ignoressl: true
     template:
 ```
@@ -469,6 +473,9 @@ alerts:
     - Env: `FN_ALERTS__DISCORD__DISABLE_EMBED`
     - By default, notifications are sent as Discord embedded message
     - Set to `true` to disable this
+- **title** (Optional)
+    - Optionally overrride global message title for this notification provider
+    - Title value can utilize [template variables](./templates.md#available-variables)
 - **template** (Optional)
     - Env: `FN_ALERTS__DISCORD__TEMPLATE`
     - Optionally specify a custom notification template
@@ -479,6 +486,7 @@ alerts:
   discord:
     enabled: false
     webhook: https://<your-discord-webhook-here>
+    title:
     template:
 ```
 
@@ -495,6 +503,9 @@ alerts:
     - Env: `FN_ALERTS__GOTIFY__TOKEN`
     - App token associated with this app in Gotify
     - Required if this alerting method is enabled
+- **title** (Optional)
+    - Optionally overrride global message title for this notification provider
+    - Title value can utilize [template variables](./templates.md#available-variables)
 - **ignoressl** (Optional - Default: `false`)
     - Env: `FN_ALERTS__GOTIFY__IGNORESSL`
     - Set to `true` to allow self-signed certificates
@@ -509,6 +520,7 @@ alerts:
     enabled: false
     server: gotify.your.domain.tld
     token: ABCDEF
+    title:
     ignoressl: true
     template:
 ```
@@ -618,6 +630,9 @@ alerts:
 - **ignoressl** (Optional - Default: `false`)
     - Env: `FN_ALERTS__NTFY__IGNORESSL`
     - Set to `true` to allow self-signed certificates
+- **title** (Optional)
+    - Optionally overrride global message title for this notification provider
+    - Title value can utilize [template variables](./templates.md#available-variables)
 - **headers** (Optional)
     - Env: `FN_ALERTS__NTFY__HEADERS`
     - Send additional HTTP headers to Ntfy server
@@ -637,6 +652,7 @@ alerts:
     server: https://ntfy.your.domain.tld
     topic: frigate
     ignoressl: true
+    title:
     headers:
     template:
 ```
@@ -679,6 +695,9 @@ alerts:
     - Env: `FN_ALERTS__PUSHOVER__TTL`
     - Optionally set lifetime of message, in seconds
     - If set, message notifications are deleted from devices after this time
+- **title** (Optional)
+    - Optionally overrride global message title for this notification provider
+    - Title value can utilize [template variables](./templates.md#available-variables)
 - **template** (Optional)
     - Env: `FN_ALERTS__PUSHOVER__TEMPLATE`
     - Optionally specify a custom notification template
@@ -695,6 +714,7 @@ alerts:
     retry:
     expire:
     ttl:
+    title:
     template:
 ```
 
@@ -774,10 +794,18 @@ alerts:
     - Env: `FN_ALERTS__SMTP__RECIPIENT`
     - Comma-separated list of email recipients
     - Required if this alerting method is enabled
+- **thread** (Optional - Default: `day`)
+    - Control how SMTP notifications are threaded, if your email client supports it
+    - Valid threading options are `day` or `camera`
+    - **Note:** per `camera` threads will still roll-over each day
+    - **Note:** If you modify the default frigate-notify message title, you may break threading if the subject changes between notifications
 - **template** (Optional)
     - Env: `FN_ALERTS__SMTP__TEMPLATE`
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
+- **title** (Optional)
+    - Optionally overrride global message title for this notification provider
+    - Title value can utilize [template variables](./templates.md#available-variables)
 - **ignoressl** (Optional - Default: `false`)
     - Env: `FN_ALERTS__SMTP__IGNORESSL`
     - Set to `true` to allow self-signed certificates
@@ -793,6 +821,7 @@ alerts:
     user: test_user@your.domain.tld
     password: test_pass
     recipient: nvr_group@your.domain.tld, someone_else@your.domain.tld
+    title:
     template:
     ignoressl:
 ```
