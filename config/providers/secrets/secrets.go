@@ -45,31 +45,38 @@ func (e *Env) Read() (map[string]interface{}, error) {
 
 func (e *Env) ReadBytes() ([]byte, error) {
 	var keys []string
-	// Read in docker secrets
-	files, err := os.ReadDir("/run/secrets")
-	if err != nil {
-		return nil, err
-	}
-	for _, k := range files {
+
+	for _, k := range os.Environ() {
 		if e.prefix != "" {
-			if strings.HasPrefix(k.Name(), e.prefix) {
-				keys = append(keys, k.Name())
+			if strings.HasPrefix(k, e.prefix) {
+				value := strings.SplitN(k, "=", 2)[1]
+				if strings.HasPrefix(value, "/run/secrets/") {
+					keys = append(keys, k)
+				}
 			}
 		} else {
-			keys = append(keys, k.Name())
+			keys = append(keys, k)
 		}
 	}
 
 	if len(keys) == 0 {
 		return nil, errors.New("no docker secrets found")
 	}
+
+	// Check for access to secrets directory
+	_, err := os.ReadDir("/run/secrets")
+	if err != nil {
+		return nil, err
+	}
+
 	log.Debug().Msgf("Found %v docker secret(s)", len(keys))
 
 	for _, k := range keys {
-		v, err := os.ReadFile("/run/secrets/" + k)
+		parts := strings.SplitN(k, "=", 2)
+		v, err := os.ReadFile(parts[1])
 
 		if err != nil {
-			continue
+			return nil, err
 		}
 
 		var (
@@ -80,12 +87,12 @@ func (e *Env) ReadBytes() ([]byte, error) {
 		sv := strings.TrimSuffix(string(v), "\n")
 
 		if e.cb != nil {
-			key, value = e.cb(k, sv)
+			key, value = e.cb(parts[0], sv)
 			if key == "" {
 				continue
 			}
 		} else {
-			key = k
+			key = parts[0]
 			value = sv
 		}
 
