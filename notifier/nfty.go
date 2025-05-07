@@ -28,7 +28,12 @@ func SendNtfyPush(event models.Event, snapshot io.Reader, provider notifMeta) {
 	NtfyURL := fmt.Sprintf("%s/%s", profile.Server, profile.Topic)
 
 	// Set headers
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "Ntfy")
+	var title string
+	if profile.Title != "" {
+		title = renderMessage(profile.Title, event, "title", "ntfy")
+	} else {
+		title = renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "ntfy")
+	}
 	var headers []map[string]string
 	headers = append(headers, map[string]string{"Content-Type": "text/markdown"})
 	headers = append(headers, map[string]string{"X-Title": title})

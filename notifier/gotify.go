@@ -56,7 +56,12 @@ func SendGotifyPush(event models.Event, provider notifMeta) {
 	if event.HasSnapshot {
 		message += fmt.Sprintf("\n\n![](%s)", snapshotURL)
 	}
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "Gotify")
+	var title string
+	if profile.Title != "" {
+		title = renderMessage(profile.Title, event, "title", "gotify")
+	} else {
+		title = renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "gotify")
+	}
 	payload := gotifyPayload{
 		Message:  message,
 		Title:    title,

@@ -48,7 +48,12 @@ func SendSMTP(event models.Event, snapshot io.Reader, provider notifMeta) {
 	m := mail.NewMsg()
 	m.From(profile.From)
 	m.To(ParseSMTPRecipients(profile.Recipient)...)
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "SMTP")
+	var title string
+	if profile.Title != "" {
+		title = renderMessage(profile.Title, event, "title", "smtp")
+	} else {
+		title = renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "smtp")
+	}
 	m.Subject(title)
 	m.SetMessageID()
 

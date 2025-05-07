@@ -8,7 +8,9 @@
  - Add [option](https://frigate-notify.0x2142.com/latest/config/file/#general) to collect higher resolution snapshot from camera main stream
  - Add ability to send video clip instead of snapshot image via [Telegram](https://frigate-notify.0x2142.com/latest/config/file/#telegram)
  - Add ability to use Frigate [authenticated UI](https://frigate-notify.0x2142.com/latest/config/file/#server) on port 8971
+ - Add ability to configure custom notification titles per alert provider profile, for those that support it
  - Add support for email threading via SMTP notifier
+
 
 ## [v0.4.4](https://github.com/0x2142/frigate-notify/releases/tag/v0.4.4) - Apr 08 2025
  - Add support for notifications via [Matrix](https://frigate-notify.0x2142.com/latest/config/file/#matrix)
