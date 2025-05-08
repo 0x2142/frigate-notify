@@ -38,9 +38,17 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader, provider notifM
 		return
 	}
 
+	// Collect event clip if available & configured
+	var clip io.Reader
+	if event.HasClip && profile.SendClip {
+		clip = GetClip(event)
+		if clip == nil {
+			event.HasClip = false
+		}
+	}
+
 	var response tgbotapi.Message
 	if event.HasClip && profile.SendClip {
-		clip := GetClip(event)
 		msg := tgbotapi.NewVideo(profile.ChatID, tgbotapi.FileReader{Name: "Clip", Reader: clip})
 		if profile.MessageThreadID != 0 {
 			msg.MessageThreadID = profile.MessageThreadID
