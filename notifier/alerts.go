@@ -237,7 +237,20 @@ func GetClip(event models.Event) io.Reader {
 					Msgf("Could not access clip")
 				return nil
 			}
+		} else if len(response) == 0 {
+			// Frigate is probably still processing the clip
+			// Wait a bit and try again
+			attempts += 1
+			time.Sleep(2 * time.Second)
+			log.Info().
+				Str("event_id", event.ID).
+				Int("attempt", attempts).
+				Int("max_attempts", max_attempts).
+				Msgf("Waiting for clip to be available")
 		} else {
+			log.Debug().
+				Str("event_id", event.ID).
+				Msgf("Clip available")
 			break
 		}
 	}
