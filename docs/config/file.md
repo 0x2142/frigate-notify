@@ -49,10 +49,12 @@ app:
     - This value is used for the links used in notifications
     - Format should be full URL (example: `https://nvr.your.public.domain.tld`)
 - **username** (Optional)
+    - Env: `FN_FRIGATE__USERNAME`
     - Frigate username to log in with, if using authenticated UI on port 8971
     - If username is configured, password must also be configured
     - Recommended to create a unique user for frigate-notify with **viewer** role
 - **password** (Optional)
+    - Env: `FN_FRIGATE__PASSWORD`
     - Frigate password to log in with, if using authenticated UI on port 8971
     - If password is configured, username must also be configured
 - **headers** (Optional)
@@ -474,6 +476,7 @@ alerts:
     - By default, notifications are sent as Discord embedded message
     - Set to `true` to disable this
 - **title** (Optional)
+    - Env: `FN_ALERTS__DISCORD__TITLE`
     - Optionally overrride global message title for this notification provider
     - Title value can utilize [template variables](./templates.md#available-variables)
 - **template** (Optional)
@@ -504,6 +507,7 @@ alerts:
     - App token associated with this app in Gotify
     - Required if this alerting method is enabled
 - **title** (Optional)
+    - Env: `FN_ALERTS__GOTIFY__TITLE`
     - Optionally overrride global message title for this notification provider
     - Title value can utilize [template variables](./templates.md#available-variables)
 - **ignoressl** (Optional - Default: `false`)
@@ -631,6 +635,7 @@ alerts:
     - Env: `FN_ALERTS__NTFY__IGNORESSL`
     - Set to `true` to allow self-signed certificates
 - **title** (Optional)
+    - Env: `FN_ALERTS__NTFY__TITLE`
     - Optionally overrride global message title for this notification provider
     - Title value can utilize [template variables](./templates.md#available-variables)
 - **headers** (Optional)
@@ -696,6 +701,7 @@ alerts:
     - Optionally set lifetime of message, in seconds
     - If set, message notifications are deleted from devices after this time
 - **title** (Optional)
+    - Env: `FN_ALERTS__PUSHOVER__TITLE`
     - Optionally overrride global message title for this notification provider
     - Title value can utilize [template variables](./templates.md#available-variables)
 - **template** (Optional)
@@ -795,6 +801,7 @@ alerts:
     - Comma-separated list of email recipients
     - Required if this alerting method is enabled
 - **thread** (Optional - Default: `day`)
+    - Env: `FN_ALERTS__SMTP__THREAD`
     - Control how SMTP notifications are threaded, if your email client supports it
     - Valid threading options are `day` or `camera`
     - **Note:** per `camera` threads will still roll-over each day
@@ -804,6 +811,7 @@ alerts:
     - Optionally specify a custom notification template
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
 - **title** (Optional)
+    - Env: `FN_ALERTS__SMTP__TITLE`
     - Optionally overrride global message title for this notification provider
     - Title value can utilize [template variables](./templates.md#available-variables)
 - **ignoressl** (Optional - Default: `false`)
