@@ -36,7 +36,7 @@ func SendAlert(events []models.Event) {
 	var snapshot io.Reader
 	for _, event := range events {
 		if event.HasSnapshot {
-			snapshot = GetSnapshot(event.ID)
+			snapshot = GetSnapshot(event)
 			break
 		}
 	}
@@ -56,7 +56,7 @@ func SendAlert(events []models.Event) {
 	// Apprise API
 	for id, profile := range config.ConfigData.Alerts.AppriseAPI {
 		if profile.Enabled {
-			provider := notifMeta{name: "apprise-api", index: id}
+			provider := notifMeta{name: "apprise_api", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
 				go SendAppriseAPI(event, bytes.NewReader(snap), provider)
 			}
@@ -155,45 +155,102 @@ func SendAlert(events []models.Event) {
 }
 
 // GetSnapshot downloads a snapshot from Frigate
-func GetSnapshot(eventID string) io.Reader {
-	// Add optional snapshot modifiers
-	url, _ := url.Parse(config.ConfigData.Frigate.Server + "/api/events/" + eventID + "/snapshot.jpg")
-	q := url.Query()
-	if config.ConfigData.Alerts.General.SnapBbox {
-		q.Add("bbox", "1")
+func GetSnapshot(event models.Event) io.Reader {
+	var snapurl *url.URL
+	if config.ConfigData.Alerts.General.SnapHiRes {
+		evtTime := fmt.Sprintf("%v", event.StartTime)
+		snapurl, _ = url.Parse(config.ConfigData.Frigate.Server + "/api/" + event.Camera + "/recordings/" + evtTime + "/snapshot.jpg")
+	} else {
+		// Add optional snapshot modifiers
+		snapurl, _ = url.Parse(config.ConfigData.Frigate.Server + "/api/events/" + event.ID + "/snapshot.jpg")
+		q := snapurl.Query()
+		if config.ConfigData.Alerts.General.SnapBbox {
+			q.Add("bbox", "1")
+		}
+		if config.ConfigData.Alerts.General.SnapTimestamp {
+			q.Add("timestamp", "1")
+		}
+		if config.ConfigData.Alerts.General.SnapCrop {
+			q.Add("crop", "1")
+		}
+		snapurl.RawQuery = q.Encode()
 	}
-	if config.ConfigData.Alerts.General.SnapTimestamp {
-		q.Add("timestamp", "1")
-	}
-	if config.ConfigData.Alerts.General.SnapCrop {
-		q.Add("crop", "1")
-	}
-	url.RawQuery = q.Encode()
+
 	var response []byte
 
 	attempts := 0
 	max_attempts := config.ConfigData.Alerts.General.MaxSnapRetry
 	for attempts < max_attempts {
 		var err error
-		response, err = util.HTTPGet(url.String(), config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
+		response, err = util.HTTPGet(snapurl.String(), config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
 		if err != nil {
 			attempts += 1
 			if err.Error() == "404" {
 				time.Sleep(2 * time.Second)
 				log.Info().
-					Str("event_id", eventID).
+					Str("event_id", event.ID).
 					Int("attempt", attempts).
 					Int("max_attempts", max_attempts).
 					Msgf("Waiting for snapshot to be available")
 				continue
 			} else {
 				log.Warn().
-					Str("event_id", eventID).
+					Str("event_id", event.ID).
 					Err(err).
 					Msgf("Could not access snapshot")
 				return nil
 			}
 		} else {
+			break
+		}
+	}
+	if attempts == max_attempts {
+		return nil
+	}
+	return bytes.NewReader(response)
+}
+
+// GetClip downloads a event video clip from Frigate
+func GetClip(event models.Event) io.Reader {
+	clipurl := config.ConfigData.Frigate.Server + "/api/events/" + event.ID + "/clip.mp4"
+	var response []byte
+
+	attempts := 0
+	max_attempts := config.ConfigData.Alerts.General.MaxSnapRetry
+	for attempts < max_attempts {
+		var err error
+		response, err = util.HTTPGet(clipurl, config.ConfigData.Frigate.Insecure, "", config.ConfigData.Frigate.Headers...)
+		if err != nil {
+			attempts += 1
+			if err.Error() == "404" {
+				time.Sleep(2 * time.Second)
+				log.Info().
+					Str("event_id", event.ID).
+					Int("attempt", attempts).
+					Int("max_attempts", max_attempts).
+					Msgf("Waiting for clip to be available")
+				continue
+			} else {
+				log.Warn().
+					Str("event_id", event.ID).
+					Err(err).
+					Msgf("Could not access clip")
+				return nil
+			}
+		} else if len(response) == 0 {
+			// Frigate is probably still processing the clip
+			// Wait a bit and try again
+			attempts += 1
+			time.Sleep(2 * time.Second)
+			log.Info().
+				Str("event_id", event.ID).
+				Int("attempt", attempts).
+				Int("max_attempts", max_attempts).
+				Msgf("Waiting for clip to be available")
+		} else {
+			log.Debug().
+				Str("event_id", event.ID).
+				Msgf("Clip available")
 			break
 		}
 	}

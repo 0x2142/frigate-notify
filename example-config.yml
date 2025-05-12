@@ -24,6 +24,9 @@ frigate:
   ignoressl: false
   # Public / internet-facing Frigate URL, if different from above server address
   public_url:
+  # Frigate username & password, if using authentication
+  username:
+  password:
 
   # List of HTTP headers to send to Frigate, in format Header: Value
   headers:
@@ -86,6 +89,10 @@ alerts:
     snap_timestamp:
     # Set to `true` to crop snapshot
     snap_crop:
+    # By default snapshot is collected from detect stream which may be lower quality
+    # Set this to `true` to collect snapshot from camera recording stream
+    # Note: If enabled, `snap_bbox`, `snap_timestamp`, and `snap_crop` settings have no effect
+    snap_hires:
     # Maximum number of retry attempts when pulling snapshot from Frigate at 2 second intervals
     # By default, max_snap_retry is 10 - which means waiting up to 20 seconds for a snapshot image
     max_snap_retry:
@@ -144,7 +151,7 @@ alerts:
     # List of license plates to never generate notifications
     block:
 
-  apprise-api:
+  apprise_api:
     # Set to true to enable alerting via Discord messages
     enabled: false
     # Server URL (ex. https://apprise.yourdomain.tld)
@@ -298,6 +305,8 @@ alerts:
     from:
     # Email alerts sent to any addresses listed below, separated by comma
     recipient:
+    # Specify email threading method - `day` or `camera` (Default: `day`)
+    thread:
     # Custom notification template, if desired
     template:
     # Set to true to allow self-signed certificates
@@ -309,6 +318,8 @@ alerts:
     enabled: false
     # Chat ID of alert recipient
     chatid:
+    # Set to `true` to send short event video clip instead of snapshot image
+    send_clip:
     # Message Thead ID
     message_thread_id:
     # Bot API token

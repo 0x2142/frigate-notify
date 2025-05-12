@@ -38,29 +38,33 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader, provider notifM
 		return
 	}
 
-	if event.HasSnapshot {
-		// Attach & send snapshot
-		photo := tgbotapi.NewPhoto(profile.ChatID, tgbotapi.FileReader{Name: "Snapshot", Reader: snapshot})
+	// Collect event clip if available & configured
+	var clip io.Reader
+	if event.HasClip && profile.SendClip {
+		clip = GetClip(event)
+		if clip == nil {
+			event.HasClip = false
+		}
+	}
+
+	var response tgbotapi.Message
+	if event.HasClip && profile.SendClip {
+		msg := tgbotapi.NewVideo(profile.ChatID, tgbotapi.FileReader{Name: "Clip", Reader: clip})
 		if profile.MessageThreadID != 0 {
-			photo.MessageThreadID = profile.MessageThreadID
+			msg.MessageThreadID = profile.MessageThreadID
 		}
-		photo.Caption = message
-		photo.ParseMode = "HTML"
-		response, err := bot.Send(photo)
-		log.Trace().
-			Interface("content", response).
-			Int("provider_id", provider.index).
-			Msg("Send Telegram Alert")
-		if err != nil {
-			log.Warn().
-				Str("event_id", event.ID).
-				Str("provider", "Telegram").
-				Int("provider_id", provider.index).
-				Err(err).
-				Msg("Unable to send alert")
-			status.NotifFailure(err.Error())
-			return
+		msg.Caption = message
+		msg.ParseMode = "HTML"
+		response, err = bot.Send(msg)
+	} else if event.HasSnapshot {
+		// Attach & send snapshot
+		msg := tgbotapi.NewPhoto(profile.ChatID, tgbotapi.FileReader{Name: "Snapshot", Reader: snapshot})
+		if profile.MessageThreadID != 0 {
+			msg.MessageThreadID = profile.MessageThreadID
 		}
+		msg.Caption = message
+		msg.ParseMode = "HTML"
+		response, err = bot.Send(msg)
 	} else {
 		// Send plain text message if no snapshot available
 		msg := tgbotapi.NewMessage(profile.ChatID, message)
@@ -68,22 +72,23 @@ func SendTelegramMessage(event models.Event, snapshot io.Reader, provider notifM
 			msg.MessageThreadID = profile.MessageThreadID
 		}
 		msg.ParseMode = "HTML"
-		response, err := bot.Send(msg)
-		log.Trace().
-			Interface("content", response).
-			Int("provider_id", provider.index).
-			Msg("Send Telegram Alert")
-		if err != nil {
-			log.Warn().
-				Str("event_id", event.ID).
-				Str("provider", "Telegram").
-				Int("provider_id", provider.index).
-				Err(err).
-				Msg("Unable to send alert")
-			status.NotifFailure(err.Error())
-			return
-		}
+		response, err = bot.Send(msg)
 	}
+	log.Trace().
+		Interface("content", response).
+		Int("provider_id", provider.index).
+		Msg("Send Telegram Alert")
+	if err != nil {
+		log.Warn().
+			Str("event_id", event.ID).
+			Str("provider", "Telegram").
+			Int("provider_id", provider.index).
+			Err(err).
+			Msg("Unable to send alert")
+		status.NotifFailure(err.Error())
+		return
+	}
+
 	log.Info().
 		Str("event_id", event.ID).
 		Str("provider", "Telegram").

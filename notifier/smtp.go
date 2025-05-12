@@ -13,10 +13,28 @@ import (
 	"github.com/wneessen/go-mail"
 )
 
+var threads map[string]string
+var date string
+
 // SendSMTP forwards alert data via email
 func SendSMTP(event models.Event, snapshot io.Reader, provider notifMeta) {
 	profile := config.ConfigData.Alerts.SMTP[provider.index]
 	status := &config.Internal.Status.Notifications.SMTP[provider.index]
+
+	// Check if new day & need to roll over email threading
+	currentDate := time.Now().Local().Format("20060102")
+	log.Trace().
+		Str("current_date", date).
+		Interface("threads", threads).
+		Msg("Current SMTP threads")
+	if date != currentDate {
+		date = currentDate
+		threads = make(map[string]string)
+		log.Trace().
+			Str("current_date", date).
+			Interface("threads", threads).
+			Msg("Roll over SMTP threads")
+	}
 
 	// Build notification
 	var message string
@@ -30,8 +48,37 @@ func SendSMTP(event models.Event, snapshot io.Reader, provider notifMeta) {
 	m := mail.NewMsg()
 	m.From(profile.From)
 	m.To(ParseSMTPRecipients(profile.Recipient)...)
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "SMTP")
+	var title string
+	if profile.Title != "" {
+		title = renderMessage(profile.Title, event, "title", "smtp")
+	} else {
+		title = renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "smtp")
+	}
 	m.Subject(title)
+	m.SetMessageID()
+
+	// Message threading
+	id := m.GetMessageID()
+	var thread, msgID string
+	var ok bool
+	switch profile.Thread {
+	case "camera":
+		thread = event.Camera
+	case "day":
+		thread = currentDate
+	}
+	msgID, ok = threads[thread]
+	if !ok {
+		threads[thread] = id
+		log.Trace().
+			Str("current_date", date).
+			Interface("threads", threads).
+			Msg("New SMTP thread")
+	} else {
+		m.SetGenHeader(mail.HeaderInReplyTo, msgID)
+		m.SetGenHeader(mail.HeaderReferences, msgID)
+	}
+
 	// Attach snapshot if one exists
 	if event.HasSnapshot {
 		m.AttachReader("snapshot.jpg", snapshot)

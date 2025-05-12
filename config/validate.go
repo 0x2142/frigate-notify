@@ -1,11 +1,9 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
 
@@ -16,10 +14,10 @@ import (
 
 func (c *Config) Validate() []string {
 	var validationErrors []string
-	log.Debug().Msg("Validating config file...")
+	log.Debug().Msg("Starting config validation...")
 
 	// Check Frigate Connectivity
-	if results := c.validateFrigateConnectivity(); len(results) > 0 {
+	if results := c.validateFrigateServer(); len(results) > 0 {
 		validationErrors = append(validationErrors, results...)
 	}
 
@@ -220,11 +218,6 @@ func (c *Config) validateAppMode() []string {
 func (c *Config) validateAPI() []string {
 	var apiErrors []string
 
-	// Set default port if needed
-	if c.App.API.Port == 0 {
-		c.App.API.Port = 8000
-	}
-
 	if c.App.API.Port <= 0 || c.App.API.Port > 65535 {
 		apiErrors = append(apiErrors, "Invalid API port")
 	}
@@ -247,11 +240,6 @@ func (c *Config) validateFrigatePolling() []string {
 		log.Debug().Msgf("Event polling method: MQTT")
 	}
 
-	// Set default web API interval if not specified
-	if c.Frigate.WebAPI.Interval == 0 {
-		c.Frigate.WebAPI.Interval = 30
-	}
-
 	// Warn on test mode being enabled
 	if c.Frigate.WebAPI.Enabled && c.Frigate.WebAPI.TestMode {
 		log.Warn().Msg("~~~~~~~~~~~~~~~~~~~")
@@ -264,14 +252,18 @@ func (c *Config) validateFrigatePolling() []string {
 	return pollingErrors
 }
 
-func (c *Config) validateFrigateConnectivity() []string {
-	var response []byte
+func (c *Config) validateFrigateServer() []string {
 	var err error
 	var connectivityErrors []string
 
 	url := c.Frigate.Server
 	max_attempts := c.Frigate.StartupCheck.Attempts
 	interval := c.Frigate.StartupCheck.Interval
+
+	if c.Frigate.Server == "" {
+		connectivityErrors = append(connectivityErrors, "No Frigate server specified!")
+		return connectivityErrors
+	}
 
 	// Check if Frigate server URL contains protocol, assume HTTP if not specified
 	if !strings.Contains(url, "http://") && !strings.Contains(url, "https://") {
@@ -289,6 +281,21 @@ func (c *Config) validateFrigateConnectivity() []string {
 		// If Public URL not explicitly set, use local Frigate URL
 		c.Frigate.PublicURL = c.Frigate.Server
 	}
+	// Save Frigate server for auth checks
+	util.FrigateServer = c.Frigate.Server
+	util.FrigateInsecure = c.Frigate.Insecure
+
+	// Check username & password set
+	if c.Frigate.Username != "" && c.Frigate.Password == "" {
+		connectivityErrors = append(connectivityErrors, "Frigate username & password must be specified")
+		return connectivityErrors
+	}
+	if c.Frigate.Username != "" && c.Frigate.Password != "" {
+		log.Debug().Msg("Frigate authentication: enabled")
+		util.AuthEnabled = true
+		util.FrigateUser = c.Frigate.Username
+		util.FrigatePass = c.Frigate.Password
+	}
 
 	// Check HTTP header template syntax
 	if msg := validateTemplate("Frigate HTTP Headers", c.Alerts.General.Title); msg != "" {
@@ -297,16 +304,10 @@ func (c *Config) validateFrigateConnectivity() []string {
 
 	// Test connectivity to Frigate
 	log.Debug().Msg("Checking connection to Frigate server...")
-	statsAPI := fmt.Sprintf("%s/api/stats", url)
 	current_attempt := 1
-	if max_attempts == 0 {
-		max_attempts = 5
-	}
-	if interval == 0 {
-		interval = 30
-	}
+	var version int
 	for current_attempt < max_attempts {
-		response, err = util.HTTPGet(statsAPI, c.Frigate.Insecure, "", c.Frigate.Headers...)
+		version, err = util.GetFrigateVersion(c.Frigate.Headers)
 		if err != nil {
 			Internal.Status.Frigate.API = "unreachable"
 			log.Warn().
@@ -318,6 +319,7 @@ func (c *Config) validateFrigateConnectivity() []string {
 			time.Sleep(time.Duration(interval) * time.Second)
 			current_attempt += 1
 		} else {
+			Internal.FrigateVersion = version
 			break
 		}
 	}
@@ -328,15 +330,10 @@ func (c *Config) validateFrigateConnectivity() []string {
 			Msgf("Max attempts reached - Cannot reach Frigate server at %v", url)
 		connectivityErrors = append(connectivityErrors, "Max attempts reached - Cannot reach Frigate server at "+url)
 	}
-	var stats models.FrigateStats
-	json.Unmarshal([]byte(response), &stats)
+
 	log.Info().Msgf("Successfully connected to %v", url)
 	Internal.Status.Frigate.API = "ok"
-	if stats.Service.Version != "" {
-		log.Debug().Msgf("Frigate server is running version %v", stats.Service.Version)
-		// Save major version number
-		Internal.FrigateVersion, _ = strconv.Atoi(strings.Split(stats.Service.Version, ".")[1])
-	}
+	log.Debug().Msgf("Frigate server version: %v", Internal.FrigateVersion)
 	return connectivityErrors
 }
 
@@ -350,10 +347,7 @@ func (c *Config) validateMQTT() []string {
 	if c.Frigate.MQTT.Username != "" && c.Frigate.MQTT.Password == "" {
 		configErrors = append(configErrors, "MQTT user provided, but no password")
 	}
-	// Set default port if needed
-	if c.Frigate.MQTT.Port == 0 {
-		c.Frigate.MQTT.Port = 1883
-	}
+
 	return configErrors
 }
 
@@ -416,10 +410,6 @@ func (c *Config) validateAlertGeneral() []string {
 		alertErrors = append(alertErrors, msg)
 	}
 
-	// Set default for max snap retry
-	if c.Alerts.General.MaxSnapRetry == 0 {
-		c.Alerts.General.MaxSnapRetry = 10
-	}
 	log.Debug().Msgf("Max retry attempts for snapshots: %v", c.Alerts.General.MaxSnapRetry)
 
 	return alertErrors
@@ -704,6 +694,7 @@ func (c *Config) validateSignal(id int) []string {
 
 func (c *Config) validateSMTP(id int) []string {
 	var smtpErrors []string
+	validThreading := []string{"day", "camera", "zone"}
 	log.Debug().Msgf("Alerting enabled for SMTP profile ID %v", id)
 	if c.Alerts.SMTP[id].Server == "" {
 		smtpErrors = append(smtpErrors, fmt.Sprintf("No SMTP server specified! Profile ID %v", id))
@@ -716,6 +707,12 @@ func (c *Config) validateSMTP(id int) []string {
 	}
 	if c.Alerts.SMTP[id].Port == 0 {
 		c.Alerts.SMTP[id].Port = 25
+	}
+	if c.Alerts.SMTP[id].Thread == "" {
+		c.Alerts.SMTP[id].Thread = "day"
+	}
+	if !slices.Contains(validThreading, c.Alerts.SMTP[id].Thread) {
+		smtpErrors = append(smtpErrors, fmt.Sprintf("SMTP threading must be `day` or `camera`. Profile ID %v", id))
 	}
 	// Copy `user` to `from` if `from` not explicitly configured
 	if c.Alerts.SMTP[id].From == "" && c.Alerts.SMTP[id].User != "" {
@@ -825,9 +822,6 @@ func (c *Config) validateAppMonitoring() []string {
 	log.Debug().Msg("App monitoring enabled.")
 	if c.Monitor.URL == "" {
 		monitoringErrors = append(monitoringErrors, "App monitor enabled but no URL specified!")
-	}
-	if c.Monitor.Interval == 0 {
-		c.Monitor.Interval = 60
 	}
 	return monitoringErrors
 }

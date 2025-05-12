@@ -30,7 +30,12 @@ func SendPushoverMessage(event models.Event, snapshot io.Reader, provider notifM
 	recipient := pushover.NewRecipient(profile.Userkey)
 
 	// Create new message
-	title := renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "Pushover")
+	var title string
+	if profile.Title != "" {
+		title = renderMessage(profile.Title, event, "title", "pushover")
+	} else {
+		title = renderMessage(config.ConfigData.Alerts.General.Title, event, "title", "pushover")
+	}
 	notif := &pushover.Message{
 		Message:  message,
 		Title:    title,

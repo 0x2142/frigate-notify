@@ -43,6 +43,7 @@ alerts:
     snap_bbox:
     snap_timestamp:
     snap_crop:
+    snap_hires:
     max_snap_retry:
     notify_once:
     notify_detections:
@@ -79,7 +80,7 @@ alerts:
     allow:
     block:
 
-  apprise-api:
+  apprise_api:
     enabled: false
     server:
     token:
@@ -156,11 +157,13 @@ alerts:
     user:
     password:
     recipient:
+    thread:
     template:
 
   telegram:
     enabled: false
     chatid:
+    send_clip:
     message_thread_id:
     token:
     template:

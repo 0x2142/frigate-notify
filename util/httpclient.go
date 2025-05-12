@@ -18,20 +18,15 @@ import (
 
 // buildParams creates an escaped param string from a slice
 func BuildHTTPParams(params ...map[string]string) string {
-	var paramList string
+	paramList := url.Values{}
 	if len(params) > 0 {
-		paramList = "?"
 		for _, h := range params {
 			for k, v := range h {
-				k = url.QueryEscape(k)
-				v = url.QueryEscape(v)
-				paramList = fmt.Sprintf("%s&%s=%s", paramList, k, v)
+				paramList.Add(k, v)
 			}
-
 		}
 	}
-
-	return paramList
+	return "?" + paramList.Encode()
 }
 
 // HTTPGet is a simple HTTP client function to return page body
@@ -42,11 +37,25 @@ func HTTPGet(url string, insecure bool, params string, headers ...map[string]str
 	}
 
 	// New HTTP Client
-	client := http.Client{Timeout: 10 * time.Second}
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+		Jar:     cookies,
+	}
+
 	// Ignore SSL verification if set
 	if insecure {
 		client.Transport = &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+	}
+
+	// Set auth cookies if Frigate request & auth is enabled
+	if strings.HasPrefix(url, FrigateServer) && AuthEnabled {
+		// `/api/profile` is used to check token validity, so skip auth check
+		if !strings.HasSuffix(url, "/api/profile") {
+			if err := checkFrigateAuth(); err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	// Setup new HTTP Request
@@ -78,6 +87,7 @@ func HTTPGet(url string, insecure bool, params string, headers ...map[string]str
 			}
 		}
 	}
+
 	// Send HTTP GET
 	log.Trace().
 		Str("url", url).
