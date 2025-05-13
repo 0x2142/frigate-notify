@@ -356,6 +356,12 @@ func (c *Config) validateMQTT() []string {
 	if c.Frigate.MQTT.Server == "" {
 		configErrors = append(configErrors, "No MQTT server address specified")
 	}
+	if c.Frigate.MQTT.Port == 0 {
+		c.Frigate.MQTT.Port = 1883
+	}
+	if c.Frigate.MQTT.TopicPrefix == "" {
+		c.Frigate.MQTT.TopicPrefix = "frigate"
+	}
 	if c.Frigate.MQTT.Username != "" && c.Frigate.MQTT.Password == "" {
 		configErrors = append(configErrors, "MQTT user provided, but no password")
 	}
