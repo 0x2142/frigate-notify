@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.5.1](https://github.com/0x2142/frigate-notify/releases/tag/v0.5.1) - May 13 2025
+ - Fix issue with default statup check values being overwritten if configured value is empty
+
 ## [v0.5.0](https://github.com/0x2142/frigate-notify/releases/tag/v0.5.0) - May 12 2025
  - Updated configuration management system
      - ⚠️ Environment variable keys are now separated by double-underscore. See [docs](https://frigate-notify.0x2142.com/latest/config/file) for examples
