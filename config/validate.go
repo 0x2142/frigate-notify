@@ -229,6 +229,11 @@ func (c *Config) validateFrigatePolling() []string {
 	var pollingErrors []string
 	webapi := c.Frigate.WebAPI.Enabled
 	mqtt := c.Frigate.MQTT.Enabled
+
+	if c.Frigate.WebAPI.Interval == 0 {
+		c.Frigate.WebAPI.Interval = 30
+	}
+
 	// Check that only one polling method is configured
 	if (webapi && mqtt) || (!webapi && !mqtt) {
 		pollingErrors = append(pollingErrors, "Please configure only one polling method: Frigate Web API or MQTT")
@@ -259,6 +264,13 @@ func (c *Config) validateFrigateServer() []string {
 	url := c.Frigate.Server
 	max_attempts := c.Frigate.StartupCheck.Attempts
 	interval := c.Frigate.StartupCheck.Interval
+
+	if max_attempts == 0 {
+		max_attempts = 5
+	}
+	if interval == 0 {
+		interval = 30
+	}
 
 	if c.Frigate.Server == "" {
 		connectivityErrors = append(connectivityErrors, "No Frigate server specified!")
