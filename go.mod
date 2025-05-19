@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/OvyFlash/telegram-bot-api v0.0.0-20250501121306-e13ca08617c9
 	github.com/danielgtaylor/huma/v2 v2.32.0
-	github.com/disgoorg/disgo v0.18.15
+	github.com/disgoorg/disgo v0.18.16
 	github.com/disgoorg/json v1.2.0
 	github.com/eclipse/paho.mqtt.golang v1.5.0
 	github.com/gregdel/pushover v1.3.1
