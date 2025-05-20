@@ -27,6 +27,7 @@ var DefaultConfig Config = Config{
 			Enabled:     false,
 			Server:      "",
 			Port:        1883,
+			ClientID:    "frigate-notify",
 			Username:    "",
 			Password:    "",
 			TopicPrefix: "frigate",
