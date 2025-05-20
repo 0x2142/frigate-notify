@@ -205,6 +205,9 @@ func (c *Config) Validate() []string {
 
 func (c *Config) validateAppMode() []string {
 	var appErrors []string
+	if c.App.Mode == "" {
+		c.App.Mode = "reviews"
+	}
 	if strings.ToLower(c.App.Mode) != "events" && strings.ToLower(c.App.Mode) != "reviews" {
 		appErrors = append(appErrors, "MQTT mode must be 'events' or 'reviews'")
 	}
@@ -217,7 +220,9 @@ func (c *Config) validateAppMode() []string {
 
 func (c *Config) validateAPI() []string {
 	var apiErrors []string
-
+	if c.App.API.Port == 0 {
+		c.App.API.Port = 8000
+	}
 	if c.App.API.Port <= 0 || c.App.API.Port > 65535 {
 		apiErrors = append(apiErrors, "Invalid API port")
 	}
@@ -353,6 +358,9 @@ func (c *Config) validateMQTT() []string {
 	var configErrors []string
 	// Check MQTT Config
 	log.Debug().Msg("MQTT Enabled.")
+	if c.Frigate.MQTT.ClientID == "" {
+		c.Frigate.MQTT.ClientID = "frigate-notify"
+	}
 	if c.Frigate.MQTT.Server == "" {
 		configErrors = append(configErrors, "No MQTT server address specified")
 	}
@@ -403,7 +411,13 @@ func (c *Config) validateQuietHours() []string {
 
 func (c *Config) validateAlertGeneral() []string {
 	var alertErrors []string
+	if c.Alerts.General.Title == "" {
+		c.Alerts.General.Title = "Frigate Alert"
+	}
 	// Check action on no snapshot available
+	if c.Alerts.General.NoSnap == "" {
+		c.Alerts.General.NoSnap = "allow"
+	}
 	if strings.ToLower(c.Alerts.General.NoSnap) != "allow" && strings.ToLower(c.Alerts.General.NoSnap) != "drop" {
 		alertErrors = append(alertErrors, "Option for nosnap must be 'allow' or 'drop'")
 	} else {
@@ -411,6 +425,9 @@ func (c *Config) validateAlertGeneral() []string {
 	}
 
 	// Check action on audio-only events
+	if c.Alerts.General.AudioOnly == "" {
+		c.Alerts.General.AudioOnly = "allow"
+	}
 	if strings.ToLower(c.Alerts.General.AudioOnly) != "allow" && strings.ToLower(c.Alerts.General.AudioOnly) != "drop" {
 		alertErrors = append(alertErrors, "Option for audio_only must be 'allow' or 'drop'")
 	} else {
@@ -427,7 +444,9 @@ func (c *Config) validateAlertGeneral() []string {
 	if msg := validateTemplate("Alert Title", c.Alerts.General.Title); msg != "" {
 		alertErrors = append(alertErrors, msg)
 	}
-
+	if c.Alerts.General.MaxSnapRetry == 0 {
+		c.Alerts.General.MaxSnapRetry = 10
+	}
 	log.Debug().Msgf("Max retry attempts for snapshots: %v", c.Alerts.General.MaxSnapRetry)
 
 	return alertErrors
@@ -436,6 +455,9 @@ func (c *Config) validateAlertGeneral() []string {
 func (c *Config) validateZoneFilters() []string {
 	var filterErrors []string
 	// Check Zone filtering config
+	if c.Alerts.Zones.Unzoned == "" {
+		c.Alerts.Zones.Unzoned = "allow"
+	}
 	if strings.ToLower(c.Alerts.Zones.Unzoned) != "allow" && strings.ToLower(c.Alerts.Zones.Unzoned) != "drop" {
 		filterErrors = append(filterErrors, "Option for unzoned events must be 'allow' or 'drop'")
 	} else {
@@ -838,6 +860,9 @@ func (c *Config) validateAlertingEnabled() string {
 func (c *Config) validateAppMonitoring() []string {
 	var monitoringErrors []string
 	log.Debug().Msg("App monitoring enabled.")
+	if c.Monitor.Interval == 0 {
+		c.Monitor.Interval = 60
+	}
 	if c.Monitor.URL == "" {
 		monitoringErrors = append(monitoringErrors, "App monitor enabled but no URL specified!")
 	}
