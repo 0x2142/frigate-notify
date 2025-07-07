@@ -5,8 +5,8 @@ github.com/DATA-DOG/go-sqlmock v1.5.2/go.mod h1:88MAG/4G7SMwSE3CeA0ZKzrT5CiOU3OJ
 github.com/OvyFlash/telegram-bot-api v0.0.0-20250501121306-e13ca08617c9 h1:GUfQnjMuffK7NVuZyiMYKx99UNISO/NC8OJd0albj2g=
 github.com/OvyFlash/telegram-bot-api v0.0.0-20250501121306-e13ca08617c9/go.mod h1:2nRUdsKyWhvezqW/rBGWEQdcTQeTtnbSNd2dgx76WYA=
 github.com/coreos/go-systemd/v22 v22.5.0/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
-github.com/danielgtaylor/huma/v2 v2.32.0 h1:ytU9ExG/axC434+soXxwNzv0uaxOb3cyCgjj8y3PmBE=
-github.com/danielgtaylor/huma/v2 v2.32.0/go.mod h1:9BxJwkeoPPDEJ2Bg4yPwL1mM1rYpAwCAWFKoo723spk=
+github.com/danielgtaylor/huma/v2 v2.34.1 h1:EmOJAbzEGfy0wAq/QMQ1YKfEMBEfE94xdBRLPBP0gwQ=
+github.com/danielgtaylor/huma/v2 v2.34.1/go.mod h1:ynwJgLk8iGVgoaipi5tgwIQ5yoFNmiu+QdhU7CEEmhk=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/disgoorg/disgo v0.18.15 h1:T24I/NdUUody4FDvb8YkhSxHtsgRKD8Ui5Vi5PXnIrQ=
