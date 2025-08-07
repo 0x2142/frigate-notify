@@ -65,7 +65,7 @@ func SendGotifyPush(event models.Event, provider notifMeta) {
 	payload := gotifyPayload{
 		Message:  message,
 		Title:    title,
-		Priority: 5,
+		Priority: config.ConfigData.Alerts.Gotify[provider.index].Priority,
 	}
 	payload.Extras.ClientDisplay.ContentType = "text/markdown"
 	payload.Extras.ClientNotification.BigImageURL = snapshotURL

@@ -141,6 +141,7 @@ type Gotify struct {
 	Server      string `koanf:"server" json:"server,omitempty" doc:"Gotify server URL" default:""`
 	Token       string `koanf:"token" json:"token,omitempty" doc:"Gotify app token" default:""`
 	Insecure    bool   `koanf:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:"false"`
+	Priority    int    `koanf:"priority" json:"priority,omitempty" minimum:"0" maximum:"10" doc:"Gotify message priority" default:"5"`
 }
 
 type Matrix struct {
