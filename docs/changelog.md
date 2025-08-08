@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.5.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.5.3) - TBD
+ - Fix issue with MQTT topic parsing
+
 ## [v0.5.2](https://github.com/0x2142/frigate-notify/releases/tag/v0.5.2) - May 20 2025
  - Fix minor issue with additional default config values being overwritten if configured value is empty
 
