@@ -506,6 +506,9 @@ alerts:
     - Env: `FN_ALERTS__GOTIFY__TOKEN`
     - App token associated with this app in Gotify
     - Required if this alerting method is enabled
+- **priority** (Optional - Default: `0`)
+    - Optionally specify message priority
+    - Valid range: 0-10
 - **title** (Optional)
     - Env: `FN_ALERTS__GOTIFY__TITLE`
     - Optionally overrride global message title for this notification provider
@@ -524,6 +527,7 @@ alerts:
     enabled: false
     server: gotify.your.domain.tld
     token: ABCDEF
+    priority:
     title:
     ignoressl: true
     template:
