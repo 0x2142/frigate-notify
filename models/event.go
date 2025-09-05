@@ -51,6 +51,7 @@ type Event struct {
 // Additional custom fields
 type ExtraFields struct {
 	FormattedTime       string
+	UnixStartTime       int64
 	TopScorePercent     string
 	LicensePlatePercent string
 	LabelList           string

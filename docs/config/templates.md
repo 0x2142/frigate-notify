@@ -98,6 +98,7 @@ The list below doesn't contain every possible variable, just a few of the most c
 | .StartTime             | Unix timestamp of event start                                                                                            |
 | .EndTime               | Unix timestamp of event end                                                                                              |
 | .Extra.FormattedTime   | Converted & formatted timestamp of event start <br /> (Uses `alerts > general > timeformat` config setting if specified) |
+| .Extra.UnixStartTime   | Unix timestamp of event start time                                                                                       |
 | .Extra.CameraName      | Title case transform of camera name (ex. "side_door" becomes "Side Door")                                                |
 | .Extra.TopScorePercent | Percent confidence of object detection label                                                                             |
 | .Extra.ZoneList        | List of current zones object is in                                                                                       |
