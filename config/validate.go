@@ -302,6 +302,9 @@ func (c *Config) validateFrigateServer() []string {
 	util.FrigateServer = c.Frigate.Server
 	util.FrigateInsecure = c.Frigate.Insecure
 
+	// Set HTTP User Agent
+	util.AppUserAgent = "Frigate-Notify/" + Internal.AppVersion
+
 	// Check username & password set
 	if c.Frigate.Username != "" && c.Frigate.Password == "" {
 		connectivityErrors = append(connectivityErrors, "Frigate username & password must be specified")
