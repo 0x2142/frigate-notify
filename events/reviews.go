@@ -111,7 +111,7 @@ func processReview(review models.Review) {
 	if len(detections) == 0 {
 		log.Info().
 			Str("review_id", review.ID).
-			Msgf("Review dropped - No events eligable for notification")
+			Msgf("Review dropped - No events eligible for notification")
 		return
 	}
 

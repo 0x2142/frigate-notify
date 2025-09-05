@@ -98,7 +98,8 @@ alerts:
   gotify:
     enabled: false
     server:
-    token: 
+    token:
+    priority:
     ignoressl:
     template:
   

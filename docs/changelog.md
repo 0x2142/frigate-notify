@@ -2,6 +2,10 @@
 
 ## [v0.5.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.5.3) - TBD
  - Fix issue with MQTT topic parsing
+ - Fix issue with duplicate notifications if using Frigate Web API polling method
+ - Add configurable message priority for Gotify
+ - Add message template variable for event start time as Unix timestamp
+ - Add custom User-Agent for outbound HTTP requests
 
 ## [v0.5.2](https://github.com/0x2142/frigate-notify/releases/tag/v0.5.2) - May 20 2025
  - Fix minor issue with additional default config values being overwritten if configured value is empty

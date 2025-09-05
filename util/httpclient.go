@@ -16,6 +16,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var AppUserAgent string
+
 // buildParams creates an escaped param string from a slice
 func BuildHTTPParams(params ...map[string]string) string {
 	paramList := url.Values{}
@@ -27,6 +29,11 @@ func BuildHTTPParams(params ...map[string]string) string {
 		}
 	}
 	return "?" + paramList.Encode()
+}
+
+func setUserAgent(req *http.Request) *http.Request {
+	req.Header.Add("User-Agent", AppUserAgent)
+	return req
 }
 
 // HTTPGet is a simple HTTP client function to return page body
@@ -70,9 +77,10 @@ func HTTPGet(url string, insecure bool, params string, headers ...map[string]str
 			for k, v := range h {
 				req.Header.Add(k, v)
 			}
-
 		}
 	}
+	// Set User Agent
+	setUserAgent(req)
 
 	// Remove authorization header value for logging
 	var logheaders []map[string]string
@@ -165,9 +173,10 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 				for k, v := range h {
 					req.Header.Add(k, v)
 				}
-
 			}
 		}
+		// Set User Agent
+		setUserAgent(req)
 
 		// Remove authorization header value for logging
 		var logheaders []map[string]string
