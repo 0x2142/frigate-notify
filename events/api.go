@@ -60,6 +60,9 @@ func QueryAPI() {
 			if review.StartTime > LastQueryTime {
 				LastQueryTime = review.StartTime
 			}
+			if isStale("review", review.StartTime, review.ID) {
+				return
+			}
 			processReview(review)
 		}
 	case "events":
@@ -73,10 +76,39 @@ func QueryAPI() {
 			if event.StartTime > LastQueryTime {
 				LastQueryTime = event.StartTime
 			}
+			if isStale("event", event.StartTime, event.ID) {
+				return
+			}
 			processEvent(event)
 		}
 	}
 
+}
+
+// Check for stale items that have not ended
+func isStale(itemType string, eventTime float64, id string) bool {
+	// Check for stale events that started > 45 min ago
+	limit, _ := time.ParseDuration("45m")
+	now := time.Now()
+	diff := now.Sub(time.Unix(int64(eventTime), 0))
+	if diff >= limit {
+		if itemType == "event" {
+			log.Debug().
+				Int("max_age", 45).
+				Int("event_age", int(diff.Minutes())).
+				Str("event_id", id).
+				Msg("Event dropped - Stale item")
+		}
+		if itemType == "review" {
+			log.Debug().
+				Int("max_age", 45).
+				Int("event_age", int(diff.Minutes())).
+				Str("review_id", id).
+				Msg("Review dropped - Stale item")
+		}
+		return true
+	}
+	return false
 }
 
 // Recheck Frigate event & wait for license plate recognition data
