@@ -196,6 +196,7 @@ type SMTP struct {
 	Server      string `koanf:"server" json:"server,omitempty" doc:"SMTP server hostname or IP address" default:""`
 	Port        int    `koanf:"port" json:"port,omitempty" minimum:"1" maximum:"65535" doc:"SMTP server port" default:"25"`
 	TLS         bool   `koanf:"tls" json:"tls,omitempty" enum:"true,false" doc:"Enable/Disable TLS connection" default:"false"`
+	AuthType    string `koanf:"authtype" json:"authtype,omitempty" enum:"plain,plain-noenc,login,login-noenc,noauth,cram-md5,xoauth2,scram-sha-1,scram-sha-1-plus,scram-sha-256,scram-sha-256-plus,autodiscover" doc:"SMTP Authentication type" default:"plain"`
 	User        string `koanf:"user" json:"user,omitempty" doc:"SMTP user for authentication" default:""`
 	Password    string `koanf:"password" json:"password,omitempty" doc:"SMTP password for authentication" default:""`
 	From        string `koanf:"from" json:"from,omitempty" format:"email" doc:"SMTP sender" default:""`

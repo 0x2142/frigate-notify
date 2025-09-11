@@ -299,6 +299,8 @@ alerts:
     port: 
     # Whether or not the SMTP server requires TLS (Default: true)
     tls: 
+    # Set SMTP Auth type. See docs for options (Default: plain)
+    authtype:
     # Username for authentication
     user:
     # SMTP password for above user

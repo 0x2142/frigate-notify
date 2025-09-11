@@ -788,6 +788,10 @@ alerts:
 - **tls** (Optional - Default: `false`)
     - Env: `FN_ALERTS__SMTP__TLS`
     - Set to `true` if SMTP TLS is required
+- **authtype** (Optional = Default: `plain`)
+    - ENV: `FN__ALERTS__SMTP__AUTHTYPE`
+    - Set SMTP Authentication type
+    - Valid options: `plain, plain-noenc, login, login-noenc, noauth, cram-md5, xoauth2, scram-sha-1, scram-sha-1-plus, scram-sha-256, scram-sha-256-plus, autodiscover`
 - **user** (Optional)
     - Env: `FN_ALERTS__SMTP__USER`
     - Add SMTP username for authentication
@@ -829,6 +833,7 @@ alerts:
     server: smtp.your.domain.tld
     port: 587
     tls: true
+    authtype: login
     from: test_user@your.domain.tld
     user: test_user@your.domain.tld
     password: test_pass

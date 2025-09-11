@@ -737,6 +737,7 @@ func (c *Config) validateSignal(id int) []string {
 
 func (c *Config) validateSMTP(id int) []string {
 	var smtpErrors []string
+	authTypes := []string{"plain", "plain-noenc", "login", "login-noenc", "noauth", "cram-md5", "xoauth2", "scram-sha-1", "scram-sha-1-plus", "scram-sha-256", "scram-sha-256-plus", "autodiscover"}
 	validThreading := []string{"day", "camera", "zone"}
 	log.Debug().Msgf("Alerting enabled for SMTP profile ID %v", id)
 	if c.Alerts.SMTP[id].Server == "" {
@@ -744,6 +745,12 @@ func (c *Config) validateSMTP(id int) []string {
 	}
 	if c.Alerts.SMTP[id].Recipient == "" {
 		smtpErrors = append(smtpErrors, fmt.Sprintf("No SMTP recipients specified! Profile ID %v", id))
+	}
+	if c.Alerts.SMTP[id].AuthType == "" {
+		c.Alerts.SMTP[id].AuthType = "plain"
+	}
+	if !slices.Contains(authTypes, strings.ToLower(c.Alerts.SMTP[id].AuthType)) {
+		smtpErrors = append(smtpErrors, fmt.Sprintf("Invalid SMTP Authentication type. Profile ID %v", id))
 	}
 	if c.Alerts.SMTP[id].User != "" && c.Alerts.SMTP[id].Password == "" {
 		smtpErrors = append(smtpErrors, fmt.Sprintf("SMTP username in config, but no password provided! Profile ID %v", id))
