@@ -8,7 +8,14 @@ var DefaultConfig Config = Config{
 		Mode: "reviews",
 		API: models.API{
 			Enabled: false,
-			Port:    8000}},
+			Port:    8000},
+		Internal: models.Internal{
+			HTTP: models.HTTP{
+				Timeout:  10,
+				Attempts: 6,
+			},
+		},
+	},
 	Frigate: models.Frigate{
 		Server:    "",
 		Insecure:  false,

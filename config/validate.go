@@ -33,6 +33,9 @@ func (c *Config) Validate() []string {
 		}
 	}
 
+	// Validate Internal settings
+	c.validateInternal()
+
 	// Validate Frigate polling method
 	if results := c.validateFrigatePolling(); len(results) > 0 {
 		validationErrors = append(validationErrors, results...)
@@ -228,6 +231,18 @@ func (c *Config) validateAPI() []string {
 	}
 
 	return apiErrors
+}
+
+func (c *Config) validateInternal() {
+	// Set defaults
+	if c.App.Internal.HTTP.Timeout == 0 {
+		c.App.Internal.HTTP.Timeout = 10
+	}
+	if c.App.Internal.HTTP.Attempts == 0 {
+		c.App.Internal.HTTP.Attempts = 6
+	}
+	util.HTTPMaxAttempts = c.App.Internal.HTTP.Attempts
+	util.HTTPTimeout = c.App.Internal.HTTP.Timeout
 }
 
 func (c *Config) validateFrigatePolling() []string {
