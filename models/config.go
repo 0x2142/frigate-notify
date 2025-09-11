@@ -1,13 +1,23 @@
 package models
 
 type App struct {
-	Mode string `koanf:"mode" json:"mode" enum:"events,reviews" doc:"Type of polling method used when connecting to Frigate" default:"reviews"`
-	API  API    `koanf:"api" json:"api" doc:"Frigate-Notify API settings"`
+	Mode     string   `koanf:"mode" json:"mode" enum:"events,reviews" doc:"Type of polling method used when connecting to Frigate" default:"reviews"`
+	API      API      `koanf:"api" json:"api" doc:"Frigate-Notify API settings"`
+	Internal Internal `koanf:"internal" json:"internal,omitempty" hidden:"true" doc:"Internal settings that alter the behavior of Frigate-Notify"`
 }
 
 type API struct {
 	Enabled bool `koanf:"enabled" json:"enabled" doc:"Enable Frigate-Notify API server" enum:"true,false" default:"false"`
 	Port    int  `koanf:"port" json:"port,omitempty" doc:"API server port" minimum:"1" maximum:"65535" default:"8000"`
+}
+
+type Internal struct {
+	HTTP HTTP `koanf:"http" json:"http,omitempty" doc:"Frigate-Notify outbound HTTP settings"`
+}
+
+type HTTP struct {
+	Timeout  int `koanf:"timeout" json:"timeout,omitempty" doc:"Outbound HTTP timeout" default:"10"`
+	Attempts int `koanf:"attempts" json:"attempts,omitempty" doc:"Max attempts trying to connect to HTTP endpoint" default:"6"`
 }
 
 type Frigate struct {
