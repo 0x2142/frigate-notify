@@ -311,6 +311,7 @@ func setExtras(events []models.Event) models.Event {
 
 	// If certain time format is provided, re-format date / time string
 	eventTime := time.Unix(int64(key.StartTime), 0)
+	key.Extra.UnixStartTime = eventTime.Unix()
 	key.Extra.FormattedTime = eventTime.String()
 	if config.ConfigData.Alerts.General.TimeFormat != "" {
 		key.Extra.FormattedTime = eventTime.Format(config.ConfigData.Alerts.General.TimeFormat)

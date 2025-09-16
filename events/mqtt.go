@@ -101,7 +101,8 @@ func connectHandler(client mqtt.Client) {
 
 // handleMQTTMsg processes incoming MQTT messages depending on topic
 func handleMQTTMsg(client mqtt.Client, msg mqtt.Message) {
-	topic := strings.Split(msg.Topic(), "/")[1]
+	components := strings.Split(msg.Topic(), "/")
+	topic := components[len(components)-1]
 
 	log.Trace().
 		RawJSON("payload", msg.Payload()).

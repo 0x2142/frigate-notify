@@ -93,10 +93,37 @@ func SendSMTP(event models.Event, snapshot io.Reader, provider notifMeta) {
 	c, err := mail.NewClient(profile.Server, mail.WithPort(profile.Port))
 	// Add authentication params if needed
 	if profile.User != "" && profile.Password != "" {
-		c.SetSMTPAuth(mail.SMTPAuthPlain)
 		c.SetUsername(profile.User)
 		c.SetPassword(profile.Password)
+
+		switch strings.ToLower(profile.AuthType) {
+		case "plain":
+			c.SetSMTPAuth(mail.SMTPAuthPlain)
+		case "plain-noenc":
+			c.SetSMTPAuth(mail.SMTPAuthPlainNoEnc)
+		case "login":
+			c.SetSMTPAuth(mail.SMTPAuthLogin)
+		case "login-noenc":
+			c.SetSMTPAuth(mail.SMTPAuthLoginNoEnc)
+		case "noauth":
+			c.SetSMTPAuth(mail.SMTPAuthNoAuth)
+		case "cram-md5":
+			c.SetSMTPAuth(mail.SMTPAuthCramMD5)
+		case "xoauth2":
+			c.SetSMTPAuth(mail.SMTPAuthXOAUTH2)
+		case "scram-sha-1":
+			c.SetSMTPAuth(mail.SMTPAuthSCRAMSHA1)
+		case "scram-sha-1-plus":
+			c.SetSMTPAuth(mail.SMTPAuthSCRAMSHA1PLUS)
+		case "scram-sha-256":
+			c.SetSMTPAuth(mail.SMTPAuthSCRAMSHA256)
+		case "scram-sha-256-plus":
+			c.SetSMTPAuth(mail.SMTPAuthSCRAMSHA256PLUS)
+		case "autodiscover":
+			c.SetSMTPAuth(mail.SMTPAuthAutoDiscover)
+		}
 	}
+
 	// Mandatory TLS is enabled by default, so disable TLS if config flag is set
 	if !profile.TLS {
 		c.SetTLSPolicy(mail.NoTLS)

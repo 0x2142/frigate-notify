@@ -16,6 +16,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var AppUserAgent string
+var HTTPTimeout int
+var HTTPMaxAttempts int
+
 // buildParams creates an escaped param string from a slice
 func BuildHTTPParams(params ...map[string]string) string {
 	paramList := url.Values{}
@@ -29,6 +33,11 @@ func BuildHTTPParams(params ...map[string]string) string {
 	return "?" + paramList.Encode()
 }
 
+func setUserAgent(req *http.Request) *http.Request {
+	req.Header.Add("User-Agent", AppUserAgent)
+	return req
+}
+
 // HTTPGet is a simple HTTP client function to return page body
 func HTTPGet(url string, insecure bool, params string, headers ...map[string]string) ([]byte, error) {
 	// Append HTTP params if any
@@ -38,7 +47,7 @@ func HTTPGet(url string, insecure bool, params string, headers ...map[string]str
 
 	// New HTTP Client
 	client := &http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: time.Duration(HTTPTimeout) * time.Second,
 		Jar:     cookies,
 	}
 
@@ -70,9 +79,10 @@ func HTTPGet(url string, insecure bool, params string, headers ...map[string]str
 			for k, v := range h {
 				req.Header.Add(k, v)
 			}
-
 		}
 	}
+	// Set User Agent
+	setUserAgent(req)
 
 	// Remove authorization header value for logging
 	var logheaders []map[string]string
@@ -142,7 +152,7 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 	}
 
 	// New HTTP Client
-	client := http.Client{Timeout: 10 * time.Second}
+	client := http.Client{Timeout: time.Duration(HTTPTimeout) * time.Second}
 
 	// Ignore SSL verification if set
 	if insecure {
@@ -165,9 +175,10 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 				for k, v := range h {
 					req.Header.Add(k, v)
 				}
-
 			}
 		}
+		// Set User Agent
+		setUserAgent(req)
 
 		// Remove authorization header value for logging
 		var logheaders []map[string]string
@@ -204,21 +215,21 @@ func HTTPPost(url string, insecure bool, payload []byte, params string, headers 
 		if err == nil {
 			break
 		} else {
-			if retry == 6 {
+			if retry == HTTPMaxAttempts {
 				log.Warn().
 					Int("attempt", retry).
-					Int("max_tries", 6).
+					Int("max_tries", HTTPMaxAttempts).
 					Err(err).
 					Msg("HTTP Request failed, retries exceeded")
 				return nil, err
 			}
 			log.Warn().
 				Int("attempt", retry).
-				Int("max_tries", 6).
+				Int("max_tries", HTTPMaxAttempts).
 				Err(err).
-				Msg("HTTP Request failed, retrying in 10 seconds...")
+				Msg("HTTP Request failed, retrying in 2 seconds...")
 			retry += 1
-			time.Sleep(1 * time.Second)
+			time.Sleep(2 * time.Second)
 		}
 	}
 

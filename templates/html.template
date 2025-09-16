@@ -1,9 +1,9 @@
-Detection at {{ .Extra.FormattedTime }} <br />
-Camera: {{ .Extra.CameraName }} <br />
-{{ if ge (len .Extra.LabelList) 1 }}Label(s): {{ .Extra.LabelList }} <br /> {{ end }}
-{{ if ge (len .Extra.SubLabelList) 1 }}Sublabel(s): {{ .Extra.SubLabelList }} <br /> {{ end }}
-{{ if ge (len .Extra.LicensePlateList) 1 }}License Plate(s): {{ .Extra.LicensePlateList }} <br /> {{ end }}
-{{ if ge (len .Extra.Audio) 1 }}Audio: {{ .Extra.Audio }}<br /> {{ end }}
+Detection at {{ .Extra.FormattedTime }}<br />
+Camera: {{ .Extra.CameraName }}<br />
+{{ if ge (len .Extra.LabelList) 1 }}Label(s): {{ .Extra.LabelList }}<br />{{ end }}
+{{ if ge (len .Extra.SubLabelList) 1 }}Sublabel(s): {{ .Extra.SubLabelList }}<br />{{ end }}
+{{ if ge (len .Extra.LicensePlateList) 1 }}License Plate(s): {{ .Extra.LicensePlateList }}<br />{{ end }}
+{{ if ge (len .Extra.Audio) 1 }}Audio: {{ .Extra.Audio }}<br />{{ end }}
 {{ if ge (len .Zones) 1 }}Zone(s): {{ .Extra.ZoneList }}
 {{ end }}
 <br />

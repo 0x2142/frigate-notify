@@ -33,6 +33,9 @@ func (c *Config) Validate() []string {
 		}
 	}
 
+	// Validate Internal settings
+	c.validateInternal()
+
 	// Validate Frigate polling method
 	if results := c.validateFrigatePolling(); len(results) > 0 {
 		validationErrors = append(validationErrors, results...)
@@ -230,6 +233,18 @@ func (c *Config) validateAPI() []string {
 	return apiErrors
 }
 
+func (c *Config) validateInternal() {
+	// Set defaults
+	if c.App.Internal.HTTP.Timeout == 0 {
+		c.App.Internal.HTTP.Timeout = 10
+	}
+	if c.App.Internal.HTTP.Attempts == 0 {
+		c.App.Internal.HTTP.Attempts = 6
+	}
+	util.HTTPMaxAttempts = c.App.Internal.HTTP.Attempts
+	util.HTTPTimeout = c.App.Internal.HTTP.Timeout
+}
+
 func (c *Config) validateFrigatePolling() []string {
 	var pollingErrors []string
 	webapi := c.Frigate.WebAPI.Enabled
@@ -301,6 +316,9 @@ func (c *Config) validateFrigateServer() []string {
 	// Save Frigate server for auth checks
 	util.FrigateServer = c.Frigate.Server
 	util.FrigateInsecure = c.Frigate.Insecure
+
+	// Set HTTP User Agent
+	util.AppUserAgent = "Frigate-Notify/" + Internal.AppVersion
 
 	// Check username & password set
 	if c.Frigate.Username != "" && c.Frigate.Password == "" {
@@ -734,6 +752,7 @@ func (c *Config) validateSignal(id int) []string {
 
 func (c *Config) validateSMTP(id int) []string {
 	var smtpErrors []string
+	authTypes := []string{"plain", "plain-noenc", "login", "login-noenc", "noauth", "cram-md5", "xoauth2", "scram-sha-1", "scram-sha-1-plus", "scram-sha-256", "scram-sha-256-plus", "autodiscover"}
 	validThreading := []string{"day", "camera", "zone"}
 	log.Debug().Msgf("Alerting enabled for SMTP profile ID %v", id)
 	if c.Alerts.SMTP[id].Server == "" {
@@ -741,6 +760,12 @@ func (c *Config) validateSMTP(id int) []string {
 	}
 	if c.Alerts.SMTP[id].Recipient == "" {
 		smtpErrors = append(smtpErrors, fmt.Sprintf("No SMTP recipients specified! Profile ID %v", id))
+	}
+	if c.Alerts.SMTP[id].AuthType == "" {
+		c.Alerts.SMTP[id].AuthType = "plain"
+	}
+	if !slices.Contains(authTypes, strings.ToLower(c.Alerts.SMTP[id].AuthType)) {
+		smtpErrors = append(smtpErrors, fmt.Sprintf("Invalid SMTP Authentication type. Profile ID %v", id))
 	}
 	if c.Alerts.SMTP[id].User != "" && c.Alerts.SMTP[id].Password == "" {
 		smtpErrors = append(smtpErrors, fmt.Sprintf("SMTP username in config, but no password provided! Profile ID %v", id))

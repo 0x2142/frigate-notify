@@ -98,7 +98,8 @@ alerts:
   gotify:
     enabled: false
     server:
-    token: 
+    token:
+    priority:
     ignoressl:
     template:
   
@@ -151,9 +152,10 @@ alerts:
 
   smtp:
     enabled: false
-    server: 
-    port: 
-    tls: 
+    server:
+    port:
+    tls:
+    authtype:
     user:
     password:
     recipient:

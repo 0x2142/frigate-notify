@@ -506,6 +506,9 @@ alerts:
     - Env: `FN_ALERTS__GOTIFY__TOKEN`
     - App token associated with this app in Gotify
     - Required if this alerting method is enabled
+- **priority** (Optional - Default: `0`)
+    - Optionally specify message priority
+    - Valid range: 0-10
 - **title** (Optional)
     - Env: `FN_ALERTS__GOTIFY__TITLE`
     - Optionally overrride global message title for this notification provider
@@ -524,6 +527,7 @@ alerts:
     enabled: false
     server: gotify.your.domain.tld
     token: ABCDEF
+    priority:
     title:
     ignoressl: true
     template:
@@ -784,6 +788,10 @@ alerts:
 - **tls** (Optional - Default: `false`)
     - Env: `FN_ALERTS__SMTP__TLS`
     - Set to `true` if SMTP TLS is required
+- **authtype** (Optional = Default: `plain`)
+    - ENV: `FN__ALERTS__SMTP__AUTHTYPE`
+    - Set SMTP Authentication type
+    - Valid options: `plain, plain-noenc, login, login-noenc, noauth, cram-md5, xoauth2, scram-sha-1, scram-sha-1-plus, scram-sha-256, scram-sha-256-plus, autodiscover`
 - **user** (Optional)
     - Env: `FN_ALERTS__SMTP__USER`
     - Add SMTP username for authentication
@@ -825,6 +833,7 @@ alerts:
     server: smtp.your.domain.tld
     port: 587
     tls: true
+    authtype: login
     from: test_user@your.domain.tld
     user: test_user@your.domain.tld
     password: test_pass

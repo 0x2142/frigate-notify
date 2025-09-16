@@ -1,13 +1,23 @@
 package models
 
 type App struct {
-	Mode string `koanf:"mode" json:"mode" enum:"events,reviews" doc:"Type of polling method used when connecting to Frigate" default:"reviews"`
-	API  API    `koanf:"api" json:"api" doc:"Frigate-Notify API settings"`
+	Mode     string   `koanf:"mode" json:"mode" enum:"events,reviews" doc:"Type of polling method used when connecting to Frigate" default:"reviews"`
+	API      API      `koanf:"api" json:"api" doc:"Frigate-Notify API settings"`
+	Internal Internal `koanf:"internal" json:"internal,omitempty" hidden:"true" doc:"Internal settings that alter the behavior of Frigate-Notify"`
 }
 
 type API struct {
 	Enabled bool `koanf:"enabled" json:"enabled" doc:"Enable Frigate-Notify API server" enum:"true,false" default:"false"`
 	Port    int  `koanf:"port" json:"port,omitempty" doc:"API server port" minimum:"1" maximum:"65535" default:"8000"`
+}
+
+type Internal struct {
+	HTTP HTTP `koanf:"http" json:"http,omitempty" doc:"Frigate-Notify outbound HTTP settings"`
+}
+
+type HTTP struct {
+	Timeout  int `koanf:"timeout" json:"timeout,omitempty" doc:"Outbound HTTP timeout" default:"10"`
+	Attempts int `koanf:"attempts" json:"attempts,omitempty" doc:"Max attempts trying to connect to HTTP endpoint" default:"6"`
 }
 
 type Frigate struct {
@@ -141,6 +151,7 @@ type Gotify struct {
 	Server      string `koanf:"server" json:"server,omitempty" doc:"Gotify server URL" default:""`
 	Token       string `koanf:"token" json:"token,omitempty" doc:"Gotify app token" default:""`
 	Insecure    bool   `koanf:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:"false"`
+	Priority    int    `koanf:"priority" json:"priority,omitempty" minimum:"0" maximum:"10" doc:"Gotify message priority" default:"0"`
 }
 
 type Matrix struct {
@@ -195,6 +206,7 @@ type SMTP struct {
 	Server      string `koanf:"server" json:"server,omitempty" doc:"SMTP server hostname or IP address" default:""`
 	Port        int    `koanf:"port" json:"port,omitempty" minimum:"1" maximum:"65535" doc:"SMTP server port" default:"25"`
 	TLS         bool   `koanf:"tls" json:"tls,omitempty" enum:"true,false" doc:"Enable/Disable TLS connection" default:"false"`
+	AuthType    string `koanf:"authtype" json:"authtype,omitempty" enum:"plain,plain-noenc,login,login-noenc,noauth,cram-md5,xoauth2,scram-sha-1,scram-sha-1-plus,scram-sha-256,scram-sha-256-plus,autodiscover" doc:"SMTP Authentication type" default:"plain"`
 	User        string `koanf:"user" json:"user,omitempty" doc:"SMTP user for authentication" default:""`
 	Password    string `koanf:"password" json:"password,omitempty" doc:"SMTP password for authentication" default:""`
 	From        string `koanf:"from" json:"from,omitempty" format:"email" doc:"SMTP sender" default:""`
