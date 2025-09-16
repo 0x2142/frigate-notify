@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.5.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.5.3) - TBD
+## [v0.5.3](https://github.com/0x2142/frigate-notify/releases/tag/v0.5.3) - Sep 16 2025
  - Fix issue with MQTT topic parsing
  - Fix issue with duplicate notifications if using Frigate Web API polling method
  - Add configurable message priority for Gotify
