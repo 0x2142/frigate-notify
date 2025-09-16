@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	debuginfo "runtime/debug"
 	"strings"
 	"time"
 	_ "time/tzdata"
@@ -93,7 +94,13 @@ func main() {
 		log.Debug().Msg("Debug logging enabled")
 	}
 
+	info, _ := debuginfo.ReadBuildInfo()
+	buildinfo := make(map[string]interface{})
+	for _, s := range info.Settings {
+		buildinfo[s.Key] = s.Value
+	}
 	log.Info().Msgf("Frigate Notify - %v", config.Internal.AppVersion)
+	log.Trace().Fields(buildinfo).Msg("Build Info")
 	log.Info().Msg("Starting...")
 
 	// Load & validate config
