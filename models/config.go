@@ -125,11 +125,13 @@ type Labels struct {
 }
 
 type AlertFilter struct {
-	Cameras   []string `koanf:"cameras" json:"cameras,omitempty" doc:"List of cameras that will use this alert provider"`
-	Zones     []string `koanf:"zones" json:"zones,omitempty" doc:"List of zones that will use this alert provider"`
-	Quiet     Quiet    `koanf:"quiet" json:"quiet,omitempty" doc:"Quiet period for this alert provider"`
-	Labels    []string `koanf:"labels" json:"labels,omitempty" doc:"List of labels that will use this alert provider"`
-	Sublabels []string `koanf:"sublabels" json:"sublabels,omitempty" doc:"List of sublabels that will use this alert provider"`
+	Cameras           []string `koanf:"cameras" json:"cameras,omitempty" doc:"List of cameras that will use this alert provider"`
+	Zones             []string `koanf:"zones" json:"zones,omitempty" doc:"List of zones that will use this alert provider"`
+	Quiet             Quiet    `koanf:"quiet" json:"quiet,omitempty" doc:"Quiet period for this alert provider"`
+	Labels            []string `koanf:"labels" json:"labels,omitempty" doc:"List of labels that will use this alert provider"`
+	Sublabels         []string `koanf:"sublabels" json:"sublabels,omitempty" doc:"List of sublabels that will use this alert provider"`
+	MultiZone         bool     `koanf:"multi_zone" json:"multi_zone,omitempty" doc:"Require all zones specified above to be entered, instead of any listed zone"`
+	ZoneOrderEnforced bool     `koanf:"zone_order_enforced" json:"zone_order_enforced,omitempty" doc:"Combined with Multi-Zone, requires zones to be entered in the same order as their requirement"`
 }
 
 type AlertCommon struct {
