@@ -96,14 +96,7 @@ func checkAlertFilters(events []models.Event, filters models.AlertFilter, provid
 		Strs("allowed", filters.Zones).
 		Msg("Check allowed zone")
 	if len(filters.Zones) >= 1 {
-		match := false
-		for _, zone := range zones {
-			if slices.Contains(filters.Zones, zone) {
-				match = true
-				break
-			}
-		}
-		if !match {
+		if !checkZones(zones, filters.Zones, filters.MultiZone, filters.ZoneOrderEnforced) {
 			log.Debug().
 				Str("provider", provider.name).
 				Int("provider_id", provider.index).
@@ -166,4 +159,34 @@ func checkAlertFilters(events []models.Event, filters models.AlertFilter, provid
 		Int("provider_id", provider.index).
 		Msg("Alert filters passed!")
 	return true
+}
+
+func checkZones(actual []string, expected []string, multiZone bool, zoneOrderEnforced bool) bool {
+	if !multiZone {
+		for _, zone := range actual {
+			if slices.Contains(expected, zone) {
+				return true
+			}
+		}
+	}
+
+	intersection := make([]string, 0, len(expected))
+
+	for _, zone := range actual {
+		for _, zone2 := range expected {
+			if zone == zone2 {
+				intersection = append(intersection, zone)
+			}
+		}
+	}
+
+	if !zoneOrderEnforced && len(intersection) == len(expected) {
+		return true
+	}
+
+	if slices.Equal(intersection, expected) {
+		return true
+	}
+
+	return false
 }

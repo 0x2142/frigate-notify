@@ -56,6 +56,8 @@ For example, if we configure Ntfy to only send alerts on zone `driveway`, then o
 The following filters are currently available for alerts:
 
 - **zones** - List of one or more zones
+- **multi_zone** - Require all zones specified above to be entered, instead of any listed zone
+- **zone_order_enforced** - Combined with Multi-Zone, requires zones to be entered in the same order as their requirement
 - **labels** - List of one or more labels
 - **sublabels** - List of one or more sublabels
 - **cameras** - List of one or more cameras
@@ -72,6 +74,8 @@ alerts:
     filters:
         zones:
           - driveway
+        multi_zone: false
+        zone_order_enforced: false
         labels:
           - car
           - person
