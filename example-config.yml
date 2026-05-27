@@ -109,6 +109,8 @@ alerts:
     # Allow audio-only events (no object detection)
     # Set to `drop` to disallow this
     audio_only: allow
+    #Maximum delay from the start of an event to be notified, in seconds (Default: 300)
+    max_delay:
 
   # If configured, ignore events between times below
   quiet:

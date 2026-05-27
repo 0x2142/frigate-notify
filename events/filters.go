@@ -2,6 +2,7 @@ package events
 
 import (
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -10,6 +11,11 @@ import (
 	"github.com/0x2142/frigate-notify/config"
 	"github.com/0x2142/frigate-notify/models"
 )
+
+func FloatToString(input_num float64) string {
+	// to convert a float number to a string
+	return strconv.FormatFloat(input_num, 'f', 6, 64)
+}
 
 // checkEventFilters processes incoming event through configured filters to determine if it should generate a notification
 func checkEventFilters(event models.Event) bool {
@@ -119,6 +125,35 @@ func checkEventFilters(event models.Event) bool {
 	// Check license plate filterd
 	if !isAllowedLabel(event.ID, event.Data.RecognizedLicensePlate, "license_plate") {
 		return false
+	}
+
+		// Check if the event is a very old one...
+	eventTimeStart := time.Unix(int64(event.StartTime), 0)
+	actualTime := time.Now()
+	diffTime := actualTime.Sub(eventTimeStart)
+	// // Print hours, minutes and seconds
+	// fmt.Printf("%.3fh\n", diffTime.Hours())
+	// fmt.Printf("%.1fmin\n", diffTime.Minutes())
+	// fmt.Printf("%.0fs\n", diffTime.Seconds())
+	// log.Info().
+	// 	Str("event_id", event.ID).
+	// 	Str("Old one ??? Event start time : ", eventTimeStart.GoString()).
+	// 	Str("Actual time : ", actualTime.GoString()).
+	// 	Str("Différence : %s", diffTime.String()).
+	// 	Msg("To be checked")
+
+	// If the event has begun more than 15 minutes, don't report
+	if diffTime.Seconds() > float64(config.ConfigData.Alerts.General.MaxDelay) {
+		log.Info().
+			Str("event_id", event.ID).
+			Str("actual delay", FloatToString(diffTime.Seconds())).
+			Msg("Event dropped - more than MaxDelay seconds from start.")
+		return false
+	} else {
+		log.Info().
+			Str("event_id", event.ID).
+			Str("actual delay", FloatToString(diffTime.Seconds())).
+			Msg("Event not dropped for delay.")
 	}
 
 	// Default
