@@ -467,6 +467,12 @@ func (c *Config) validateAlertGeneral() []string {
 	}
 	log.Debug().Msgf("Max retry attempts for snapshots: %v", c.Alerts.General.MaxSnapRetry)
 
+	if c.Alerts.General.MaxDelay == 0 {
+		c.Alerts.General.MaxDelay = 300
+	}
+	log.Debug().Msgf("Max delay from the start of an event to be notified: %v", c.Alerts.General.MaxDelay)
+
+
 	return alertErrors
 }
 
