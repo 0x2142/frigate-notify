@@ -179,7 +179,6 @@ alerts:
     room_token:
     send_clip:
     upload_path:
-    keep_staged_files:
     ignoressl:
     template:
 

@@ -286,21 +286,8 @@ func SendNextcloudTalkMessage(event models.Event, snapshot io.Reader, provider n
 				Err(err).
 				Msg("Unable to share media to Talk room")
 			status.NotifFailure(err.Error())
-			if !profile.KeepStagedFiles {
-				_ = client.deleteFile(filePath)
-			}
+			_ = client.deleteFile(filePath)
 			return
-		}
-
-		if !profile.KeepStagedFiles {
-			if err := client.deleteFile(filePath); err != nil {
-				log.Debug().
-					Str("event_id", event.ID).
-					Str("provider", "Nextcloud Talk").
-					Int("provider_id", provider.index).
-					Err(err).
-					Msg("Uploaded media shared but cleanup failed")
-			}
 		}
 	} else {
 		if err := client.sendTextMessage(message); err != nil {

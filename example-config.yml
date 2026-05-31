@@ -349,8 +349,6 @@ alerts:
     send_clip:
     # Upload path (ex. /frigate-notify)
     upload_path:
-    # Set to true to keep staged files on Nextcloud after sharing to Talk
-    keep_staged_files:
     # Set to true to allow self-signed certificates
     ignoressl:
     # Custom notification template, if desired

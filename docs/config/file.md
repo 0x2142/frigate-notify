@@ -874,10 +874,8 @@ The conversation **room token** is the ID in the Talk URL (for example `https://
     - **Note**: Clips may take a short while to become available. Use [`max_snap_retry`](#general) to control how long frigate-notify will wait
 - **upload_path** (Optional - Default: `/frigate-notify`)
     - Env: `FN_ALERTS__NEXTCLOUD_TALK__UPLOAD_PATH`
-    - Folder on the Nextcloud account used to stage uploads before sharing to Talk
-- **keep_staged_files** (Optional - Default: `false`)
-    - Env: `FN_ALERTS__NEXTCLOUD_TALK__KEEP_STAGED_FILES`
-    - Keep uploaded files on Nextcloud after sharing to the conversation (by default they are removed)
+    - Folder on the Nextcloud account where alert media is stored and shared from into Talk
+    - Files are kept in this folder; Talk shares reference the source file, so deleting it would remove the media from the conversation
 - **ignoressl** (Optional - Default: `false`)
     - Env: `FN_ALERTS__NEXTCLOUD_TALK__IGNORESSL`
     - Ignore TLS/SSL certificate errors
@@ -898,7 +896,6 @@ alerts:
     room_token: abc123xyz
     send_clip: true
     upload_path: /frigate-notify
-    keep_staged_files: false
     template:
 ```
 

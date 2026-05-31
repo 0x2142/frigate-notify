@@ -232,9 +232,8 @@ type NextcloudTalk struct {
 	Password         string `koanf:"password" json:"password,omitempty" doc:"Nextcloud app password" default:""`
 	RoomToken        string `koanf:"room_token" json:"room_token,omitempty" doc:"Nextcloud Talk conversation token" default:""`
 	SendClip         bool   `koanf:"send_clip" json:"send_clip,omitempty" doc:"Send event video clip instead of snapshot image" default:"false"`
-	UploadPath       string `koanf:"upload_path" json:"upload_path,omitempty" doc:"Folder on Nextcloud to stage media uploads" default:"/frigate-notify"`
-	KeepStagedFiles  bool   `koanf:"keep_staged_files" json:"keep_staged_files,omitempty" doc:"Keep uploaded media on Nextcloud after sharing to Talk" default:"false"`
-	Insecure         bool   `koanf:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:"false"`
+	UploadPath string `koanf:"upload_path" json:"upload_path,omitempty" doc:"Folder on Nextcloud to store media shared to Talk" default:"/frigate-notify"`
+	Insecure   bool   `koanf:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:"false"`
 }
 
 type Webhook struct {
