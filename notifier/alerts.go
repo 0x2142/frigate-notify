@@ -98,6 +98,15 @@ func SendAlert(events []models.Event) {
 			}
 		}
 	}
+	// Nextcloud Talk
+	for id, profile := range config.ConfigData.Alerts.NextcloudTalk {
+		if profile.Enabled {
+			provider := notifMeta{name: "nextcloud_talk", index: id}
+			if checkAlertFilters(events, profile.Filters, provider) {
+				go SendNextcloudTalkMessage(event, bytes.NewReader(snap), provider)
+			}
+		}
+	}
 	// Ntfy
 	for id, profile := range config.ConfigData.Alerts.Ntfy {
 		if profile.Enabled {

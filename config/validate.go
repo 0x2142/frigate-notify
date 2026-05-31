@@ -126,6 +126,17 @@ func (c *Config) Validate() []string {
 		}
 	}
 
+	// Validate Nextcloud Talk
+	Internal.Status.Notifications.NextcloudTalk = make([]models.NotifierStatus, len(c.Alerts.NextcloudTalk))
+	for id, profile := range c.Alerts.NextcloudTalk {
+		Internal.Status.Notifications.NextcloudTalk[id].InitNotifStatus(id, profile.Enabled)
+		if profile.Enabled {
+			if results := c.validateNextcloudTalk(id); len(results) > 0 {
+				validationErrors = append(validationErrors, results...)
+			}
+		}
+	}
+
 	// Validate Ntfy
 	Internal.Status.Notifications.Ntfy = make([]models.NotifierStatus, len(c.Alerts.Ntfy))
 	for id, profile := range c.Alerts.Ntfy {
@@ -791,6 +802,27 @@ func (c *Config) validateSMTP(id int) []string {
 	return smtpErrors
 }
 
+func (c *Config) validateNextcloudTalk(id int) []string {
+	var ncTalkErrors []string
+	log.Debug().Msgf("Alerting enabled for Nextcloud Talk profile ID %v", id)
+	if c.Alerts.NextcloudTalk[id].Server == "" {
+		ncTalkErrors = append(ncTalkErrors, fmt.Sprintf("No Nextcloud server specified! Profile ID %v", id))
+	}
+	if c.Alerts.NextcloudTalk[id].Username == "" {
+		ncTalkErrors = append(ncTalkErrors, fmt.Sprintf("No Nextcloud username specified! Profile ID %v", id))
+	}
+	if c.Alerts.NextcloudTalk[id].Password == "" {
+		ncTalkErrors = append(ncTalkErrors, fmt.Sprintf("No Nextcloud app password specified! Profile ID %v", id))
+	}
+	if c.Alerts.NextcloudTalk[id].RoomToken == "" {
+		ncTalkErrors = append(ncTalkErrors, fmt.Sprintf("No Nextcloud Talk room token specified! Profile ID %v", id))
+	}
+	if msg := validateTemplate("Nextcloud Talk", c.Alerts.NextcloudTalk[id].Template); msg != "" {
+		ncTalkErrors = append(ncTalkErrors, msg+fmt.Sprintf(" Profile ID %v", id))
+	}
+	return ncTalkErrors
+}
+
 func (c *Config) validateTelegram(id int) []string {
 	var telegramErrors []string
 	log.Debug().Msgf("Alerting enabled for Telegram profile ID %v", id)
@@ -844,6 +876,11 @@ func (c *Config) validateAlertingEnabled() string {
 		}
 	}
 	for _, profile := range c.Alerts.Mattermost {
+		if profile.Enabled {
+			return ""
+		}
+	}
+	for _, profile := range c.Alerts.NextcloudTalk {
 		if profile.Enabled {
 			return ""
 		}

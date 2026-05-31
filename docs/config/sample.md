@@ -171,6 +171,18 @@ alerts:
     token:
     template:
 
+  nextcloud_talk:
+    enabled: false
+    server:
+    username:
+    password:
+    room_token:
+    send_clip:
+    upload_path:
+    keep_staged_files:
+    ignoressl:
+    template:
+
   webhook:
     enabled: false
     server: 

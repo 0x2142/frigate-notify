@@ -69,8 +69,9 @@ type Alerts struct {
 	Discord      []Discord    `koanf:"discord" json:"discord,omitempty" doc:"Discord notification settings"`
 	Gotify       []Gotify     `koanf:"gotify" json:"gotify,omitempty" doc:"Gotify notification settings"`
 	Matrix       []Matrix     `koanf:"matrix" json:"matrix,omitempty" doc:"Matrix notification settings"`
-	Mattermost   []Mattermost `koanf:"mattermost" json:"mattermost,omitempty" doc:"Mattermost notification settings"`
-	Ntfy         []Ntfy       `koanf:"ntfy" json:"ntfy,omitempty" doc:"Ntfy notification settings"`
+	Mattermost     []Mattermost     `koanf:"mattermost" json:"mattermost,omitempty" doc:"Mattermost notification settings"`
+	NextcloudTalk  []NextcloudTalk  `koanf:"nextcloud_talk" json:"nextcloud_talk,omitempty" doc:"Nextcloud Talk notification settings"`
+	Ntfy           []Ntfy           `koanf:"ntfy" json:"ntfy,omitempty" doc:"Ntfy notification settings"`
 	Pushover     []Pushover   `koanf:"pushover" json:"pushover,omitempty" doc:"Pushover notification settings"`
 	Signal       []Signal     `koanf:"signal" json:"signal,omitempty" doc:"Signal notification settings"`
 	SMTP         []SMTP       `koanf:"smtp" json:"smtp,omitempty" doc:"SMTP notification settings"`
@@ -222,6 +223,18 @@ type Telegram struct {
 	MessageThreadID int    `koanf:"message_thread_id" json:"message_thread_id,omitempty" doc:"Send message to thread by ID" default:"0"`
 	Token           string `koanf:"token" json:"token,omitempty" doc:"Telegram bot token" default:""`
 	SendClip        bool   `koanf:"send_clip" json:"send_clip,omitempty" doc:"Send event video clip instead of snapshot image" default:"false"`
+}
+
+type NextcloudTalk struct {
+	AlertCommon      `koanf:",squash"`
+	Server           string `koanf:"server" json:"server,omitempty" doc:"Nextcloud server URL" default:""`
+	Username         string `koanf:"username" json:"username,omitempty" doc:"Nextcloud username" default:""`
+	Password         string `koanf:"password" json:"password,omitempty" doc:"Nextcloud app password" default:""`
+	RoomToken        string `koanf:"room_token" json:"room_token,omitempty" doc:"Nextcloud Talk conversation token" default:""`
+	SendClip         bool   `koanf:"send_clip" json:"send_clip,omitempty" doc:"Send event video clip instead of snapshot image" default:"false"`
+	UploadPath       string `koanf:"upload_path" json:"upload_path,omitempty" doc:"Folder on Nextcloud to stage media uploads" default:"/frigate-notify"`
+	KeepStagedFiles  bool   `koanf:"keep_staged_files" json:"keep_staged_files,omitempty" doc:"Keep uploaded media on Nextcloud after sharing to Talk" default:"false"`
+	Insecure         bool   `koanf:"ignoressl" json:"ignoressl,omitempty" doc:"Ignore TLS/SSL errors" default:"false"`
 }
 
 type Webhook struct {

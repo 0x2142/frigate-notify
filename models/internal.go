@@ -30,8 +30,9 @@ type Notifiers struct {
 	Discord    []NotifierStatus `json:"discord" doc:"Status of Discord notifications"`
 	Gotify     []NotifierStatus `json:"gotify" doc:"Status of Gotify notifications"`
 	Matrix     []NotifierStatus `json:"matrix" doc:"Status of Matrix notifications"`
-	Mattermost []NotifierStatus `json:"mattermost" doc:"Status of Mattermost notifications"`
-	Ntfy       []NotifierStatus `json:"ntfy" doc:"Status of Ntfy notifications"`
+	Mattermost    []NotifierStatus `json:"mattermost" doc:"Status of Mattermost notifications"`
+	NextcloudTalk []NotifierStatus `json:"nextcloud_talk" doc:"Status of Nextcloud Talk notifications"`
+	Ntfy          []NotifierStatus `json:"ntfy" doc:"Status of Ntfy notifications"`
 	Pushover   []NotifierStatus `json:"pushover" doc:"Status of Pushover notifications"`
 	Signal     []NotifierStatus `json:"signal" doc:"Status of Signal notifications"`
 	SMTP       []NotifierStatus `json:"smtp" doc:"Status of SMTP notifications"`
