@@ -383,6 +383,44 @@ func TestValidateSMTP(t *testing.T) {
 	}
 }
 
+func TestValidateNextcloudTalk(t *testing.T) {
+	config := Config{Alerts: models.Alerts{}}
+	config.Alerts.NextcloudTalk = make([]models.NextcloudTalk, 1)
+
+	config.Alerts.NextcloudTalk[0].Server = "https://cloud.example.com"
+	config.Alerts.NextcloudTalk[0].Username = "user"
+	config.Alerts.NextcloudTalk[0].Password = "app-pass"
+	config.Alerts.NextcloudTalk[0].RoomToken = "roomtoken"
+	result := config.validateNextcloudTalk(0)
+	if len(result) != 0 {
+		t.Errorf("Expected: 0 error(s), Got: %v", len(result))
+	}
+
+	config.Alerts.NextcloudTalk[0].Server = ""
+	result = config.validateNextcloudTalk(0)
+	if len(result) != 1 {
+		t.Errorf("Expected: 1 error(s), Got: %v", len(result))
+	}
+
+	config.Alerts.NextcloudTalk[0].Username = ""
+	result = config.validateNextcloudTalk(0)
+	if len(result) != 2 {
+		t.Errorf("Expected: 2 error(s), Got: %v", len(result))
+	}
+
+	config.Alerts.NextcloudTalk[0].Password = ""
+	result = config.validateNextcloudTalk(0)
+	if len(result) != 3 {
+		t.Errorf("Expected: 3 error(s), Got: %v", len(result))
+	}
+
+	config.Alerts.NextcloudTalk[0].RoomToken = ""
+	result = config.validateNextcloudTalk(0)
+	if len(result) != 4 {
+		t.Errorf("Expected: 4 error(s), Got: %v", len(result))
+	}
+}
+
 func TestValidateTelegram(t *testing.T) {
 	config := Config{Alerts: models.Alerts{}}
 	config.Alerts.Telegram = make([]models.Telegram, 1)

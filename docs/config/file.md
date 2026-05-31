@@ -847,6 +847,58 @@ alerts:
     ignoressl:
 ```
 
+### Nextcloud Talk
+
+Native Nextcloud Talk notifications use an [app password](https://docs.nextcloud.com/server/latest/user_manual/en/session_management.html#managing-devices) from a user who is a member of the target conversation. Media (snapshot or video clip) is uploaded via WebDAV, then shared into the Talk room with the alert text as a single caption on the file share.
+
+The conversation **room token** is the ID in the Talk URL (for example `https://cloud.example.com/call/abc123xyz` → room token `abc123xyz`).
+
+- **enabled** (Optional - Default: `false`)
+    - Env: `FN_ALERTS__NEXTCLOUD_TALK__ENABLED`
+    - Set to `true` to enable alerting via Nextcloud Talk
+- **server** (Required)
+    - Env: `FN_ALERTS__NEXTCLOUD_TALK__SERVER`
+    - Nextcloud server base URL, e.g. `https://cloud.example.com`
+- **username** (Required)
+    - Env: `FN_ALERTS__NEXTCLOUD_TALK__USERNAME`
+    - Nextcloud account username
+- **password** (Required)
+    - Env: `FN_ALERTS__NEXTCLOUD_TALK__PASSWORD`
+    - App password for the Nextcloud account (not the main account password)
+- **room_token** (Required)
+    - Env: `FN_ALERTS__NEXTCLOUD_TALK__ROOM_TOKEN`
+    - Talk conversation token to post alerts into
+- **send_clip** (Optional - Default: `false`)
+    - Env: `FN_ALERTS__NEXTCLOUD_TALK__SEND_CLIP`
+    - Send the event video clip instead of the snapshot image when available
+    - **Note**: Clips may take a short while to become available. Use [`max_snap_retry`](#general) to control how long frigate-notify will wait
+- **upload_path** (Optional - Default: `/frigate-notify`)
+    - Env: `FN_ALERTS__NEXTCLOUD_TALK__UPLOAD_PATH`
+    - Folder on the Nextcloud account where alert media is stored and shared from into Talk
+    - Files are kept in this folder; Talk shares reference the source file, so deleting it would remove the media from the conversation
+- **ignoressl** (Optional - Default: `false`)
+    - Env: `FN_ALERTS__NEXTCLOUD_TALK__IGNORESSL`
+    - Ignore TLS/SSL certificate errors
+- **template** (Optional - Default: `nextcloudtalk`)
+    - Env: `FN_ALERTS__NEXTCLOUD_TALK__TEMPLATE`
+    - Custom notification template (used as the Talk caption for media, or the chat message for text-only alerts)
+    - The built-in `nextcloudtalk` template puts each link on its own line so Talk can autolink them; markdown link syntax is not recommended for Talk
+    - Frigate URLs must be listed under Nextcloud **trusted domains** (`/settings/admin/security`) for link previews to work
+    - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
+
+```yaml title="Config File Snippet"
+alerts:
+  nextcloud_talk:
+    enabled: true
+    server: https://cloud.example.com
+    username: frigate-bot
+    password: xxxx-xxxx-xxxx-xxxx-xxxx-xxxx
+    room_token: abc123xyz
+    send_clip: true
+    upload_path: /frigate-notify
+    template:
+```
+
 ### Telegram
 
 !!! note
