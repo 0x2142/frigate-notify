@@ -881,9 +881,10 @@ The conversation **room token** is the ID in the Talk URL (for example `https://
 - **ignoressl** (Optional - Default: `false`)
     - Env: `FN_ALERTS__NEXTCLOUD_TALK__IGNORESSL`
     - Ignore TLS/SSL certificate errors
-- **template** (Optional)
+- **template** (Optional - Default: `markdown`)
     - Env: `FN_ALERTS__NEXTCLOUD_TALK__TEMPLATE`
     - Custom notification template (used as the Talk caption for media, or the chat message for text-only alerts)
+    - Markdown is recommended so links render as clickable in Talk conversations
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
 
 ```yaml title="Config File Snippet"

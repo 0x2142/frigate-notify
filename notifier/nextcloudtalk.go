@@ -235,7 +235,7 @@ func SendNextcloudTalkMessage(event models.Event, snapshot io.Reader, provider n
 	if profile.Template != "" {
 		message = renderMessage(profile.Template, event, "message", "Nextcloud Talk")
 	} else {
-		message = renderMessage("plaintext", event, "message", "Nextcloud Talk")
+		message = renderMessage("markdown", event, "message", "Nextcloud Talk")
 	}
 
 	client := newNcTalkClient(profile)
