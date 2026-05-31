@@ -345,7 +345,7 @@ func renderMessage(sourceTemplate string, event models.Event, mtype string, prov
 	// Render template
 	var tmpl *template.Template
 	var err error
-	if sourceTemplate == "markdown" || sourceTemplate == "plaintext" || sourceTemplate == "html" || sourceTemplate == "json" {
+	if sourceTemplate == "markdown" || sourceTemplate == "plaintext" || sourceTemplate == "html" || sourceTemplate == "json" || sourceTemplate == "nextcloudtalk" {
 		tmpl = template.Must(template.ParseFS(TemplateFiles, "templates/"+sourceTemplate+".template"))
 	} else {
 		tmpl, err = template.New("custom").Funcs(template.FuncMap{"env": includeenv}).Parse(sourceTemplate)

@@ -186,7 +186,10 @@ func (c *ncTalkClient) deleteFile(filePath string) error {
 }
 
 func (c *ncTalkClient) shareFileToTalk(filePath, caption string) error {
-	talkMeta := map[string]string{"caption": caption}
+	talkMeta := map[string]string{}
+	if caption != "" {
+		talkMeta["caption"] = caption
+	}
 	metaJSON, err := json.Marshal(talkMeta)
 	if err != nil {
 		return err
@@ -211,12 +214,10 @@ func (c *ncTalkClient) shareFileToTalk(filePath, caption string) error {
 
 func (c *ncTalkClient) sendTextMessage(message string) error {
 	chatURL := c.server + "/ocs/v2.php/apps/spreed/api/v1/chat/" + url.PathEscape(c.roomToken)
-	payload, err := json.Marshal(map[string]string{"message": message})
-	if err != nil {
-		return err
-	}
+	form := url.Values{}
+	form.Set("message", message)
 
-	body, status, err := c.doRequest(http.MethodPost, chatURL, bytes.NewReader(payload), "application/json")
+	body, status, err := c.doRequest(http.MethodPost, chatURL, strings.NewReader(form.Encode()), "application/x-www-form-urlencoded")
 	if err != nil {
 		return err
 	}
@@ -235,7 +236,7 @@ func SendNextcloudTalkMessage(event models.Event, snapshot io.Reader, provider n
 	if profile.Template != "" {
 		message = renderMessage(profile.Template, event, "message", "Nextcloud Talk")
 	} else {
-		message = renderMessage("markdown", event, "message", "Nextcloud Talk")
+		message = renderMessage("nextcloudtalk", event, "message", "Nextcloud Talk")
 	}
 
 	client := newNcTalkClient(profile)

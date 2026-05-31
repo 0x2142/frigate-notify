@@ -849,7 +849,7 @@ alerts:
 
 ### Nextcloud Talk
 
-Native Nextcloud Talk notifications use an [app password](https://docs.nextcloud.com/server/latest/user_manual/en/session_management.html#managing-devices) from a user who is a member of the target conversation. Media (snapshot or video clip) is uploaded via WebDAV, then shared into the Talk room.
+Native Nextcloud Talk notifications use an [app password](https://docs.nextcloud.com/server/latest/user_manual/en/session_management.html#managing-devices) from a user who is a member of the target conversation. Media (snapshot or video clip) is uploaded via WebDAV, then shared into the Talk room with the alert text as a single caption on the file share.
 
 The conversation **room token** is the ID in the Talk URL (for example `https://cloud.example.com/call/abc123xyz` → room token `abc123xyz`).
 
@@ -881,10 +881,11 @@ The conversation **room token** is the ID in the Talk URL (for example `https://
 - **ignoressl** (Optional - Default: `false`)
     - Env: `FN_ALERTS__NEXTCLOUD_TALK__IGNORESSL`
     - Ignore TLS/SSL certificate errors
-- **template** (Optional - Default: `markdown`)
+- **template** (Optional - Default: `nextcloudtalk`)
     - Env: `FN_ALERTS__NEXTCLOUD_TALK__TEMPLATE`
     - Custom notification template (used as the Talk caption for media, or the chat message for text-only alerts)
-    - Markdown is recommended so links render as clickable in Talk conversations
+    - The built-in `nextcloudtalk` template puts each link on its own line so Talk can autolink them; markdown link syntax is not recommended for Talk
+    - Frigate URLs must be listed under Nextcloud **trusted domains** (`/settings/admin/security`) for link previews to work
     - For more information on template syntax, see [Alert Templates](./templates.md#alert-templates)
 
 ```yaml title="Config File Snippet"

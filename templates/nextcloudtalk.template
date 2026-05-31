@@ -1,0 +1,13 @@
+Detection at {{ .Extra.FormattedTime }}
+Camera: {{ .Extra.CameraName }}
+{{ if ge (len .Extra.LabelList) 1 }}Label(s): {{ .Extra.LabelList }} {{ end }}
+{{ if ge (len .Extra.SubLabelList) 1 }}Sublabel(s): {{ .Extra.SubLabelList }} {{ end }}
+{{ if ge (len .Extra.LicensePlateList) 1 }}License Plate(s): {{ .Extra.LicensePlateList }} {{ end }}
+{{ if ge (len .Extra.Audio) 1 }}Audio: {{ .Extra.Audio }} {{ end }}
+{{ if ge (len .Zones) 1 }}Zone(s): {{ .Extra.ZoneList }}
+{{ end }}
+Links:
+{{if ge .Extra.FrigateMajorVersion 14 }}{{ .Extra.PublicURL }}/#{{ .Camera }}{{else}}{{ .Extra.PublicURL }}/cameras/{{ .Camera }}{{end}}
+{{if ne .Extra.ReviewLink ""}}{{ .Extra.ReviewLink }}{{ else }}{{ if .HasClip }}{{ .Extra.EventLink }}{{ end }}{{ end }}
+
+{{ if not .HasSnapshot }}No snapshot available.{{end}}
