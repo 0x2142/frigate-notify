@@ -2,9 +2,9 @@ package notifier
 
 import (
 	"bytes"
-	"embed"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/url"
 	"os"
 	"slices"
@@ -21,7 +21,7 @@ import (
 	"github.com/0x2142/frigate-notify/util"
 )
 
-var TemplateFiles embed.FS
+var TemplateFiles fs.FS
 
 type notifMeta struct {
 	name  string

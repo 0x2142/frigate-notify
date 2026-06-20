@@ -1,12 +1,21 @@
 Detection at {{ .Extra.FormattedTime }}<br />
 Camera: {{ .Extra.CameraName }}<br />
-{{ if ge (len .Extra.LabelList) 1 }}Label(s): {{ .Extra.LabelList }}<br />{{ end }}
-{{ if ge (len .Extra.SubLabelList) 1 }}Sublabel(s): {{ .Extra.SubLabelList }}<br />{{ end }}
-{{ if ge (len .Extra.LicensePlateList) 1 }}License Plate(s): {{ .Extra.LicensePlateList }}<br />{{ end }}
-{{ if ge (len .Extra.Audio) 1 }}Audio: {{ .Extra.Audio }}<br />{{ end }}
-{{ if ge (len .Zones) 1 }}Zone(s): {{ .Extra.ZoneList }}
-{{ end }}
-<br />
+{{- if ge (len .Extra.LabelList) 1 }}
+Label(s): {{ .Extra.LabelList }}<br />
+{{- end }}
+{{- if ge (len .Extra.SubLabelList) 1 }}
+Sublabel(s): {{ .Extra.SubLabelList }}<br />
+{{- end }}
+{{- if ge (len .Extra.LicensePlateList) 1 }}
+License Plate(s): {{ .Extra.LicensePlateList }}<br />
+{{- end }}
+{{- if ge (len .Extra.Audio) 1 }}
+Audio: {{ .Extra.Audio }}<br />
+{{- end }}
+{{- if ge (len .Zones) 1 }}
+Zone(s): {{ .Extra.ZoneList }}<br />
+{{- end }}
 Links: <a href="{{if ge .Extra.FrigateMajorVersion 14 }}{{ .Extra.PublicURL }}/#{{ .Camera }}{{ else }}{{ .Extra.PublicURL }}/cameras/{{ .Camera }}{{ end }}">Camera</a>{{ if ne .Extra.ReviewLink "" }} | <a href="{{ .Extra.ReviewLink }}">Review Event</a>{{ else }}{{ if .HasClip }} | <a href="{{ .Extra.EventLink }}">Event Clip</a> <br />{{ end }}{{ end }}
-{{ if not .HasSnapshot }}<br /><br />No snapshot available.
-{{ end }}
+{{- if not .HasSnapshot }}
+<br /><br />No snapshot available.
+{{- end }}
