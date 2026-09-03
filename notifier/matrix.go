@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -112,10 +113,15 @@ func SendMatrix(event models.Event, snapshot io.Reader, provider notifMeta) {
 	}
 
 	// Send event details
-	_, err = m.SendMessageEvent(context.Background(), id.RoomID(profile.RoomID), evt.EventMessage, &evt.MessageEventContent{
+	formattedBody := message
+	// Convert newline characters to HTML line breaks for proper rendering
+	formattedBody = strings.ReplaceAll(formattedBody, "\n", "<br>")
+
+	_, err = m.SendMessageEvent(context.Background(), id.RoomID(profile.RoomID), evt.EventMessage, &evt.MessageEventContent{\
 		MsgType:       evt.MsgText,
 		Format:        "org.matrix.custom.html",
-		FormattedBody: message,
+		Body:          message,
+		FormattedBody: formattedBody,
 	})
 	if err != nil {
 		log.Warn().
