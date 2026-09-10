@@ -47,6 +47,9 @@ func processEvent(event models.Event) {
 		return
 	}
 
+	// Event passed all filters - now mark zone as alerted in cache
+	setZoneAlerted(event)
+
 	// Send alert with snapshot
 	notifier.SendAlert([]models.Event{event})
 }

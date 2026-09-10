@@ -101,6 +101,9 @@ func processReview(review models.Review) {
 			break
 		}
 
+		// Event passed all filters - now mark zone as alerted in cache
+		setZoneAlerted(detection)
+
 		// Add special link to review page
 		detection.Extra.ReviewLink = config.ConfigData.Frigate.PublicURL + "/review?id=" + review.ID
 
