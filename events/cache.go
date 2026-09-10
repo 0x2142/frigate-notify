@@ -73,14 +73,13 @@ func zoneAlreadyAlerted(event models.Event) bool {
 		Strs("cache", alreadyAlerted).
 		Str("event_id", event.ID).
 		Msgf("Get event from cache")
-	// If event not found, create cache entry & add zones
+	// If event not found, allow it through (cache is populated later, after all filters pass)
 	if !ok {
 		log.Debug().
 			Str("event_id", event.ID).
 			Str("camera", event.Camera).
 			Str("zones", strings.Join(event.CurrentZones, ",")).
-			Msg("Event not in cache, adding...")
-		setZoneAlerted(event)
+			Msg("Event not in cache, proceeding with filter checks")
 		return false
 	}
 	// If event found, check to see if there are any new zones to notify on
@@ -91,7 +90,6 @@ func zoneAlreadyAlerted(event models.Event) bool {
 				Str("camera", event.Camera).
 				Str("zones", strings.Join(event.CurrentZones, ",")).
 				Msg("Found new zone not in cache")
-			setZoneAlerted(event)
 			return false
 		}
 	}
