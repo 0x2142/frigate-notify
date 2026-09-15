@@ -165,12 +165,18 @@ func buildSnapshotURL(event models.Event) *url.URL {
 		q := snapurl.Query()
 		if config.ConfigData.Alerts.General.SnapBbox {
 			q.Add("bbox", "1")
+		} else {
+			q.Add("bbox", "0")
 		}
 		if config.ConfigData.Alerts.General.SnapTimestamp {
 			q.Add("timestamp", "1")
+		} else {
+			q.Add("timestamp", "0")
 		}
 		if config.ConfigData.Alerts.General.SnapCrop {
 			q.Add("crop", "1")
+		} else {
+			q.Add("crop", "0")
 		}
 		snapurl.RawQuery = q.Encode()
 	}
