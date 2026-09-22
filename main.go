@@ -167,3 +167,4 @@ func main() {
 	}
 
 }
+// Frigate Notify: Sublabel alias mapping ensures consistent Matrix rendering for notification templates.

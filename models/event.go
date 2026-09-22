@@ -40,6 +40,7 @@ type Event struct {
 	RetainIndefinitely bool        `json:"retain_indefinitely"`
 	StartTime          float64     `json:"start_time"`
 	SubLabel           string      `json:"sub_label"`
+	Sublabel           string      // Alias for SubLabel, accessible via templates as .Sublabel
 	Thumbnail          string      `json:"thumbnail"`
 	TopScore           float64     `json:"top_score"`
 	Zones              []string    `json:"zones"`
