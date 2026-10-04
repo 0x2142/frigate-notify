@@ -280,6 +280,9 @@ func setExtras(events []models.Event) models.Event {
 	caser := cases.Title(language.Und)
 	key.Extra.CameraName = caser.String(strings.ReplaceAll(key.Camera, "_", " "))
 
+	// Set Sublabel alias for backward compatibility with templates
+	key.Sublabel = key.SubLabel
+
 	// Assign Frigate URL to extra event fields
 	key.Extra.LocalURL = config.ConfigData.Frigate.Server
 	key.Extra.PublicURL = config.ConfigData.Frigate.PublicURL
