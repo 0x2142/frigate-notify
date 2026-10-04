@@ -47,7 +47,10 @@ func SendAlert(events []models.Event) {
 	// Create copy of snapshot for each alerting method
 	var snap []byte
 	if snapshot != nil {
-		snap, _ = io.ReadAll(snapshot)
+		snap, err = io.ReadAll(snapshot)
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to read snapshot")
+		}
 	} else {
 		event.HasSnapshot = false
 	}
@@ -279,6 +282,9 @@ func setExtras(events []models.Event) models.Event {
 	// Transform camera names, example: "test_camera" to "Test Camera"
 	caser := cases.Title(language.Und)
 	key.Extra.CameraName = caser.String(strings.ReplaceAll(key.Camera, "_", " "))
+
+	// Set Sublabel alias for backward compatibility with templates
+	key.Sublabel = key.SubLabel
 
 	// Assign Frigate URL to extra event fields
 	key.Extra.LocalURL = config.ConfigData.Frigate.Server

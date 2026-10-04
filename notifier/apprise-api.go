@@ -63,7 +63,11 @@ func SendAppriseAPI(event models.Event, snapshot io.Reader, provider notifMeta) 
 	}
 
 	if event.HasSnapshot {
-		img, _ := io.ReadAll(snapshot)
+		img, err := io.ReadAll(snapshot)
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to read snapshot")
+			return
+		}
 		attach := AppriseAPIAttachment{
 			Filename: "snapshot.jpg",
 			Base64:   base64.StdEncoding.EncodeToString(img),

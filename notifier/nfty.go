@@ -42,7 +42,10 @@ func SendNtfyPush(event models.Event, snapshot io.Reader, provider notifMeta) {
 	var attachment []byte
 	if event.HasSnapshot {
 		headers = append(headers, map[string]string{"X-Filename": "snapshot.jpg"})
-		attachment, _ = io.ReadAll(snapshot)
+		attachment, err = io.ReadAll(snapshot)
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to read snapshot")
+		}
 	}
 
 	// Escape newlines in message

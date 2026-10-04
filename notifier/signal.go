@@ -53,7 +53,11 @@ func SendSignalMessage(event models.Event, snapshot io.Reader, provider notifMet
 	// Build payload
 	payload := SignalPayload{Message: message, Number: profile.Account, Recipients: recipients}
 	if event.HasSnapshot {
-		img, _ := io.ReadAll(snapshot)
+		img, err := io.ReadAll(snapshot)
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to read snapshot")
+			return
+		}
 		attach := base64.StdEncoding.EncodeToString(img)
 		payload.Attachments = append(payload.Attachments, attach)
 	}
