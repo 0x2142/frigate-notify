@@ -45,6 +45,8 @@ var DefaultConfig Config = Config{
 	},
 	Alerts: models.Alerts{
 		General: models.General{
+			Cooldown:         0,
+			CameraCooldown:   nil,
 			Title:            "Frigate Alert",
 			TimeFormat:       "",
 			NoSnap:           "allow",

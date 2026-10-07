@@ -41,6 +41,7 @@ OpenAPI spec available at `:8000/openapi.json` or `:8000/openapi.yaml`.
      - Can be used to test alert filters, templates, or alert provider configuration
      - Note: This works by manually querying Frigate for the last received event & sending a notification based on that event
          - Notifications sent via this method will bypass global filters, but are **still processed** by alert-level filters
+         - Test notifications bypass cooldowns and do not start or extend them
 
  - (POST) `/api/v1/reload`
      - Trigger reload of configuration & restart of application

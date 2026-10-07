@@ -495,3 +495,23 @@ func TestValidateTemplate(t *testing.T) {
 		t.Errorf("Expected: error message, Got: %v", result)
 	}
 }
+
+func TestValidateCooldown(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		general models.General
+		want    int
+	}{
+		{"defaults", models.General{}, 0},
+		{"valid", models.General{Cooldown: 10, CameraCooldown: map[string]int{"doorbell": 30, "garage": 0}}, 0},
+		{"negative global", models.General{Cooldown: -1}, 1},
+		{"negative camera", models.General{CameraCooldown: map[string]int{"doorbell": -1}}, 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := Config{Alerts: models.Alerts{General: tc.general}}
+			if errors := cfg.validateAlertGeneral(); len(errors) != tc.want {
+				t.Errorf("got errors %v, want %d", errors, tc.want)
+			}
+		})
+	}
+}

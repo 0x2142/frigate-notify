@@ -102,6 +102,12 @@ alerts:
     # When app mode is set to `reviews`, notifications are only sent on Frigate alerts
     # Set this to `true` to also notify on detections
     notify_detections:
+    # Minimum seconds between alerts from any camera (Default: 0, disabled)
+    cooldown:
+    # Additional per-camera cooldowns in seconds; both cooldowns must elapse
+    # Camera names must match Frigate configuration; omitted cameras default to 0
+    camera_cooldown:
+      # doorbell: 30
     # Recheck event details from Frigate after a delay (in seconds)
     # By default, if set to 0 - events are sent immediately
     # This can be useful to wait for a 3rd-party app to set sub_labels before sending notifications

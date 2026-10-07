@@ -46,7 +46,7 @@ func PostNotifTest(ctx context.Context, input *struct{}) (*NotifTestOutput, erro
 		json.Unmarshal([]byte(response), &events)
 
 		// Send test notification
-		notifier.SendAlert(events)
+		notifier.SendTestAlert(events)
 	}()
 
 	log.Trace().

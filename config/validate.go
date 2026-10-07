@@ -429,6 +429,14 @@ func (c *Config) validateQuietHours() []string {
 
 func (c *Config) validateAlertGeneral() []string {
 	var alertErrors []string
+	if c.Alerts.General.Cooldown < 0 {
+		alertErrors = append(alertErrors, "Global notification cooldown must be non-negative")
+	}
+	for camera, cooldown := range c.Alerts.General.CameraCooldown {
+		if cooldown < 0 {
+			alertErrors = append(alertErrors, fmt.Sprintf("Notification cooldown for camera %q must be non-negative", camera))
+		}
+	}
 	if c.Alerts.General.Title == "" {
 		c.Alerts.General.Title = "Frigate Alert"
 	}

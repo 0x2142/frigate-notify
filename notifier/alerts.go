@@ -28,11 +28,21 @@ type notifMeta struct {
 	index int
 }
 
-// SendAlert forwards alert information to all enabled alerting methods
+// SendAlert forwards alert information to all enabled alerting methods.
 func SendAlert(events []models.Event) {
-	config.Internal.Status.LastNotification = time.Now()
+	sendAlert(events, false)
+}
 
-	// Collect snapshot, if available
+// SendTestAlert sends a manual test through provider filters without consuming a cooldown.
+func SendTestAlert(events []models.Event) {
+	sendAlert(events, true)
+}
+
+func sendAlert(events []models.Event, bypassCooldown bool) {
+	if len(events) == 0 {
+		return
+	}
+	// Collect snapshot, if available.
 	var snapshot io.Reader
 	for _, event := range events {
 		if event.HasSnapshot {
@@ -41,24 +51,46 @@ func SendAlert(events []models.Event) {
 		}
 	}
 
-	// Set extra event details & get event used for notifications
-	event := setExtras(events)
+	// Only alerts with at least one eligible destination can consume a cooldown.
+	senders := eligibleAlertSenders(events)
+	if len(senders) == 0 {
+		return
+	}
 
-	// Create copy of snapshot for each alerting method
+	// Reserve once for the entire alert, including all detections in a review.
+	// Event, review, and audio-only notifications all pass through this gate.
+	if !bypassCooldown && !notificationCooldown.allow(events[0].Camera, config.ConfigData.Alerts.General) {
+		log.Info().Str("camera", events[0].Camera).Msg("Notification dropped - Cooldown active")
+		return
+	}
+	config.Internal.Status.LastNotification = time.Now()
+
+	event := setExtras(events)
 	var snap []byte
 	if snapshot != nil {
 		snap, _ = io.ReadAll(snapshot)
 	} else {
 		event.HasSnapshot = false
 	}
+	for _, send := range senders {
+		go send(event, snap)
+	}
+}
 
+type alertSender func(models.Event, []byte)
+
+// eligibleAlertSenders applies each profile's filters before reserving a cooldown.
+func eligibleAlertSenders(events []models.Event) []alertSender {
+	var senders []alertSender
 	// Send Alerts
 	// Apprise API
 	for id, profile := range config.ConfigData.Alerts.AppriseAPI {
 		if profile.Enabled {
 			provider := notifMeta{name: "apprise_api", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendAppriseAPI(event, bytes.NewReader(snap), provider)
+				senders = append(senders, func(event models.Event, snap []byte) {
+					SendAppriseAPI(event, bytes.NewReader(snap), provider)
+				})
 			}
 		}
 	}
@@ -67,7 +99,9 @@ func SendAlert(events []models.Event) {
 		if profile.Enabled {
 			provider := notifMeta{name: "discord", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendDiscordMessage(event, bytes.NewReader(snap), provider)
+				senders = append(senders, func(event models.Event, snap []byte) {
+					SendDiscordMessage(event, bytes.NewReader(snap), provider)
+				})
 			}
 		}
 	}
@@ -76,7 +110,9 @@ func SendAlert(events []models.Event) {
 		if profile.Enabled {
 			provider := notifMeta{name: "gotify", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendGotifyPush(event, provider)
+				senders = append(senders, func(event models.Event, snap []byte) {
+					SendGotifyPush(event, provider)
+				})
 			}
 		}
 	}
@@ -85,7 +121,9 @@ func SendAlert(events []models.Event) {
 		if profile.Enabled {
 			provider := notifMeta{name: "matrix", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendMatrix(event, bytes.NewReader(snap), provider)
+				senders = append(senders, func(event models.Event, snap []byte) {
+					SendMatrix(event, bytes.NewReader(snap), provider)
+				})
 			}
 		}
 	}
@@ -94,7 +132,9 @@ func SendAlert(events []models.Event) {
 		if profile.Enabled {
 			provider := notifMeta{name: "mattermost", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendMattermost(event, provider)
+				senders = append(senders, func(event models.Event, snap []byte) {
+					SendMattermost(event, provider)
+				})
 			}
 		}
 	}
@@ -103,7 +143,9 @@ func SendAlert(events []models.Event) {
 		if profile.Enabled {
 			provider := notifMeta{name: "ntfy", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendNtfyPush(event, bytes.NewReader(snap), provider)
+				senders = append(senders, func(event models.Event, snap []byte) {
+					SendNtfyPush(event, bytes.NewReader(snap), provider)
+				})
 			}
 		}
 	}
@@ -112,7 +154,9 @@ func SendAlert(events []models.Event) {
 		if profile.Enabled {
 			provider := notifMeta{name: "pushover", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendPushoverMessage(event, bytes.NewReader(snap), provider)
+				senders = append(senders, func(event models.Event, snap []byte) {
+					SendPushoverMessage(event, bytes.NewReader(snap), provider)
+				})
 			}
 		}
 	}
@@ -121,7 +165,9 @@ func SendAlert(events []models.Event) {
 		if profile.Enabled {
 			provider := notifMeta{name: "signal", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendSignalMessage(event, bytes.NewReader(snap), provider)
+				senders = append(senders, func(event models.Event, snap []byte) {
+					SendSignalMessage(event, bytes.NewReader(snap), provider)
+				})
 			}
 		}
 	}
@@ -130,7 +176,9 @@ func SendAlert(events []models.Event) {
 		if profile.Enabled {
 			provider := notifMeta{name: "smtp", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendSMTP(event, bytes.NewReader(snap), provider)
+				senders = append(senders, func(event models.Event, snap []byte) {
+					SendSMTP(event, bytes.NewReader(snap), provider)
+				})
 			}
 		}
 	}
@@ -139,7 +187,9 @@ func SendAlert(events []models.Event) {
 		if profile.Enabled {
 			provider := notifMeta{name: "telegram", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendTelegramMessage(event, bytes.NewReader(snap), provider)
+				senders = append(senders, func(event models.Event, snap []byte) {
+					SendTelegramMessage(event, bytes.NewReader(snap), provider)
+				})
 			}
 		}
 	}
@@ -148,10 +198,13 @@ func SendAlert(events []models.Event) {
 		if profile.Enabled {
 			provider := notifMeta{name: "webhook", index: id}
 			if checkAlertFilters(events, profile.Filters, provider) {
-				go SendWebhook(event, provider)
+				senders = append(senders, func(event models.Event, snap []byte) {
+					SendWebhook(event, provider)
+				})
 			}
 		}
 	}
+	return senders
 }
 
 func buildSnapshotURL(event models.Event) *url.URL {
